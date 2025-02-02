@@ -1,0 +1,33 @@
+{
+    "author": "Vladimir Barbarosh <vladimir.barbarosh@gmail.com>",
+    "license": "MIT",
+    "name": "@vbarbarosh/type-helpers",
+    "version": "0.0.0",
+    "description": "Utilities for transforming raw input into safe and well-typed values and objects.",
+    "files": [
+        "README.md",
+        "src"
+    ],
+    "scripts": {
+        "test": "mocha src/**/*.test.js"
+    },
+    "keywords": [
+        "js",
+        "node",
+        "helpers"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/vbarbarosh/type-helpers.git"
+    },
+    "bugs": {
+        "url": "https://github.com/vbarbarosh/type-helpers/issues"
+    },
+    "peerDependencies": {
+        "axios": "*",
+        "bluebird": "*"
+    },
+    "devDependencies": {
+        "mocha": "^11.1.0"
+    }
+}
