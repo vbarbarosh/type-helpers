@@ -9,7 +9,7 @@
         "src"
     ],
     "scripts": {
-        "test": "mocha src/**/*.test.js"
+        "test": "nyc mocha src/**/*.test.js"
     },
     "keywords": [
         "js",
