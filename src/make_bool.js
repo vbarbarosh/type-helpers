@@ -6,4 +6,4 @@ function make_bool(value, default_value = false)
     return value;
 }
 
-export default make_bool;
+module.exports = make_bool;

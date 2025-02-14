@@ -6,4 +6,4 @@ function make_enum(value, options, default_value = options[0])
     return default_value;
 }
 
-export default make_enum;
+module.exports = make_enum;

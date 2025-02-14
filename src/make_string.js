@@ -6,4 +6,4 @@ function make_string(value, default_value = '')
     return String(value);
 }
 
-export default make_string;
+module.exports = make_string;

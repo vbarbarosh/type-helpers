@@ -6,4 +6,4 @@ function make_float(value, default_value = 0, min = -Number.MAX_VALUE, max = Num
     return Math.max(min, Math.min(max, +value||0));
 }
 
-export default make_float;
+module.exports = make_float;
