@@ -1,4 +1,4 @@
-function make_boolean(value, default_value = false)
+function make_bool(value, default_value = false)
 {
     if (typeof value !== 'boolean') {
         return default_value;
@@ -6,4 +6,4 @@ function make_boolean(value, default_value = false)
     return value;
 }
 
-export default make_boolean;
+export default make_bool;
