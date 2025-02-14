@@ -1,4 +1,4 @@
-function make_string(value, default_value = '')
+function make_str(value, default_value = '')
 {
     if (typeof value !== 'string') {
         return default_value;
@@ -6,4 +6,4 @@ function make_string(value, default_value = '')
     return String(value);
 }
 
-module.exports = make_string;
+module.exports = make_str;
