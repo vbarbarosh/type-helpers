@@ -77,7 +77,12 @@ function make(expr, value, types)
         }
         return expr.options[0];
     case 'int':
-        return make_int(value, expr.default ?? 0, expr.min ?? Number.MIN_SAFE_INTEGER, expr.max ?? Number.MAX_SAFE_INTEGER);
+        {
+            const min = expr.min ?? Number.MIN_SAFE_INTEGER;
+            const max = expr.max ?? Number.MAX_SAFE_INTEGER;
+            const default_value = Math.min(max, Math.max(min, expr.default ?? 0));
+            return make_int(value, default_value, min, max)
+        }
     case 'float':
         return make_float(value, expr.default ?? 0, expr.min ?? -Number.MAX_VALUE, expr.max ?? Number.MAX_VALUE);
     case 'string':
@@ -100,17 +105,18 @@ function make(expr, value, types)
             throw new Error('Type defined as array.');
         }
         if (types[expr.type]) {
-            if (typeof types[expr.type] === 'string' || types[expr.type].type) {
-                return make(types[expr.type], value, types);
-            }
-            if (types[expr.type]) {
-                const out = {type: expr.type};
-                const tmp = value || {};
-                Object.entries(types[expr.type]).forEach(function ([k,v]) {
-                    out[k] = make(v, tmp[k], types);
-                });
-                return out;
-            }
+            // if (typeof types[expr.type] === 'string' || types[expr.type].type) {
+            //     return make(types[expr.type], value, types);
+            // }
+            // if (types[expr.type]) {
+            //     const out = {type: expr.type};
+            //     const tmp = value || {};
+            //     Object.entries(types[expr.type]).forEach(function ([k,v]) {
+            //         out[k] = make(v, tmp[k], types);
+            //     });
+            //     return out;
+            // }
+            return make(types[expr.type], value, types);
         }
     }
 
