@@ -1,6 +1,6 @@
-function make_object(value, default_value = {})
+function make_obj(value, default_value = {})
 {
     return (value !== null && typeof value === 'object') ? value : default_value;
 }
 
-module.exports = make_object;
+module.exports = make_obj;
