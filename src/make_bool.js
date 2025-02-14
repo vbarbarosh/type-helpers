@@ -1,9 +1,9 @@
 function make_bool(value, default_value = false)
 {
-    if (typeof value !== 'boolean') {
+    if (value === null || value === undefined) {
         return default_value;
     }
-    return value;
+    return !!value;
 }
 
 module.exports = make_bool;
