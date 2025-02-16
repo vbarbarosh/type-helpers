@@ -33,6 +33,8 @@ function make(expr, value, types)
 
     switch (expr.type) {
     case 'union':
+        // https://zod.dev/?id=discriminated-unions
+        // Here is a construction for objects. This thing called "Discriminated unions" in zod language
         {
             // [options] could be replaced by [match] as in PHP or Rust
             const prop = expr.prop ?? 'type';
