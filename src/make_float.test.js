@@ -6,7 +6,7 @@ const SP = Symbol('default_value for make_float');
 
 describe('make_float', function () {
     it('should accept no args', function () {
-        assert.strictEqual(make_float(), false);
+        assert.strictEqual(make_float(), 0);
     });
     it('should return the default value for null, undefined, or NaN', function () {
         assert.strictEqual(make_float(null, SP), SP);
