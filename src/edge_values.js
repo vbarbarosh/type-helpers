@@ -21,6 +21,8 @@
  *
  * Each test should add "should handle edge values" section, and handle each case. By
  * doing this, most of the edge cases will be automatically covered.
+ *
+ * Basically, it's a set of input values for your test suite.
  */
 const edge_values = [
     {label: "''", value: ''},
