@@ -12,3 +12,6 @@ objects.
 * https://json-schema.org
 * https://domsignal.com/json-schema-generator
 * https://github.com/sourcemeta/awesome-jsonschema
+* https://github.com/jquense/yup
+* https://github.com/gcanti/io-ts
+* https://github.com/typestack/class-transformer
