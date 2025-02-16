@@ -1,6 +1,8 @@
 Utilities for transforming raw input into safe and well-typed values and
 objects.
 
+![](img/logo-by-chat-gpt.webp)
+
 ## Related
 
 * https://zod.dev/
