@@ -540,6 +540,34 @@ describe('make', function () {
             assert.deepStrictEqual(make('transitions', null, types), ['none', 'none', 'none']);
             assert.deepStrictEqual(make('transitions', [null, 'stay2', 'out5'], types), ['none', 'stay2', 'none']);
         });
+        it('union: string or number', function () {
+            const types = {
+                str_num: function (value) {
+                    if (typeof value === 'number') {
+                        return make('float', value);
+                    }
+                    return make('string', value);
+                },
+            };
+            assert.deepStrictEqual(make('str_num', null, types), '');
+            assert.deepStrictEqual(make('str_num', '555', types), '555');
+            assert.deepStrictEqual(make('str_num', 555, types), 555);
+        });
+        it('px', function () {
+            const types = {
+                px: function (value) {
+                    const tmp = make({type: 'int'}, value);
+                    return tmp ? `${tmp}px` : '0';
+                },
+                position: {
+                    top: 'px',
+                    left: 'px',
+                },
+            };
+            assert.deepStrictEqual(make('px', null, types), '0');
+            assert.deepStrictEqual(make('px', 5, types), '5px');
+            assert.deepStrictEqual(make('position', {top: 5, left: 0}, types), {top: '5px', left: '0'});
+        });
     });
 });
 
