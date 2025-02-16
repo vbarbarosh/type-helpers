@@ -34,12 +34,13 @@ function make(expr, value, types)
     switch (expr.type) {
     case 'dynamic':
         {
+            // [options] could be replaced by [match] as in PHP or Rust
             const prop = expr.prop ?? 'type';
             let type = value?.[prop];
             let expr2 = expr.options?.[type];
             if (!expr2) {
                 type = expr.default;
-                expr2 = expr.options?.[type];;
+                expr2 = expr.options?.[type];
             }
             if (!expr2) {
                 throw new Error(`Dynamic type option not found: [${prop} / ${expr.default}]`);
@@ -60,11 +61,17 @@ function make(expr, value, types)
         return Object.fromEntries(Object.keys(types).map(key => [key, make({type: key}, value?.[key], types)]));
     case 'object':
         {
-            const value_obj = make_obj(value);
+            // {type: 'object', transform: ..., finish: ..., props: {...}}
+            // adjust, complete, finish, realize, apply_limits, balance
+            const value_obj = (expr.transform ? expr.transform(value) : make_obj(value));
             return Object.fromEntries(Object.entries(expr.props||{}).map(function ([k, v]) {
                 return [k, make(v, value_obj[k], types)];
             }));
         }
+    // enum: one of strings
+    // enum-list: any of strings
+    // enum-map1: one of strings as map [all false, only one true]
+    // enum-map: any of strings as map [any number of true]
     case 'enum':
         if (!Array.isArray(expr.options) || expr.options.length === 0) {
             throw new Error('enum types should have at least one option');
@@ -76,6 +83,10 @@ function make(expr, value, types)
             return expr.default;
         }
         return expr.options[0];
+    // // an array of unique strings
+    // case 'tags':
+    // // an object with [key,bool] where each key could be [true] or [false]
+    // case 'tags-map':
     case 'int':
         {
             const min = expr.min ?? Number.MIN_SAFE_INTEGER;
@@ -99,7 +110,7 @@ function make(expr, value, types)
         return array_pad([], expr.min ?? 0, make(expr.of, value, types));
     default:
         if (typeof types[expr.type] === 'function') {
-            return types[expr.type](value);
+            return types[expr.type](value, expr, types);
         }
         if (Array.isArray(types[expr.type])) {
             throw new Error('Type defined as array.');

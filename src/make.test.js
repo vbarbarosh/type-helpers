@@ -1,21 +1,6 @@
 const assert = require('assert');
 const make = require('./make');
-
-const edge_values = [
-    {label: "''", value: ''},
-    {label: 'false', value: false},
-    {label: '0', value: 0},
-    {label: 'NaN', value: NaN},
-    {label: 'Infinity', value: Infinity},
-    {label: '-Infinity', value: -Infinity},
-    {label: 'Number.MIN_VALUE', value: Number.MIN_VALUE},
-    {label: 'Number.POSITIVE_INFINITY', value: Number.POSITIVE_INFINITY},
-    {label: 'Number.NEGATIVE_INFINITY', value: Number.NEGATIVE_INFINITY},
-    {label: 'array', value: []},
-    {label: 'object', value: {}},
-    {label: 'function', value: function () {}},
-    {label: 'Symbol()', value: Symbol()},
-];
+const make_str = require('./make_str');
 
 describe('make', function () {
     describe('edge cases', function () {
@@ -100,13 +85,13 @@ describe('make', function () {
         });
         it('Infinity usually means division by zero', function () {
             assert.deepStrictEqual(make({type: 'bool', nullable: true}, Infinity), true, '⚠️ gotcha');
-            assert.deepStrictEqual(make({type: 'int', nullable: true}, Infinity), 0);
+            assert.deepStrictEqual(make({type: 'int', nullable: true}, Infinity), Number.MAX_SAFE_INTEGER);
             assert.deepStrictEqual(make({type: 'float', nullable: true}, Infinity), Number.MAX_VALUE, '⚠️ gotcha');
             assert.deepStrictEqual(make({type: 'string', nullable: true}, Infinity), '');
         });
         it('-Infinity', function () {
             assert.deepStrictEqual(make({type: 'bool', nullable: true}, -Infinity), true, '⚠️ gotcha');
-            assert.deepStrictEqual(make({type: 'int', nullable: true}, -Infinity), 0);
+            assert.deepStrictEqual(make({type: 'int', nullable: true}, -Infinity), Number.MIN_SAFE_INTEGER);
             assert.deepStrictEqual(make({type: 'float', nullable: true}, -Infinity), -Number.MAX_VALUE, '⚠️ gotcha');
             assert.deepStrictEqual(make({type: 'string', nullable: true}, -Infinity), '');
         });
@@ -344,18 +329,182 @@ describe('make', function () {
             class Banner {
                 constructor(input) {
                     const expr = {uid: 'string', width: 'int', height: 'int'};
-                    Object.assign(this, make(expr, {...input, uid: input.uid ?? input.pub_id}, {}));
+                    Object.assign(this, make(expr, {...input, uid: input.uid ?? input.pub_id}));
                 }
                 publish() {
                     console.log('Publishing...');
                 }
             }
             const types = {
-                Banner: {type: 'fn', fn: v => new Banner(v)},
+                Banner: v => new Banner(v),
             };
             const actual = make('Banner', {pub_id: 'banner1'}, types);
             assert.ok(actual instanceof Banner);
             assert.deepEqual(actual, {uid: 'banner1', width: 0, height: 0});
         });
     });
+    describe('some random scenarios', function () {
+        let next_uid = 1;
+        const types = {
+            // {type: 'uid', prefix: 'banner_'}
+            uid: function (value, expr, types) {
+                if (typeof value === 'string' && value.trim()) {
+                    return value;
+                }
+                const prefix = make({type: 'string'}, expr.prefix);
+                return `${prefix}a${next_uid++}`;
+            },
+        };
+        it('uid • generate new uid only when necessary', function () {
+            next_uid = 1;
+            assert.deepStrictEqual(make('uid', null, types), 'a1');
+            assert.deepStrictEqual(make('uid', null, types), 'a2');
+            assert.deepStrictEqual(make('uid', 'ggg', types), 'ggg');
+            assert.deepStrictEqual(make('uid', null, types), 'a3');
+            assert.deepStrictEqual(make({type: 'uid', prefix: 'usr_'}, null, types), 'usr_a4');
+        });
+        it('pub_id -> uid', function () {
+            next_uid = 1;
+            const actual = make('Banner', {pub_id: 'banner_1'}, {
+                ...types,
+                Banner: {
+                    type: 'object',
+                    transform: function (v) {
+                        return {...v, uid: v.uid ?? v.pub_id};
+                    },
+                    props: {
+                        uid: {type: 'uid', prefix: 'banner_'},
+                        title: {type: 'string', nullable: true},
+                        width: {type: 'int', min: 0},
+                        height: {type: 'int', min: 0},
+                    },
+                },
+            });
+            const expected = {uid: 'banner_1', title: null, width: 0, height: 0};
+            assert.deepStrictEqual(actual, expected);
+        });
+        it('{first, last} -> name', function () {
+            next_uid = 1;
+            const actual = make('User', {pub_id: 'user_1', first: 'Jack', last: 'White'}, {
+                ...types,
+                User: {
+                    type: 'object',
+                    transform: function (v) {
+                        return {
+                            ...v,
+                            uid: v.uid ?? v.pub_id,
+                            name: [v.first, v.last].filter(v => v).join(' '),
+                        };
+                    },
+                    props: {
+                        uid: {type: 'uid', prefix: 'usr_'},
+                        name: {type: 'string', nullable: true},
+                    },
+                },
+            });
+            const expected = {uid: 'user_1', name: 'Jack White'};
+            assert.deepStrictEqual(actual, expected);
+        });
+        it('name -> {first, last}', function () {
+            next_uid = 1;
+            const actual = make('User', {pub_id: 'user_1', name: 'Jack White'}, {
+                ...types,
+                User: {
+                    type: 'object',
+                    transform: function (v) {
+                        const [first, last] = make_str(v?.name).split(' ');
+                        return {
+                            ...v,
+                            uid: v.uid ?? v.pub_id,
+                            first,
+                            last,
+                        };
+                    },
+                    props: {
+                        uid: {type: 'uid', prefix: 'usr_'},
+                        first: {type: 'string', nullable: true},
+                        last: {type: 'string', nullable: true},
+                    },
+                },
+            });
+            const expected = {uid: 'user_1', first: 'Jack', last: 'White'};
+            assert.deepStrictEqual(actual, expected);
+        });
+        it('weekday', function () {
+            const actual = make({type: 'enum', options: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']}, 'Sat');
+            const expected = 'Sat';
+            assert.deepStrictEqual(actual, expected);
+        });
+        it('weekdays', function () {
+            const types = {
+                weekdays: function (value, expr, types) {
+                    const tmp = make({type: 'array', of: 'string'}, value);
+                    const allowed = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                    return array_unique(tmp.filter(v => allowed.includes(v)));
+                },
+            };
+            const actual = make('weekdays', ['Thu', 'Sat', 'gg'], types);
+            const expected = ['Thu', 'Sat'];
+            assert.deepStrictEqual(actual, expected);
+        });
+        it('weekdays-map', function () {
+            const types = {
+                weekdays: {
+                    Mon: 'bool',
+                    Tue: 'bool',
+                    Wed: 'bool',
+                    Thu: 'bool',
+                    Fri: 'bool',
+                    Sat: 'bool',
+                    Sun: 'bool',
+                },
+            };
+            const actual = make('weekdays', {Thu: 1, Sat: 1, ggg: 1}, types);
+            const expected = {Mon: false, Tue: false, Wed: false, Thu: true, Fri: false, Sat: true, Sun: false};
+            assert.deepStrictEqual(actual, expected);
+        });
+        it('union types', function () {
+            // https://medium.com/hoppinger/type-driven-development-for-single-page-applications-bf8ee98d48e2
+            // type ApiResult<a> =
+            //   | { kind: 'success', value: a }
+            //   | { kind: 'not-found' }
+            //   | { kind: 'unauthorized' }
+            //   | { kind: 'error', error?: Error }
+            const types = {
+                any: v => v,
+                error: {
+                    message: 'string',
+                },
+                response: {
+                    type: 'dynamic',
+                    prop: 'kind',
+                    options: {
+                        error: 'error',
+                        success: {
+                            value: 'any',
+                        },
+                        'not-found': {},
+                        'unauthorized': {},
+                    },
+                }
+            };
+            assert.deepStrictEqual(make('response', {kind: 'error', message: 'ggg'}, types), {kind: 'error', message: 'ggg'});
+            assert.deepStrictEqual(make('response', {kind: 'success', value: 1}, types), {kind: 'success', value: 1});
+            assert.deepStrictEqual(make('response', {kind: 'success', value: {a: 1, b: 2, c: 3}}, types), {kind: 'success', value: {a: 1, b: 2, c: 3}});
+            assert.deepStrictEqual(make('response', {kind: 'not-found'}, types), {kind: 'not-found'});
+            assert.deepStrictEqual(make('response', {kind: 'unauthorized'}, types), {kind: 'unauthorized'});
+        });
+    });
 });
+
+function array_unique(values)
+{
+    const set = new Set();
+    return values.filter(function (item) {
+        if (set.has(item)) {
+            return false;
+        }
+        set.add(item);
+        return true;
+    });
+}
