@@ -6,7 +6,10 @@ function make_str(value, default_value = '')
     switch (typeof value) {
     case 'string':
         return value;
+    case 'boolean':
+        return value.toString();
     case 'bigint':
+        // ⚠️ Should I add `n` to the end?
         return value.toString();
     case 'number':
         if (Object.is(value, -0)) {

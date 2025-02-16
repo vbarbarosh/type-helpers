@@ -24,6 +24,8 @@ describe('make_str', function () {
                 case "'false'":
                     assert.strictEqual(make_str(item.value, SP), item.value);
                     break;
+                case 'true':
+                case 'false':
                 case '0.49':
                 case '0.50':
                 case '0.51':
