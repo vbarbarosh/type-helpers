@@ -51,6 +51,7 @@ function make(expr, value, types)
         }
     case 'null':
         return null;
+    case 'any':
     case 'raw':
         return value;
     case 'const':

@@ -513,6 +513,33 @@ describe('make', function () {
             assert.deepStrictEqual(make('switch', 'on', types), 'enabled');
             assert.deepStrictEqual(make('switch', 'enabled', types), 'enabled');
         });
+        it('array of exact 3 members', function () {
+            const types = {
+                in: {type: 'enum', options: ['none', 'in1', 'in2', 'in3', 'in4']},
+                stay: {type: 'enum', options: ['none', 'stay1', 'stay2', 'stay3']},
+                out: {type: 'enum', options: ['none', 'out1', 'out2', 'out3']},
+                transitions: function (value, expr, types) {
+                    const [a, b, c] = make('array', value);
+                    return [make('in', a, types), make('stay', b, types), make('out', c, types)];
+                },
+            };
+            assert.deepStrictEqual(make('transitions', null, types), ['none', 'none', 'none']);
+        });
+        it('array of exact 3 members (using tuples)', function () {
+            const types = {
+                tuple: function (value, expr, types) {
+                    const items = make({type: 'array', of: 'any'}, expr.items, types);
+                    const values = make({type: 'array', of: 'any'}, value, types);
+                    return items.map((v,i) => make(v, values[i], types));
+                },
+                in: {type: 'enum', options: ['none', 'in1', 'in2', 'in3', 'in4']},
+                stay: {type: 'enum', options: ['none', 'stay1', 'stay2', 'stay3']},
+                out: {type: 'enum', options: ['none', 'out1', 'out2', 'out3']},
+                transitions: {type: 'tuple', items: ['in', 'stay', 'out']},
+            };
+            assert.deepStrictEqual(make('transitions', null, types), ['none', 'none', 'none']);
+            assert.deepStrictEqual(make('transitions', [null, 'stay2', 'out5'], types), ['none', 'stay2', 'none']);
+        });
     });
 });
 
