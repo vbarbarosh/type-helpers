@@ -3,6 +3,7 @@ objects.
 
 ## Related
 
+* https://zod.dev/
 * https://www.npmjs.com/package/schema-object
 * https://www.npmjs.com/package/@humanwhocodes/object-schema
 * https://www.npmjs.com/package/@eslint/object-schema
