@@ -32,7 +32,7 @@ function make(expr, value, types)
     }
 
     switch (expr.type) {
-    case 'dynamic':
+    case 'union':
         {
             // [options] could be replaced by [match] as in PHP or Rust
             const prop = expr.prop ?? 'type';
@@ -43,7 +43,7 @@ function make(expr, value, types)
                 expr2 = expr.options?.[type];
             }
             if (!expr2) {
-                throw new Error(`Dynamic type option not found: [${prop} / ${expr.default}]`);
+                throw new Error(`Union type option not found: [${prop} / ${expr.default}]`);
             }
             const out = {};
             out[expr.prop || 'type'] = type;

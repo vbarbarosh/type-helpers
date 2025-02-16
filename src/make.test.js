@@ -133,10 +133,10 @@ describe('make', function () {
         });
     });
     describe('objects', function () {
-        it('edge case: dynamic objects #1', function () {
+        it('edge case: union objects #1', function () {
             const types = {
                 period: {
-                    type: 'dynamic',
+                    type: 'union',
                     prop: 'type',
                     default: 'today',
                     options: {
@@ -166,12 +166,12 @@ describe('make', function () {
             assert.deepStrictEqual(make('period', {type: 'yesterday'}, types), {type: 'yesterday', value: null});
             assert.deepStrictEqual(make('period', {type: 'custom', value: {begin: 100, end: 200}}, types), {type: 'custom', value: {begin: 100, end: 500}});
         });
-        it('edge case: dynamic objects', function () {
+        it('edge case: union objects', function () {
             const actual = make('item', {type: 'banner'}, {
                 url: {type: 'string', default: 'https://example.com/'},
                 uint: {type: 'int', min: 0},
                 item: {
-                    type: 'dynamic',
+                    type: 'union',
                     prop: 'type', // banner | image | video
                     options: {
                         banner: {
@@ -476,7 +476,7 @@ describe('make', function () {
                     message: 'string',
                 },
                 response: {
-                    type: 'dynamic',
+                    type: 'union',
                     prop: 'kind',
                     options: {
                         error: 'error',
