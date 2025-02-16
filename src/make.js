@@ -65,8 +65,11 @@ function make(expr, value, types)
             // adjust, complete, finish, realize, apply_limits, balance
             const value_obj = (expr.transform ? expr.transform(value) : make_obj(value));
             return Object.fromEntries(Object.entries(expr.props||{}).map(function ([k, v]) {
+                if (v.optional && value_obj[k] === undefined) {
+                    return null;
+                }
                 return [k, make(v, value_obj[k], types)];
-            }));
+            }).filter(v => v));
         }
     // enum: one of strings
     // enum-list: any of strings

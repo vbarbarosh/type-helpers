@@ -494,6 +494,16 @@ describe('make', function () {
             assert.deepStrictEqual(make('response', {kind: 'not-found'}, types), {kind: 'not-found'});
             assert.deepStrictEqual(make('response', {kind: 'unauthorized'}, types), {kind: 'unauthorized'});
         });
+        it('optional fields', function () {
+            const types = {
+                error: {
+                    message: 'string',
+                    stack: {type: 'array', of: 'string', optional: true},
+                },
+            };
+            assert.deepStrictEqual(make('error', {message: 'ggg'}, types), {message: 'ggg'});
+            assert.deepStrictEqual(make('error', {message: 'ggg', stack: [111, '222']}, types), {message: 'ggg', stack: ['111', '222']});
+        });
     });
 });
 
