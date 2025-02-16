@@ -5,6 +5,13 @@ objects.
 
 ## Related
 
+### Reading
+
+* https://medium.com/hoppinger/type-driven-development-for-single-page-applications-bf8ee98d48e2
+* https://medium.com/flow-type/types-first-a-scalable-new-architecture-for-flow-3d8c7ba1d4eb
+
+### Tools
+
 * https://zod.dev/
 * https://www.npmjs.com/package/schema-object
 * https://www.npmjs.com/package/@humanwhocodes/object-schema
