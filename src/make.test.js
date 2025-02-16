@@ -504,6 +504,15 @@ describe('make', function () {
             assert.deepStrictEqual(make('error', {message: 'ggg'}, types), {message: 'ggg'});
             assert.deepStrictEqual(make('error', {message: 'ggg', stack: [111, '222']}, types), {message: 'ggg', stack: ['111', '222']});
         });
+        it('enum transform: was - on,off; now - enabled,disabled', function () {
+            const types = {
+                switch: {type: 'enum', transform: {off: 'disabled', on: 'enabled'}, options: ['disabled', 'enabled']},
+            };
+            assert.deepStrictEqual(make('switch', null, types), 'disabled');
+            assert.deepStrictEqual(make('switch', 'off', types), 'disabled');
+            assert.deepStrictEqual(make('switch', 'on', types), 'enabled');
+            assert.deepStrictEqual(make('switch', 'enabled', types), 'enabled');
+        });
     });
 });
 

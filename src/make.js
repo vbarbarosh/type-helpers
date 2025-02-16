@@ -76,16 +76,31 @@ function make(expr, value, types)
     // enum-map1: one of strings as map [all false, only one true]
     // enum-map: any of strings as map [any number of true]
     case 'enum':
-        if (!Array.isArray(expr.options) || expr.options.length === 0) {
-            throw new Error('enum types should have at least one option');
+        {
+            if (!Array.isArray(expr.options) || expr.options.length === 0) {
+                throw new Error('enum types should have at least one option');
+            }
+            let tmp = value;
+            if (expr.transform) {
+                switch (typeof expr.transform) {
+                case 'object':
+                    if (value in expr.transform) {
+                        tmp = expr.transform[value];
+                    }
+                    break;
+                case 'function':
+                    tmp = expr.transform(value, expr);
+                    break;
+                }
+            }
+            if (expr.options.includes(tmp)) {
+                return tmp;
+            }
+            if ('default' in expr) {
+                return expr.default;
+            }
+            return expr.options[0];
         }
-        if (expr.options.includes(value)) {
-            return value;
-        }
-        if ('default' in expr) {
-            return expr.default;
-        }
-        return expr.options[0];
     // // an array of unique strings
     // case 'tags':
     // // an object with [key,bool] where each key could be [true] or [false]
