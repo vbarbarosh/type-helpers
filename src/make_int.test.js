@@ -28,6 +28,12 @@ describe('make_int', function () {
                 case '1e-100':
                 case '-0':
                 case 'Number.MIN_VALUE':
+                case '0.49':
+                case '0.50':
+                case '0.51':
+                case '-0.49':
+                case '-0.50':
+                case '-0.51':
                     assert.strictEqual(make_int(item.value, SP), 0);
                     break;
                 case 'true':
