@@ -1,5 +1,6 @@
 const is_array = require('./is_array');
 const is_function = require('./is_function');
+const is_string = require('./is_string');
 const make_bool = require('./make_bool');
 const make_float = require('./make_float');
 const make_int = require('./make_int');
@@ -133,7 +134,7 @@ function make(expr, value, types)
         throw new Error('Empty expressions are not allowed');
     }
 
-    if (typeof expr === 'string') {
+    if (is_string(expr)) {
         return make({type: expr}, value, types);
     }
 
@@ -147,7 +148,7 @@ function make(expr, value, types)
         return make({type: 'object', props: expr}, value, types);
     }
     // 🩼 A way to remove special meaning from `type` property is to wrap its value into array
-    if (Array.isArray(expr.type)) {
+    if (is_array(expr.type)) {
         return make({type: 'object', props: {...expr, type: expr.type[0]}}, value, types);
     }
 
