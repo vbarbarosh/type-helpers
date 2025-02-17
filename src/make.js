@@ -1,8 +1,8 @@
 const make_bool = require('./make_bool');
 const make_float = require('./make_float');
 const make_int = require('./make_int');
-const make_str = require('./make_str');
 const make_obj = require('./make_obj');
+const make_str = require('./make_str');
 
 /**
  * Make values from spec. Kind of class/type factory.
@@ -122,13 +122,17 @@ function make(expr, value, types)
     case 'bool':
         return make_bool(value, expr.default ?? false);
     case 'array':
-        if (Array.isArray(value)) {
-            return array_pad(value.map(v => make(expr.of, v, types)), expr.min ?? 0, make(expr.of, null, types));
+        {
+            const min = expr.min || 0;
+            const out = [];
+            if (Array.isArray(value)) {
+                out.push(...value.map(v => make(expr.of, v, types)));
+            }
+            while (out.length < min) {
+                out.push(make(expr.of, value, types));
+            }
+            return out;
         }
-        if (!expr.min) {
-            return [];
-        }
-        return array_pad([], expr.min ?? 0, make(expr.of, value, types));
     default:
         if (typeof types[expr.type] === 'function') {
             return types[expr.type](value, expr, types);
@@ -153,12 +157,6 @@ function make(expr, value, types)
     }
 
     throw new Error(`Invalid type: ${expr.type}`);
-}
-
-function array_pad(array, len, value)
-{
-    array.push(...Array(Math.max(0, len - array.length)).fill(value));
-    return array;
 }
 
 module.exports = make;

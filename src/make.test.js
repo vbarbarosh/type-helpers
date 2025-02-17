@@ -568,6 +568,42 @@ describe('make', function () {
             assert.deepStrictEqual(make('px', 5, types), '5px');
             assert.deepStrictEqual(make('position', {top: 5, left: 0}, types), {top: '5px', left: '0'});
         });
+        it('array of 3 Banner: should return an array of 3 different banenrs', function () {
+            let next_uid = 1;
+            const types = {
+                // {type: 'uid', prefix: 'banner_'}
+                uid: function (value, expr, types) {
+                    if (typeof value === 'string' && value.trim()) {
+                        return value;
+                    }
+                    const prefix = make({type: 'string'}, expr.prefix);
+                    return `${prefix}a${next_uid++}`;
+                },
+                Banner: {
+                    uid: {type: 'uid', prefix: 'banner_'},
+                },
+            };
+            const expected = [{uid: 'banner_a1'}, {uid: 'banner_a2'}, {uid: 'banner_a3'}];
+            assert.deepStrictEqual(make({type: 'array', of: 'Banner', min: 3}, null, types), expected);
+        });
+        it('array of 2 Banner, min=4: should return an array of 4 different banners', function () {
+            let next_uid = 1;
+            const types = {
+                // {type: 'uid', prefix: 'banner_'}
+                uid: function (value, expr, types) {
+                    if (typeof value === 'string' && value.trim()) {
+                        return value;
+                    }
+                    const prefix = make({type: 'string'}, expr.prefix);
+                    return `${prefix}a${next_uid++}`;
+                },
+                Banner: {
+                    uid: {type: 'uid', prefix: 'banner_'},
+                },
+            };
+            const expected = [{uid: 'a'}, {uid: 'b'}, {uid: 'banner_a1'}, {uid: 'banner_a2'}];
+            assert.deepStrictEqual(make({type: 'array', of: 'Banner', min: 4}, [{uid: 'a'}, {uid: 'b'}], types), expected);
+        });
     });
 });
 
