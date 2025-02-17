@@ -131,6 +131,29 @@ describe('make', function () {
             });
             assert.deepStrictEqual(actual, 30);
         });
+        it('alias to int', function () {
+            const types = {
+                int2: {type: 'int', min: 50},
+                int3: {type: 'int2', min: 100},
+                int4: {type: 'int3', max: 200},
+            };
+            assert.deepStrictEqual(make('int2', null, types), 50);
+            assert.deepStrictEqual(make('int3', null, types), 100);
+            assert.deepStrictEqual(make('int4', 1000, types), 200);
+        });
+        it('alias to custom type', function () {
+            const types = {
+                person: function (value, expr) {
+                    const prefix = make('string', expr.prefix);
+                    return prefix + make('string', value);
+                },
+                person2: {type: 'person', prefix: '222'},
+                person3: {type: 'person2', prefix: '333'},
+            };
+            assert.deepStrictEqual(make('person', 'ggg', types), 'ggg');
+            assert.deepStrictEqual(make('person2', 'ggg', types), '222ggg');
+            assert.deepStrictEqual(make('person3', 'ggg', types), '333ggg');
+        });
     });
     describe('objects', function () {
         it('edge case: union objects #1', function () {

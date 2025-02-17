@@ -163,6 +163,10 @@ function make(expr, value, types)
         if (is_array(types[expr.type])) {
             throw new Error('Type defined as array.');
         }
+        if ('type' in types[expr.type]) {
+            // ✳️ type aliases
+            return make({...types[expr.type], ...expr, type: types[expr.type].type}, value, types);
+        }
         // ✳️ type aliases
         return make(types[expr.type], value, types);
     }
