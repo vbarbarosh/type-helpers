@@ -165,10 +165,10 @@ function make(expr, value, types)
             throw new Error('Type defined as array.');
         }
         if ('type' in types[expr.type]) {
-            // ✳️ type aliases
+            // ✳️ type aliases (custom type defined as {type: '...'}
             return make({...types[expr.type], ...expr, type: types[expr.type].type}, value, types);
         }
-        // ✳️ type aliases
+        // custom type defined without [type] property - a set of props for [object]
         return make(types[expr.type], value, types);
     }
 
