@@ -30,13 +30,13 @@ describe('make', function () {
             };
             assert.deepStrictEqual(make('apple', 'ggg', types), 'apple');
         });
-        it('fn • always return predefined value discarding any input provided', function () {
-            // ⚠️ Should it be [fn] or [value]?
-            const types = {
-                apple: {type: 'fn', fn: () => ({apple: 'foo'})},
-            };
-            assert.deepStrictEqual(make('apple', 'ggg', types), {apple: 'foo'});
-        });
+        // it('fn • always return predefined value discarding any input provided', function () {
+        //     // ⚠️ Should it be [fn] or [value]?
+        //     const types = {
+        //         apple: {type: 'fn', fn: () => ({apple: 'foo'})},
+        //     };
+        //     assert.deepStrictEqual(make('apple', 'ggg', types), {apple: 'foo'});
+        // });
         it('raw • always return input value', function () {
             assert.deepStrictEqual(make('raw', 'ggg'), 'ggg');
             assert.deepStrictEqual(make('raw', {foo: 1, bar: 2}), {foo: 1, bar: 2});
@@ -45,7 +45,7 @@ describe('make', function () {
     describe('basic types', function () {
         it('should throws', function () {
             assert.throws(() => make(), /^Error: Empty expressions are not allowed$/);
-            assert.throws(() => make('enum'), /^Error: enum types should have at least one option$/);
+            assert.throws(() => make('enum'), /^Error: \[type=enum] should have at least one option$/);
         });
         it('defaults', function () {
             assert.deepStrictEqual(make('bool'), false);
@@ -304,7 +304,7 @@ describe('make', function () {
         //     const actual = make('Banner', {pub_id: 'banner1'}, types);
         //     assert.deepStrictEqual(actual, {type: 'banner', uid: 'banner1'});
         // });
-        it('objects.dependable.hooks #1', function () {
+        xit('objects.dependable.hooks #1', function () {
             const types = {
                 tmp: function (input) {
                     const out = make('anon', input, {

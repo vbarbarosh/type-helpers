@@ -1,8 +1,128 @@
+const is_array = require('./is_array');
+const is_function = require('./is_function');
 const make_bool = require('./make_bool');
 const make_float = require('./make_float');
 const make_int = require('./make_int');
 const make_obj = require('./make_obj');
 const make_str = require('./make_str');
+
+const standard_types = {
+    // {type: 'raw'}
+    raw: function (value) {
+        return value;
+    },
+    // {type: 'any', default: undefined}
+    any: function (value, expr) {
+        return value === undefined ? expr.default : value;
+    },
+    // {type: 'null'}
+    null: function () {
+        return null;
+    },
+    // {type: 'const', value: 123}
+    const: function (value, expr) {
+        return expr.value;
+    },
+    // {type: 'bool', default: false}
+    bool: function (value, expr) {
+        return make_bool(value, expr.default);
+    },
+    // {type: 'int', min: 0, max: 100, default: 0}
+    int: function (value, expr) {
+        const min = make_int(expr.min, Number.MIN_SAFE_INTEGER);
+        const max = make_int(expr.max, Number.MAX_SAFE_INTEGER);
+        const default_value = Math.min(max, Math.max(min, make_int(expr.default)));
+        return make_int(value, default_value, min, max);
+    },
+    // {type: 'float', min: 0, max: 100, default: 0}
+    float: function (value, expr) {
+        const min = make_float(expr.min, -Number.MAX_VALUE);
+        const max = make_float(expr.max, Number.MAX_VALUE);
+        const default_value = Math.min(max, Math.max(min, make_float(expr.default)));
+        return make_float(value, default_value, min, max);
+    },
+    // {type: 'string', default: 'foo'}
+    string: function (value, expr) {
+        return make_str(value, expr.default);
+    },
+    // {type: 'array', of: __type__, min: 0}
+    array: function (value, expr, types) {
+        const conf = make({
+            of: {type: 'any', default: 'raw'},
+            min: {type: 'int', min: 0}
+        }, expr, types);
+        const out = !is_array(value) ? [] : value.map(v => make(conf.of, v, types));
+        while (out.length < conf.min) {
+            out.push(make(conf.of, value, types));
+        }
+        return out;
+    },
+    // {type: 'tuple', items: []}
+    tuple: function (value, expr, types) {
+        if (!is_array(expr.items) || expr.items.length === 0) {
+            throw new Error('[type=tuple] should have at least one option');
+        }
+        const values = is_array(value) ? value : [];
+        return expr.items.map((v,i) => make(v, values[i], types));
+    },
+    // {type: 'enum', options: [], transform: v => v}
+    enum: function (value, expr) {
+        if (!is_array(expr.options) || expr.options.length === 0) {
+            throw new Error('[type=enum] should have at least one option');
+        }
+        let tmp = value;
+        if (expr.transform) {
+            switch (typeof expr.transform) {
+            case 'object':
+                if (value in expr.transform) {
+                    tmp = expr.transform[value];
+                }
+                break;
+            case 'function':
+                tmp = expr.transform(value, expr);
+                break;
+            }
+        }
+        if (expr.options.includes(tmp)) {
+            return tmp;
+        }
+        if ('default' in expr) {
+            return expr.default;
+        }
+        return expr.options[0];
+    },
+    // {type: 'object', props: {...}, transform: v => v, finish: v => v}
+    object: function (value, expr, types) {
+        // {type: 'object', transform: ..., finish: ..., props: {...}}
+        // adjust, complete, finish, realize, apply_limits, balance
+        const value_obj = (expr.transform ? expr.transform(value) : make_obj(value));
+        return Object.fromEntries(Object.entries(expr.props||{}).map(function ([k, v]) {
+            if (v.optional && value_obj[k] === undefined) {
+                return null;
+            }
+            return [k, make(v, value_obj[k], types)];
+        }).filter(v => v));
+    },
+    // {type: 'union', prop: 'kind', options: {...}
+    union: function (value, expr, types) {
+        // https://zod.dev/?id=discriminated-unions
+        // Here is a construction for objects. This thing called "Discriminated unions" in zod language
+        // [options] could be replaced by [match] as in PHP or Rust
+        const prop = expr.prop ?? 'type';
+        let type = value?.[prop];
+        let expr2 = expr.options?.[type];
+        if (!expr2) {
+            type = expr.default;
+            expr2 = expr.options?.[type];
+        }
+        if (!expr2) {
+            throw new Error(`Union type option not found: [${prop} / ${expr.default}]`);
+        }
+        const out = {};
+        out[expr.prop || 'type'] = type;
+        return Object.assign(out, make(expr2, value, types));
+    },
+};
 
 /**
  * Make values from spec. Kind of class/type factory.
@@ -31,129 +151,18 @@ function make(expr, value, types)
         return make({type: 'object', props: {...expr, type: expr.type[0]}}, value, types);
     }
 
-    switch (expr.type) {
-    case 'union':
-        // https://zod.dev/?id=discriminated-unions
-        // Here is a construction for objects. This thing called "Discriminated unions" in zod language
-        {
-            // [options] could be replaced by [match] as in PHP or Rust
-            const prop = expr.prop ?? 'type';
-            let type = value?.[prop];
-            let expr2 = expr.options?.[type];
-            if (!expr2) {
-                type = expr.default;
-                expr2 = expr.options?.[type];
-            }
-            if (!expr2) {
-                throw new Error(`Union type option not found: [${prop} / ${expr.default}]`);
-            }
-            const out = {};
-            out[expr.prop || 'type'] = type;
-            return Object.assign(out, make(expr2, value, types));
-        }
-    case 'null':
-        return null;
-    case 'any':
-    case 'raw':
-        return value;
-    case 'const':
-        return expr.value;
-    case 'fn':
-        return expr.fn(value, expr, types);
-    case 'anon':
-        return Object.fromEntries(Object.keys(types).map(key => [key, make({type: key}, value?.[key], types)]));
-    case 'object':
-        {
-            // {type: 'object', transform: ..., finish: ..., props: {...}}
-            // adjust, complete, finish, realize, apply_limits, balance
-            const value_obj = (expr.transform ? expr.transform(value) : make_obj(value));
-            return Object.fromEntries(Object.entries(expr.props||{}).map(function ([k, v]) {
-                if (v.optional && value_obj[k] === undefined) {
-                    return null;
-                }
-                return [k, make(v, value_obj[k], types)];
-            }).filter(v => v));
-        }
-    // enum: one of strings
-    // enum-list: any of strings
-    // enum-map1: one of strings as map [all false, only one true]
-    // enum-map: any of strings as map [any number of true]
-    case 'enum':
-        {
-            if (!Array.isArray(expr.options) || expr.options.length === 0) {
-                throw new Error('enum types should have at least one option');
-            }
-            let tmp = value;
-            if (expr.transform) {
-                switch (typeof expr.transform) {
-                case 'object':
-                    if (value in expr.transform) {
-                        tmp = expr.transform[value];
-                    }
-                    break;
-                case 'function':
-                    tmp = expr.transform(value, expr);
-                    break;
-                }
-            }
-            if (expr.options.includes(tmp)) {
-                return tmp;
-            }
-            if ('default' in expr) {
-                return expr.default;
-            }
-            return expr.options[0];
-        }
-    // // an array of unique strings
-    // case 'tags':
-    // // an object with [key,bool] where each key could be [true] or [false]
-    // case 'tags-map':
-    case 'int':
-        {
-            const min = expr.min ?? Number.MIN_SAFE_INTEGER;
-            const max = expr.max ?? Number.MAX_SAFE_INTEGER;
-            const default_value = Math.min(max, Math.max(min, expr.default ?? 0));
-            return make_int(value, default_value, min, max)
-        }
-    case 'float':
-        return make_float(value, expr.default ?? 0, expr.min ?? -Number.MAX_VALUE, expr.max ?? Number.MAX_VALUE);
-    case 'string':
-        return make_str(value, expr.default ?? '');
-    case 'bool':
-        return make_bool(value, expr.default ?? false);
-    case 'array':
-        {
-            const min = expr.min || 0;
-            const out = [];
-            if (Array.isArray(value)) {
-                out.push(...value.map(v => make(expr.of, v, types)));
-            }
-            while (out.length < min) {
-                out.push(make(expr.of, value, types));
-            }
-            return out;
-        }
-    default:
-        if (typeof types[expr.type] === 'function') {
+    if (standard_types[expr.type]) {
+        return standard_types[expr.type](value, expr, types);
+    }
+
+    if (types[expr.type]) {
+        if (is_function(types[expr.type])) {
             return types[expr.type](value, expr, types);
         }
-        if (Array.isArray(types[expr.type])) {
+        if (is_array(types[expr.type])) {
             throw new Error('Type defined as array.');
         }
-        if (types[expr.type]) {
-            // if (typeof types[expr.type] === 'string' || types[expr.type].type) {
-            //     return make(types[expr.type], value, types);
-            // }
-            // if (types[expr.type]) {
-            //     const out = {type: expr.type};
-            //     const tmp = value || {};
-            //     Object.entries(types[expr.type]).forEach(function ([k,v]) {
-            //         out[k] = make(v, tmp[k], types);
-            //     });
-            //     return out;
-            // }
-            return make(types[expr.type], value, types);
-        }
+        return make(types[expr.type], value, types);
     }
 
     throw new Error(`Invalid type: ${expr.type}`);
