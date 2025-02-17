@@ -152,6 +152,7 @@ function make(expr, value, types)
         return make({type: 'object', props: {...expr, type: expr.type[0]}}, value, types);
     }
 
+    // 📘📏 All standard types are defined as functions
     if (standard_types[expr.type]) {
         return standard_types[expr.type](value, expr, types);
     }
