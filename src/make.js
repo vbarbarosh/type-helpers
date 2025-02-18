@@ -152,11 +152,12 @@ function make(expr, value, types)
         return make({type: 'object', props: {...expr, type: expr.type[0]}}, value, types);
     }
 
-    // 📘📏 All standard types are defined as functions
+    // Standard types
     if (standard_types[expr.type]) {
         return standard_types[expr.type](value, expr, types);
     }
 
+    // Custom types
     if (types[expr.type]) {
         if (is_function(types[expr.type])) {
             return types[expr.type](value, expr, types);
@@ -165,10 +166,15 @@ function make(expr, value, types)
             throw new Error('Type defined as array.');
         }
         if ('type' in types[expr.type]) {
-            // ✳️ type aliases (custom type defined as {type: '...'}
+            // ✳️ type aliases (custom types expressed as another custom types — topmost properties should have priority)
+            // const types = {
+            //     int_0_100: {type: 'int', min: 0, max: 100, default: 1},
+            //     // The intention here - is to reuse type int_0_100 the way it was configured, just set max to 10.
+            //     int_0_10: {type: 'int_0_100', max: 10},
+            // }
             return make({...types[expr.type], ...expr, type: types[expr.type].type}, value, types);
         }
-        // custom type defined without [type] property - a set of props for [object]
+        // Custom type defined without [type] property is a set of props for [object]
         return make(types[expr.type], value, types);
     }
 
