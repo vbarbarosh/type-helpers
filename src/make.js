@@ -52,9 +52,18 @@ const standard_types = {
             of: {type: 'any', default: 'raw'},
             min: {type: 'int', min: 0}
         }, expr, types);
-        const out = !is_array(value) ? [] : value.map(v => make(conf.of, v, types));
+        let out;
+        if (is_array(value)) {
+            out = value.map(v => make(conf.of, v, types));
+        }
+        else if (conf.min > 0) {
+            out = [make(conf.of, value, types)];
+        }
+        else {
+            out = [];
+        }
         while (out.length < conf.min) {
-            out.push(make(conf.of, value, types));
+            out.push(make(conf.of, null, types));
         }
         return out;
     },

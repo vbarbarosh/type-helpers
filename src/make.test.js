@@ -3,6 +3,13 @@ const make = require('./make');
 const make_str = require('./make_str');
 
 describe('make', function () {
+    describe('arrays', function () {
+        it('should pass basic tests for arrays', function () {
+            assert.deepStrictEqual(make({type: 'array', of: 'string'}), []);
+            assert.deepStrictEqual(make({type: 'array', of: 'string', min: 2}, 'x'), ['x', '']);
+            assert.deepStrictEqual(make({type: 'array', of: 'int', min: 2}, ['1']), [1, 0]);
+        });
+    });
     describe('edge cases', function () {
         it('🩼 When `expr` is an object , it is the same as `{type: "object", props: ...}`, unless it has `type` property.', function () {
             assert.deepStrictEqual(make({foo: 'int', bar: 'int'}), {foo: 0, bar: 0});
