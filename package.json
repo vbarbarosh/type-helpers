@@ -2,7 +2,7 @@
     "author": "Vladimir Barbarosh <vladimir.barbarosh@gmail.com>",
     "license": "MIT",
     "name": "@vbarbarosh/type-helpers",
-    "version": "0.0.0",
+    "version": "0.1.0",
     "description": "Utilities for transforming raw input into safe and well-typed values and objects.",
     "files": [
         "README.md",
