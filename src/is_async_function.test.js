@@ -11,6 +11,7 @@ describe('is_async_function', function () {
             it(item.label, function () {
                 switch (item.label) {
                 case 'async function':
+                case 'async () => 1':
                     assert.strictEqual(is_async_function(item.value), true);
                     break;
                 default:
