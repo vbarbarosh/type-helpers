@@ -149,3 +149,4 @@ assert.deepStrictEqual(make('widget', {kind: 'submit'}, types), {kind: 'submit',
 * https://github.com/jquense/yup
 * https://github.com/gcanti/io-ts
 * https://github.com/typestack/class-transformer
+* https://valibot.dev/blog/valibot-v1-the-1-kb-schema-library/
