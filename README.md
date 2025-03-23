@@ -40,9 +40,9 @@ assert.strictEqual(make('bool', ''), false);
 assert.strictEqual(make('bool', '1'), true);
 assert.strictEqual(make('bool', 'x'), true);
 
-assert.strictEqual(make('string', 1), '1');
-assert.strictEqual(make('string', true), 'true');
-assert.strictEqual(make('string', false), 'false');
+assert.strictEqual(make('str', 1), '1');
+assert.strictEqual(make('str', true), 'true');
+assert.strictEqual(make('str', false), 'false');
 ```
 
 Creating enum:
@@ -62,8 +62,8 @@ Creating uniform arrays (all values have the same type):
 const assert = require('assert');
 const make = require('@vbarbarosh/type-helpers/src/make');
 
-assert.deepStrictEqual(make({type: 'array', of: 'string'}), []);
-assert.deepStrictEqual(make({type: 'array', of: 'string', min: 2}, 'x'), ['x', '']);
+assert.deepStrictEqual(make({type: 'array', of: 'str'}), []);
+assert.deepStrictEqual(make({type: 'array', of: 'str', min: 2}, 'x'), ['x', '']);
 assert.deepStrictEqual(make({type: 'array', of: 'int', min: 2}, ['1']), [1, 0]);
 ```
 
@@ -73,8 +73,8 @@ Creating tuples (an array with fixed number of elements and predefined types):
 const assert = require('assert');
 const make = require('@vbarbarosh/type-helpers/src/make');
 
-assert.deepStrictEqual(make({type: 'tuple', items: ['string', 'string']}), ['', '']);
-assert.deepStrictEqual(make({type: 'tuple', items: ['string', 'string']}, ['a']), ['a', '']);
+assert.deepStrictEqual(make({type: 'tuple', items: ['str', 'str']}), ['', '']);
+assert.deepStrictEqual(make({type: 'tuple', items: ['str', 'str']}, ['a']), ['a', '']);
 ```
 
 Creating objects:
@@ -109,7 +109,7 @@ const types = {
         default: 'text',
         options: {
             text: {
-                value: 'string',
+                value: 'str',
             },
             number: {
                 value: 'float',
@@ -118,9 +118,9 @@ const types = {
                 step: {type: 'float', min: 0.001, default: 1},
             },
             submit: {
-                label: 'string',
-                name: 'string',
-                value: 'string',
+                label: 'str',
+                name: 'str',
+                value: 'str',
             },
         },
     },
