@@ -5,8 +5,8 @@ const make_str = require('./make_str');
 describe('make', function () {
     describe('arrays', function () {
         it('should pass basic tests for arrays', function () {
-            assert.deepStrictEqual(make({type: 'array', of: 'string'}), []);
-            assert.deepStrictEqual(make({type: 'array', of: 'string', min: 2}, 'x'), ['x', '']);
+            assert.deepStrictEqual(make({type: 'array', of: 'str'}), []);
+            assert.deepStrictEqual(make({type: 'array', of: 'str', min: 2}, 'x'), ['x', '']);
             assert.deepStrictEqual(make({type: 'array', of: 'int', min: 2}, ['1']), [1, 0]);
         });
     });
@@ -58,7 +58,7 @@ describe('make', function () {
             assert.deepStrictEqual(make('bool'), false);
             assert.deepStrictEqual(make('int'), 0);
             assert.deepStrictEqual(make('float'), 0);
-            assert.deepStrictEqual(make('string'), '');
+            assert.deepStrictEqual(make('str'), '');
             assert.deepStrictEqual(make('array'), []);
             assert.deepStrictEqual(make('object'), {});
         });
@@ -68,7 +68,7 @@ describe('make', function () {
             assert.deepStrictEqual(make({type: 'bool', nullable: true}, null), null);
             assert.deepStrictEqual(make({type: 'int', nullable: true}, null), null);
             assert.deepStrictEqual(make({type: 'float', nullable: true}, null), null);
-            assert.deepStrictEqual(make({type: 'string', nullable: true}, null), null);
+            assert.deepStrictEqual(make({type: 'str', nullable: true}, null), null);
             assert.deepStrictEqual(make({type: 'array', nullable: true}, null), null);
             assert.deepStrictEqual(make({type: 'object', nullable: true}, null), null);
             assert.deepStrictEqual(make({type: 'enum', nullable: true}, null), null);
@@ -77,7 +77,7 @@ describe('make', function () {
             assert.deepStrictEqual(make({type: 'bool', nullable: true}, undefined), null);
             assert.deepStrictEqual(make({type: 'int', nullable: true}, undefined), null);
             assert.deepStrictEqual(make({type: 'float', nullable: true}, undefined), null);
-            assert.deepStrictEqual(make({type: 'string', nullable: true}, undefined), null);
+            assert.deepStrictEqual(make({type: 'str', nullable: true}, undefined), null);
             assert.deepStrictEqual(make({type: 'array', nullable: true}, undefined), null);
             assert.deepStrictEqual(make({type: 'object', nullable: true}, undefined), null);
             assert.deepStrictEqual(make({type: 'enum', nullable: true}, undefined), null);
@@ -88,19 +88,19 @@ describe('make', function () {
             assert.deepStrictEqual(make({type: 'bool', nullable: true}, NaN), false);
             assert.deepStrictEqual(make({type: 'int', nullable: true}, NaN), 0);
             assert.deepStrictEqual(make({type: 'float', nullable: true}, NaN), 0);
-            assert.deepStrictEqual(make({type: 'string', nullable: true}, NaN), '');
+            assert.deepStrictEqual(make({type: 'str', nullable: true}, NaN), '');
         });
         it('Infinity usually means division by zero', function () {
             assert.deepStrictEqual(make({type: 'bool', nullable: true}, Infinity), true, '⚠️ gotcha');
             assert.deepStrictEqual(make({type: 'int', nullable: true}, Infinity), Number.MAX_SAFE_INTEGER);
             assert.deepStrictEqual(make({type: 'float', nullable: true}, Infinity), Number.MAX_VALUE, '⚠️ gotcha');
-            assert.deepStrictEqual(make({type: 'string', nullable: true}, Infinity), '');
+            assert.deepStrictEqual(make({type: 'str', nullable: true}, Infinity), '');
         });
         it('-Infinity', function () {
             assert.deepStrictEqual(make({type: 'bool', nullable: true}, -Infinity), true, '⚠️ gotcha');
             assert.deepStrictEqual(make({type: 'int', nullable: true}, -Infinity), Number.MIN_SAFE_INTEGER);
             assert.deepStrictEqual(make({type: 'float', nullable: true}, -Infinity), -Number.MAX_VALUE, '⚠️ gotcha');
-            assert.deepStrictEqual(make({type: 'string', nullable: true}, -Infinity), '');
+            assert.deepStrictEqual(make({type: 'str', nullable: true}, -Infinity), '');
         });
     });
     describe('arrays', function () {
@@ -108,19 +108,19 @@ describe('make', function () {
             assert.deepStrictEqual(make({type: 'array', of: 'bool'}), [], 'array of bool');
             assert.deepStrictEqual(make({type: 'array', of: 'int'}), [], 'array of int');
             assert.deepStrictEqual(make({type: 'array', of: 'float'}), [], 'array of float');
-            assert.deepStrictEqual(make({type: 'array', of: 'string'}), [], 'array of string');
+            assert.deepStrictEqual(make({type: 'array', of: 'str'}), [], 'array of str');
         });
         it('array min=1', function () {
             assert.deepStrictEqual(make({type: 'array', of: 'bool', min: 1}), [false], 'array of bool, min=1');
             assert.deepStrictEqual(make({type: 'array', of: 'int', min: 1}), [0], 'array of int, min=1');
             assert.deepStrictEqual(make({type: 'array', of: 'float', min: 1}), [0], 'array of float, min=1');
-            assert.deepStrictEqual(make({type: 'array', of: 'string', min: 1}), [''], 'array of string, min=1');
+            assert.deepStrictEqual(make({type: 'array', of: 'str', min: 1}), [''], 'array of str, min=1');
         });
         it('array of bool, min=1', function () {
             assert.deepStrictEqual(make({type: 'array', of: 'bool'}, [0, -1, 'a']), [false, true, true], 'array of bool, min=1');
             assert.deepStrictEqual(make({type: 'array', of: 'int'}, 'a'), [], 'array of int');
             assert.deepStrictEqual(make({type: 'array', of: 'float'}), [], 'array of float');
-            assert.deepStrictEqual(make({type: 'array', of: 'string'}), [], 'array of string');
+            assert.deepStrictEqual(make({type: 'array', of: 'str'}), [], 'array of str');
         });
     });
     describe('custom types', function () {
@@ -151,8 +151,8 @@ describe('make', function () {
         it('alias to custom type', function () {
             const types = {
                 person: function (value, expr) {
-                    const prefix = make('string', expr.prefix);
-                    return prefix + make('string', value);
+                    const prefix = make('str', expr.prefix);
+                    return prefix + make('str', value);
                 },
                 person2: {type: 'person', prefix: '222'},
                 person3: {type: 'person2', prefix: '333'},
@@ -198,7 +198,7 @@ describe('make', function () {
         });
         it('edge case: union objects', function () {
             const actual = make('item', {type: 'banner'}, {
-                url: {type: 'string', default: 'https://example.com/'},
+                url: {type: 'str', default: 'https://example.com/'},
                 uint: {type: 'int', min: 0},
                 item: {
                     type: 'union',
@@ -249,7 +249,7 @@ describe('make', function () {
                     company2: {type: 'company', nullable: true}, // optional
                 },
                 company: {
-                    name: 'string', // required
+                    name: 'str', // required
                     balance: {type: 'int', nullable: true},
                 },
             };
@@ -264,14 +264,14 @@ describe('make', function () {
         it('objects2', function () {
             const types = {
                 movie: {
-                    name: 'string',
-                    url: {type: 'string', nullable: true},
+                    name: 'str',
+                    url: {type: 'str', nullable: true},
                     year: {type: 'int', min: 1900, max: 2500, nullable: true},
-                    genres: {type: 'array', of: 'string', nullable: true},
+                    genres: {type: 'array', of: 'str', nullable: true},
                     actors: {type: 'array', of: 'actor', min: 1},
                 },
                 actor: {
-                    name: 'string',
+                    name: 'str',
                 },
             };
             const input = {
@@ -328,7 +328,7 @@ describe('make', function () {
         //     // - converting obsolete format to new format
         //     const types = {
         //         Banner: {
-        //             uid: {type: 'string', from: 'pub_id'}, // from pub_id
+        //             uid: {type: 'str', from: 'pub_id'}, // from pub_id
         //         },
         //     };
         //     const actual = make('Banner', {pub_id: 'banner1'}, types);
@@ -358,7 +358,7 @@ describe('make', function () {
             // - converting obsolete format to new format
             class Banner {
                 constructor(input) {
-                    const expr = {uid: 'string', width: 'int', height: 'int'};
+                    const expr = {uid: 'str', width: 'int', height: 'int'};
                     Object.assign(this, make(expr, {...input, uid: input.uid ?? input.pub_id}));
                 }
                 publish() {
@@ -381,7 +381,7 @@ describe('make', function () {
                 if (typeof value === 'string' && value.trim()) {
                     return value;
                 }
-                const prefix = make({type: 'string'}, expr.prefix);
+                const prefix = make({type: 'str'}, expr.prefix);
                 return `${prefix}a${next_uid++}`;
             },
         };
@@ -404,7 +404,7 @@ describe('make', function () {
                     },
                     props: {
                         uid: {type: 'uid', prefix: 'banner_'},
-                        title: {type: 'string', nullable: true},
+                        title: {type: 'str', nullable: true},
                         width: {type: 'int', min: 0},
                         height: {type: 'int', min: 0},
                     },
@@ -428,7 +428,7 @@ describe('make', function () {
                     },
                     props: {
                         uid: {type: 'uid', prefix: 'usr_'},
-                        name: {type: 'string', nullable: true},
+                        name: {type: 'str', nullable: true},
                     },
                 },
             });
@@ -452,8 +452,8 @@ describe('make', function () {
                     },
                     props: {
                         uid: {type: 'uid', prefix: 'usr_'},
-                        first: {type: 'string', nullable: true},
-                        last: {type: 'string', nullable: true},
+                        first: {type: 'str', nullable: true},
+                        last: {type: 'str', nullable: true},
                     },
                 },
             });
@@ -468,7 +468,7 @@ describe('make', function () {
         it('weekdays', function () {
             const types = {
                 weekdays: function (value, expr, types) {
-                    const tmp = make({type: 'array', of: 'string'}, value);
+                    const tmp = make({type: 'array', of: 'str'}, value);
                     const allowed = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
                     return array_unique(tmp.filter(v => allowed.includes(v)));
                 },
@@ -503,7 +503,7 @@ describe('make', function () {
             const types = {
                 any: v => v,
                 error: {
-                    message: 'string',
+                    message: 'str',
                 },
                 response: {
                     type: 'union',
@@ -527,8 +527,8 @@ describe('make', function () {
         it('optional fields', function () {
             const types = {
                 error: {
-                    message: 'string',
-                    stack: {type: 'array', of: 'string', optional: true},
+                    message: 'str',
+                    stack: {type: 'array', of: 'str', optional: true},
                 },
             };
             assert.deepStrictEqual(make('error', {message: 'ggg'}, types), {message: 'ggg'});
@@ -576,7 +576,7 @@ describe('make', function () {
                     if (typeof value === 'number') {
                         return make('float', value);
                     }
-                    return make('string', value);
+                    return make('str', value);
                 },
             };
             assert.deepStrictEqual(make('str_num', null, types), '');
@@ -606,7 +606,7 @@ describe('make', function () {
                     if (typeof value === 'string' && value.trim()) {
                         return value;
                     }
-                    const prefix = make({type: 'string'}, expr.prefix);
+                    const prefix = make({type: 'str'}, expr.prefix);
                     return `${prefix}a${next_uid++}`;
                 },
                 Banner: {
@@ -624,7 +624,7 @@ describe('make', function () {
                     if (typeof value === 'string' && value.trim()) {
                         return value;
                     }
-                    const prefix = make({type: 'string'}, expr.prefix);
+                    const prefix = make({type: 'str'}, expr.prefix);
                     return `${prefix}a${next_uid++}`;
                 },
                 Banner: {

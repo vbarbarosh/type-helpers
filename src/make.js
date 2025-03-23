@@ -42,8 +42,8 @@ const standard_types = {
         const default_value = Math.min(max, Math.max(min, make_float(expr.default)));
         return make_float(value, default_value, min, max);
     },
-    // {type: 'string', default: 'foo'}
-    string: function (value, expr) {
+    // {type: 'str', default: 'foo'}
+    str: function (value, expr) {
         return make_str(value, expr.default);
     },
     // {type: 'array', of: __type__, min: 0}
