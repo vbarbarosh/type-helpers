@@ -18,6 +18,23 @@ objects.
 npm install @vbarbarosh/type-helpers
 ```
 
+## Motivation
+
+Generate well-typed objects initialized from an untrusted source.
+
+```js
+const types = {
+    tab: {
+        name: 'str',
+        label: 'str',
+        active: 'bool',
+        disabled: 'bool',
+    },
+    tabs: {type: 'array', of: 'tab'}
+};
+const tabs = make('tabs', body?.card, types);
+```
+
 ## Basic usage
 
 Creating basic types:
@@ -128,6 +145,92 @@ const types = {
 
 assert.deepStrictEqual(make('widget', null, types), {kind: 'text', value: ''});
 assert.deepStrictEqual(make('widget', {kind: 'submit'}, types), {kind: 'submit', label: '', name: '', value: ''});
+```
+
+## Built-in types
+
+### raw
+
+```js
+{type: 'raw'}
+```
+
+### any
+
+```js
+{type: 'any', default: undefined}
+```
+
+### null
+
+```js
+{type: 'null'}
+```
+
+### const
+
+```js
+{type: 'const', value: 123}
+```
+
+### bool
+
+```js
+{type: 'bool', default: false}
+```
+
+### int
+
+```js
+{type: 'int', min: 0, max: 100, default: 0}
+```
+
+### float
+
+```js
+{type: 'float', min: 0, max: 100, default: 0}
+```
+
+### str
+
+```js
+{type: 'str', default: 'foo'}
+```
+
+### array
+
+```js
+{type: 'array', of: __type__, min: 0}
+```
+
+### tuple
+
+```js
+{type: 'tuple', items: []}
+```
+
+### enum
+
+```js
+{type: 'enum', options: [], transform: v => v}
+```
+
+### tags
+
+```js
+{type: 'tags', options: ['foo', 'bar', 'baz']}
+```
+
+### obj
+
+```js
+{type: 'obj', props: {...}, transform: v => v, finish: v => v}
+```
+
+### union
+
+```js
+{type: 'union', prop: 'kind', options: {...}
 ```
 
 ## Related
