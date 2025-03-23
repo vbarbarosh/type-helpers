@@ -1,9 +1,9 @@
-function make_bool(value, default_value = false)
+function make_bool(input, default_value = false)
 {
-    if (value === null || value === undefined || Number.isNaN(value)) {
+    if (input === null || input === undefined || Number.isNaN(input)) {
         return default_value;
     }
-    return !!value;
+    return !!input;
 }
 
 module.exports = make_bool;

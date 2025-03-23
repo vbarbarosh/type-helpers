@@ -1,6 +1,6 @@
-function is_symbol(value)
+function is_symbol(input)
 {
-    return typeof value === 'symbol';
+    return typeof input === 'symbol';
 }
 
 module.exports = is_symbol;

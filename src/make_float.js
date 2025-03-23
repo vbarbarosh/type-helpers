@@ -1,20 +1,20 @@
 const is_array = require('./is_array');
 
-function make_float(value, default_value = 0, min = -Number.MAX_VALUE, max = Number.MAX_VALUE)
+function make_float(input, default_value = 0, min = -Number.MAX_VALUE, max = Number.MAX_VALUE)
 {
-    if (value === null || value === undefined || is_array(value) || Number.isNaN(value)) {
+    if (input === null || input === undefined || is_array(input) || Number.isNaN(input)) {
         return default_value;
     }
 
-    switch (typeof value) {
+    switch (typeof input) {
     case 'bigint':
-        return Math.max(min, Math.min(max, Number(value)));
+        return Math.max(min, Math.min(max, Number(input)));
     case 'symbol':
     case 'function':
         return default_value;
     }
 
-    const tmp = value*1;
+    const tmp = input*1;
     if (Number.isNaN(tmp)) {
         return default_value;
     }

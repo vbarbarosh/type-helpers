@@ -7,12 +7,12 @@
  *
  *     val?.xxx
  */
-function make_obj(value, default_value = {})
+function make_obj(input, default_value = {})
 {
-    if (value === null || typeof value !== 'object') {
+    if (input === null || typeof input !== 'object') {
         return default_value;
     }
-    return value;
+    return input;
 }
 
 module.exports = make_obj;

@@ -1,6 +1,6 @@
-function is_object(value)
+function is_object(input)
 {
-    return (value !== null && typeof value === 'object' && !Array.isArray(value));
+    return (input !== null && typeof input === 'object' && !Array.isArray(input));
 }
 
 module.exports = is_object;

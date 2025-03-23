@@ -1,7 +1,7 @@
-function make_enum(value, options, default_value = options[0])
+function make_enum(input, options, default_value = options[0])
 {
-    if (options.includes(value)) {
-        return value;
+    if (options.includes(input)) {
+        return input;
     }
     return default_value;
 }

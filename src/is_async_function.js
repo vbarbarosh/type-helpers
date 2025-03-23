@@ -1,9 +1,9 @@
-function is_async_function(value)
+function is_async_function(input)
 {
-    if (value === null || value === undefined) {
+    if (input === null || input === undefined) {
         return false;
     }
-    return Object.getPrototypeOf(value) === Object.getPrototypeOf(x);
+    return Object.getPrototypeOf(input) === Object.getPrototypeOf(x);
 }
 
 async function x()

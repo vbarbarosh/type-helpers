@@ -8,10 +8,10 @@
  *
  * @link https://stackoverflow.com/a/40922715
  */
-function is_ctor(value)
+function is_ctor(input)
 {
     try {
-        Reflect.construct(String, [], value);
+        Reflect.construct(String, [], input);
     }
     catch (error) {
         return false;

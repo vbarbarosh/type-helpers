@@ -1,6 +1,6 @@
-function is_function(value)
+function is_function(input)
 {
-    return typeof value === 'function';
+    return typeof input === 'function';
 }
 
 module.exports = is_function;

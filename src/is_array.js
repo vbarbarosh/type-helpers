@@ -1,6 +1,6 @@
-function is_array(value)
+function is_array(input)
 {
-    return Array.isArray(value);
+    return Array.isArray(input);
 }
 
 module.exports = is_array;

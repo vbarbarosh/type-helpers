@@ -1,6 +1,6 @@
-function is_bool(value)
+function is_bool(input)
 {
-    return value === true || value === false;
+    return input === true || input === false;
 }
 
 module.exports = is_bool;

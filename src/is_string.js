@@ -1,6 +1,6 @@
-function is_string(value)
+function is_string(input)
 {
-    return typeof value === 'string';
+    return typeof input === 'string';
 }
 
 module.exports = is_string;

@@ -1,18 +1,18 @@
 const is_array = require('./is_array');
 
-function is_empty(value)
+function is_empty(input)
 {
-    if (value === null || value === undefined) {
+    if (input === null || input === undefined) {
         return true;
     }
-    switch (typeof value) {
+    switch (typeof input) {
     case 'object':
-        if (is_array(value)) {
-            return value.length === 0;
+        if (is_array(input)) {
+            return input.length === 0;
         }
-        return Object.keys(value).length === 0;
+        return Object.keys(input).length === 0;
     default:
-        return !value;
+        return !input;
     }
 }
 
