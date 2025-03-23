@@ -101,7 +101,7 @@ const standard_types = {
         }
         return params.options[0];
     },
-    // {type: 'enum', options: ['foo', 'bar', 'baz']}
+    // {type: 'tags', options: ['foo', 'bar', 'baz']}
     tags: function (input, params) {
         if (!is_array(params.options)) {
             throw new Error('[type=tags] should have options defined');
