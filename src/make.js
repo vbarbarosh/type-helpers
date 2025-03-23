@@ -8,45 +8,45 @@ const make_obj = require('./make_obj');
 const make_str = require('./make_str');
 
 const standard_types = {
-    // {type: 'raw'}
+    // {type: 'raw', nullable: false, before: input => input, after: out => out}
     raw: function (input) {
         return input;
     },
-    // {type: 'any', default: undefined}
+    // {type: 'any', default: undefined, nullable: false, before: input => input, after: out => out}
     any: function (input, params) {
         return input === undefined ? params.default : input;
     },
-    // {type: 'null'}
+    // {type: 'null', nullable: false, before: input => input, after: out => out}
     null: function () {
         return null;
     },
-    // {type: 'const', value: 123}
+    // {type: 'const', value: 123, nullable: false, before: input => input, after: out => out}
     const: function (input, params) {
         return params.value;
     },
-    // {type: 'bool', default: false}
+    // {type: 'bool', default: false, nullable: false, before: input => input, after: out => out}
     bool: function (input, params) {
         return make_bool(input, params.default);
     },
-    // {type: 'int', min: 0, max: 100, default: 0}
+    // {type: 'int', min: 0, max: 100, default: 0, nullable: false, before: input => input, after: out => out}
     int: function (input, params) {
         const min = make_int(params.min, Number.MIN_SAFE_INTEGER);
         const max = make_int(params.max, Number.MAX_SAFE_INTEGER);
         const default_value = Math.min(max, Math.max(min, make_int(params.default)));
         return make_int(input, default_value, min, max);
     },
-    // {type: 'float', min: 0, max: 100, default: 0}
+    // {type: 'float', min: 0, max: 100, default: 0, nullable: false, before: input => input, after: out => out}
     float: function (input, params) {
         const min = make_float(params.min, -Number.MAX_VALUE);
         const max = make_float(params.max, Number.MAX_VALUE);
         const default_value = Math.min(max, Math.max(min, make_float(params.default)));
         return make_float(input, default_value, min, max);
     },
-    // {type: 'str', default: 'foo'}
+    // {type: 'str', default: 'foo', nullable: false, before: input => input, after: out => out}
     str: function (input, params) {
         return make_str(input, params.default);
     },
-    // {type: 'array', of: __type__, min: 0}
+    // {type: 'array', of: __type__, min: 0, nullable: false, before: input => input, after: out => out}
     array: function (input, params, types) {
         const conf = make({
             of: {type: 'any', default: 'raw'},
@@ -67,7 +67,7 @@ const standard_types = {
         }
         return out;
     },
-    // {type: 'tuple', items: []}
+    // {type: 'tuple', items: [], nullable: false, before: input => input, after: out => out}
     tuple: function (input, params, types) {
         if (!is_array(params.items) || params.items.length === 0) {
             throw new Error('[type=tuple] should have at least one option');
@@ -75,7 +75,7 @@ const standard_types = {
         const values = is_array(input) ? input : [];
         return params.items.map((v,i) => make(v, values[i], types));
     },
-    // {type: 'enum', options: [], transform: v => v}
+    // {type: 'enum', options: [], transform: v => v, nullable: false, before: input => input, after: out => out}
     enum: function (input, params) {
         if (!is_array(params.options) || params.options.length === 0) {
             throw new Error('[type=enum] should have at least one option');
@@ -101,7 +101,7 @@ const standard_types = {
         }
         return params.options[0];
     },
-    // {type: 'tags', options: ['foo', 'bar', 'baz']}
+    // {type: 'tags', options: ['foo', 'bar', 'baz'], nullable: false, before: input => input, after: out => out}
     tags: function (input, params) {
         if (!is_array(params.options)) {
             throw new Error('[type=tags] should have options defined');
@@ -121,7 +121,7 @@ const standard_types = {
         }
         return out;
     },
-    // {type: 'obj', props: {...}, transform: v => v, finish: v => v}
+    // {type: 'obj', props: {...}, transform: v => v, finish: v => v, nullable: false, before: input => input, after: out => out}
     obj: function (input, params, types) {
         // {type: 'obj', transform: ..., finish: ..., props: {...}}
         // adjust, complete, finish, realize, apply_limits, balance
@@ -133,7 +133,7 @@ const standard_types = {
             return [k, make(v, value_obj[k], types)];
         }).filter(v => v));
     },
-    // {type: 'union', prop: 'kind', options: {...}
+    // {type: 'union', prop: 'kind', options: {...}, nullable: false, before: input => input, after: out => out}
     union: function (input, params, types) {
         // https://zod.dev/?id=discriminated-unions
         // Here is a construction for objects. This thing called "Discriminated unions" in zod language
@@ -169,7 +169,7 @@ function make(expr, input, types)
 
     // 🤯 {type: 'array', of: 'int', min: 5, nullable: true}
     if (expr.nullable && (input === null || input === undefined)) {
-        return null;
+        return after(before(null));
     }
 
     // 🩼 When `expr` is an object, it is the same as `{type: 'obj', props: ...}`, unless it has `type` property.
@@ -183,15 +183,16 @@ function make(expr, input, types)
 
     // Standard types
     if (standard_types[expr.type]) {
-        return standard_types[expr.type](input, expr, types);
+        return after(standard_types[expr.type](before(input), expr, types));
     }
 
     // Custom types
     if (types[expr.type]) {
         if (is_function(types[expr.type])) {
-            return types[expr.type](input, expr, types);
+            return after(types[expr.type](before(input), expr, types));
         }
         if (is_array(types[expr.type])) {
+            // 💎 Could be a tuple
             throw new Error('Type defined as array.');
         }
         if ('type' in types[expr.type]) {
@@ -208,6 +209,19 @@ function make(expr, input, types)
     }
 
     throw new Error(`Invalid type: ${expr.type}`);
+
+    function before(input) {
+        if (is_function(expr.before)) {
+            return expr.before(input);
+        }
+        return input;
+    }
+    function after(out) {
+        if (is_function(expr.after)) {
+            return expr.after(out);
+        }
+        return out;
+    }
 }
 
 module.exports = make;

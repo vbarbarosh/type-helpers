@@ -152,85 +152,85 @@ assert.deepStrictEqual(make('widget', {kind: 'submit'}, types), {kind: 'submit',
 ### raw
 
 ```js
-{type: 'raw'}
+{type: 'raw', nullable: false, before: input => input, after: out => out}
 ```
 
 ### any
 
 ```js
-{type: 'any', default: undefined}
+{type: 'any', default: undefined, nullable: false, before: input => input, after: out => out}
 ```
 
 ### null
 
 ```js
-{type: 'null'}
+{type: 'null', nullable: false, before: input => input, after: out => out}
 ```
 
 ### const
 
 ```js
-{type: 'const', value: 123}
+{type: 'const', value: 123, nullable: false, before: input => input, after: out => out}
 ```
 
 ### bool
 
 ```js
-{type: 'bool', default: false}
+{type: 'bool', default: false, nullable: false, before: input => input, after: out => out}
 ```
 
 ### int
 
 ```js
-{type: 'int', min: 0, max: 100, default: 0}
+{type: 'int', min: 0, max: 100, default: 0, nullable: false, before: input => input, after: out => out}
 ```
 
 ### float
 
 ```js
-{type: 'float', min: 0, max: 100, default: 0}
+{type: 'float', min: 0, max: 100, default: 0, nullable: false, before: input => input, after: out => out}
 ```
 
 ### str
 
 ```js
-{type: 'str', default: 'foo'}
+{type: 'str', default: 'foo', nullable: false, before: input => input, after: out => out}
 ```
 
 ### array
 
 ```js
-{type: 'array', of: __type__, min: 0}
+{type: 'array', of: __type__, min: 0, nullable: false, before: input => input, after: out => out}
 ```
 
 ### tuple
 
 ```js
-{type: 'tuple', items: []}
+{type: 'tuple', items: [], nullable: false, before: input => input, after: out => out}
 ```
 
 ### enum
 
 ```js
-{type: 'enum', options: [], transform: v => v}
+{type: 'enum', options: [], transform: v => v, nullable: false, before: input => input, after: out => out}
 ```
 
 ### tags
 
 ```js
-{type: 'tags', options: ['foo', 'bar', 'baz']}
+{type: 'tags', options: ['foo', 'bar', 'baz'], nullable: false, before: input => input, after: out => out}
 ```
 
 ### obj
 
 ```js
-{type: 'obj', props: {...}, transform: v => v, finish: v => v}
+{type: 'obj', props: {...}, transform: v => v, finish: v => v, nullable: false, before: input => input, after: out => out}
 ```
 
 ### union
 
 ```js
-{type: 'union', prop: 'kind', options: {...}
+{type: 'union', prop: 'kind', options: {...}, nullable: false, before: input => input, after: out => out}
 ```
 
 ## Related
