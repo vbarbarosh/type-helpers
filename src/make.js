@@ -13,45 +13,45 @@ const standard_types = {
         return input;
     },
     // {type: 'any', default: undefined}
-    any: function (input, expr) {
-        return input === undefined ? expr.default : input;
+    any: function (input, params) {
+        return input === undefined ? params.default : input;
     },
     // {type: 'null'}
     null: function () {
         return null;
     },
     // {type: 'const', value: 123}
-    const: function (input, expr) {
-        return expr.value;
+    const: function (input, params) {
+        return params.value;
     },
     // {type: 'bool', default: false}
-    bool: function (input, expr) {
-        return make_bool(input, expr.default);
+    bool: function (input, params) {
+        return make_bool(input, params.default);
     },
     // {type: 'int', min: 0, max: 100, default: 0}
-    int: function (input, expr) {
-        const min = make_int(expr.min, Number.MIN_SAFE_INTEGER);
-        const max = make_int(expr.max, Number.MAX_SAFE_INTEGER);
-        const default_value = Math.min(max, Math.max(min, make_int(expr.default)));
+    int: function (input, params) {
+        const min = make_int(params.min, Number.MIN_SAFE_INTEGER);
+        const max = make_int(params.max, Number.MAX_SAFE_INTEGER);
+        const default_value = Math.min(max, Math.max(min, make_int(params.default)));
         return make_int(input, default_value, min, max);
     },
     // {type: 'float', min: 0, max: 100, default: 0}
-    float: function (input, expr) {
-        const min = make_float(expr.min, -Number.MAX_VALUE);
-        const max = make_float(expr.max, Number.MAX_VALUE);
-        const default_value = Math.min(max, Math.max(min, make_float(expr.default)));
+    float: function (input, params) {
+        const min = make_float(params.min, -Number.MAX_VALUE);
+        const max = make_float(params.max, Number.MAX_VALUE);
+        const default_value = Math.min(max, Math.max(min, make_float(params.default)));
         return make_float(input, default_value, min, max);
     },
     // {type: 'str', default: 'foo'}
-    str: function (input, expr) {
-        return make_str(input, expr.default);
+    str: function (input, params) {
+        return make_str(input, params.default);
     },
     // {type: 'array', of: __type__, min: 0}
-    array: function (input, expr, types) {
+    array: function (input, params, types) {
         const conf = make({
             of: {type: 'any', default: 'raw'},
             min: {type: 'int', min: 0}
-        }, expr, types);
+        }, params, types);
         let out;
         if (is_array(input)) {
             out = input.map(v => make(conf.of, v, types));
@@ -68,45 +68,45 @@ const standard_types = {
         return out;
     },
     // {type: 'tuple', items: []}
-    tuple: function (input, expr, types) {
-        if (!is_array(expr.items) || expr.items.length === 0) {
+    tuple: function (input, params, types) {
+        if (!is_array(params.items) || params.items.length === 0) {
             throw new Error('[type=tuple] should have at least one option');
         }
         const values = is_array(input) ? input : [];
-        return expr.items.map((v,i) => make(v, values[i], types));
+        return params.items.map((v,i) => make(v, values[i], types));
     },
     // {type: 'enum', options: [], transform: v => v}
-    enum: function (input, expr) {
-        if (!is_array(expr.options) || expr.options.length === 0) {
+    enum: function (input, params) {
+        if (!is_array(params.options) || params.options.length === 0) {
             throw new Error('[type=enum] should have at least one option');
         }
         let tmp = input;
-        if (expr.transform) {
-            switch (typeof expr.transform) {
+        if (params.transform) {
+            switch (typeof params.transform) {
             case 'object':
-                if (input in expr.transform) {
-                    tmp = expr.transform[input];
+                if (input in params.transform) {
+                    tmp = params.transform[input];
                 }
                 break;
             case 'function':
-                tmp = expr.transform(input, expr);
+                tmp = params.transform(input, params);
                 break;
             }
         }
-        if (expr.options.includes(tmp)) {
+        if (params.options.includes(tmp)) {
             return tmp;
         }
-        if ('default' in expr) {
-            return expr.default;
+        if ('default' in params) {
+            return params.default;
         }
-        return expr.options[0];
+        return params.options[0];
     },
     // {type: 'object', props: {...}, transform: v => v, finish: v => v}
-    object: function (input, expr, types) {
+    object: function (input, params, types) {
         // {type: 'object', transform: ..., finish: ..., props: {...}}
         // adjust, complete, finish, realize, apply_limits, balance
-        const value_obj = (expr.transform ? expr.transform(input) : make_obj(input));
-        return Object.fromEntries(Object.entries(expr.props||{}).map(function ([k, v]) {
+        const value_obj = (params.transform ? params.transform(input) : make_obj(input));
+        return Object.fromEntries(Object.entries(params.props||{}).map(function ([k, v]) {
             if (v.optional && value_obj[k] === undefined) {
                 return null;
             }
@@ -114,22 +114,22 @@ const standard_types = {
         }).filter(v => v));
     },
     // {type: 'union', prop: 'kind', options: {...}
-    union: function (input, expr, types) {
+    union: function (input, params, types) {
         // https://zod.dev/?id=discriminated-unions
         // Here is a construction for objects. This thing called "Discriminated unions" in zod language
         // [options] could be replaced by [match] as in PHP or Rust
-        const prop = expr.prop ?? 'type';
+        const prop = params.prop ?? 'type';
         let type = input?.[prop];
-        let expr2 = expr.options?.[type];
+        let expr2 = params.options?.[type];
         if (!expr2) {
-            type = expr.default;
-            expr2 = expr.options?.[type];
+            type = params.default;
+            expr2 = params.options?.[type];
         }
         if (!expr2) {
-            throw new Error(`Union type option not found: [${prop} / ${expr.default}]`);
+            throw new Error(`Union type option not found: [${prop} / ${params.default}]`);
         }
         const out = {};
-        out[expr.prop || 'type'] = type;
+        out[params.prop || 'type'] = type;
         return Object.assign(out, make(expr2, input, types));
     },
 };
