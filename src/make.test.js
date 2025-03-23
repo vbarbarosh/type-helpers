@@ -373,6 +373,26 @@ describe('make', function () {
             assert.deepEqual(actual, {uid: 'banner1', width: 0, height: 0});
         });
     });
+    describe('scenario: an array of tabs', function () {
+        // - an array of tabs
+        // - each tab must have a unique name
+        // - only one tab can be active at a time
+        // - at least one tab must be enabled
+        xit('each tab must have a unique name', function () {
+            const types = {
+                tab: {
+                    name: 'str',
+                    label: 'str',
+                    active: 'bool',
+                    disabled: 'bool',
+                },
+                tabs: {type: 'array', of: 'tab', before: v => v, after: v => array_unique(v, vv => vv.name)}
+            };
+            const tabs = make('tabs', [{name: 'foo'}, {name: 'bar'}, {name: 'bar'}], types);
+            const expected = [{name: 'foo'}, {name: 'bar'}];
+            assert.deepStrictEqual(tabs, expected);
+        });
+    });
     describe('some random scenarios', function () {
         let next_uid = 1;
         const types = {
@@ -642,14 +662,15 @@ describe('make', function () {
     });
 });
 
-function array_unique(values)
+function array_unique(values, fn = v => v)
 {
     const set = new Set();
     return values.filter(function (item) {
-        if (set.has(item)) {
+        const token = fn(item);
+        if (set.has(token)) {
             return false;
         }
-        set.add(item);
+        set.add(token);
         return true;
     });
 }
