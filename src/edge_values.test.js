@@ -14,7 +14,12 @@ describe('edge_values', function () {
             }
             else if (is_async_generator(item.value)) {
                 it(item.label, async function () {
-                    await Array.fromAsync(item.value());
+                    // TypeError: Array.fromAsync is not a function
+                    // Node.js: 22+
+                    // await Array.fromAsync(item.value());
+                    for await (const tmp of item.value()) {
+                        // ignore
+                    }
                 });
             }
             else if (is_generator(item.value)) {
