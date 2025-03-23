@@ -6,6 +6,7 @@ function is_generator(input)
     return false;
 }
 
+/* istanbul ignore next */
 function* x()
 {
 }

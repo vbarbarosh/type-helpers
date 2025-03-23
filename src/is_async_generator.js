@@ -6,6 +6,7 @@ function is_async_generator(input)
     return Object.getPrototypeOf(input) === Object.getPrototypeOf(x);
 }
 
+/* istanbul ignore next */
 async function* x()
 {
 }
