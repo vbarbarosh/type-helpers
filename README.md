@@ -20,7 +20,11 @@ npm install @vbarbarosh/type-helpers
 
 ## Motivation
 
-Generate well-typed objects initialized from an untrusted source.
+1. Generate well-typed objects initialized from an untrusted source
+2. Collect a set of functions for checking types in JavaScript
+3. Edge Values: create a list of edge values in JavaScript. This should be
+   checked by functions to ensure they will handle all possible inputs
+   (separate `describe` section in test a `.test.js` file).
 
 ```js
 const types = {
