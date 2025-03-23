@@ -11,7 +11,7 @@ describe('make', function () {
         });
     });
     describe('edge cases', function () {
-        it('🩼 When `expr` is an object , it is the same as `{type: "object", props: ...}`, unless it has `type` property.', function () {
+        it('🩼 When `expr` is an object , it is the same as `{type: "obj", props: ...}`, unless it has `type` property.', function () {
             assert.deepStrictEqual(make({foo: 'int', bar: 'int'}), {foo: 0, bar: 0});
         });
         it('🩼 A way to remove special meaning from `type` property is to wrap its value into array', function () {
@@ -60,7 +60,7 @@ describe('make', function () {
             assert.deepStrictEqual(make('float'), 0);
             assert.deepStrictEqual(make('str'), '');
             assert.deepStrictEqual(make('array'), []);
-            assert.deepStrictEqual(make('object'), {});
+            assert.deepStrictEqual(make('obj'), {});
         });
     });
     describe('nullable types should be marked explicitly', function () {
@@ -70,7 +70,7 @@ describe('make', function () {
             assert.deepStrictEqual(make({type: 'float', nullable: true}, null), null);
             assert.deepStrictEqual(make({type: 'str', nullable: true}, null), null);
             assert.deepStrictEqual(make({type: 'array', nullable: true}, null), null);
-            assert.deepStrictEqual(make({type: 'object', nullable: true}, null), null);
+            assert.deepStrictEqual(make({type: 'obj', nullable: true}, null), null);
             assert.deepStrictEqual(make({type: 'enum', nullable: true}, null), null);
         });
         it('undefined -> null', function () {
@@ -79,7 +79,7 @@ describe('make', function () {
             assert.deepStrictEqual(make({type: 'float', nullable: true}, undefined), null);
             assert.deepStrictEqual(make({type: 'str', nullable: true}, undefined), null);
             assert.deepStrictEqual(make({type: 'array', nullable: true}, undefined), null);
-            assert.deepStrictEqual(make({type: 'object', nullable: true}, undefined), null);
+            assert.deepStrictEqual(make({type: 'obj', nullable: true}, undefined), null);
             assert.deepStrictEqual(make({type: 'enum', nullable: true}, undefined), null);
         });
     });
@@ -398,7 +398,7 @@ describe('make', function () {
             const actual = make('Banner', {pub_id: 'banner_1'}, {
                 ...types,
                 Banner: {
-                    type: 'object',
+                    type: 'obj',
                     transform: function (v) {
                         return {...v, uid: v.uid ?? v.pub_id};
                     },
@@ -418,7 +418,7 @@ describe('make', function () {
             const actual = make('User', {pub_id: 'user_1', first: 'Jack', last: 'White'}, {
                 ...types,
                 User: {
-                    type: 'object',
+                    type: 'obj',
                     transform: function (v) {
                         return {
                             ...v,
@@ -440,7 +440,7 @@ describe('make', function () {
             const actual = make('User', {pub_id: 'user_1', name: 'Jack White'}, {
                 ...types,
                 User: {
-                    type: 'object',
+                    type: 'obj',
                     transform: function (v) {
                         const [first, last] = make_str(v?.name).split(' ');
                         return {

@@ -101,9 +101,9 @@ const standard_types = {
         }
         return params.options[0];
     },
-    // {type: 'object', props: {...}, transform: v => v, finish: v => v}
-    object: function (input, params, types) {
-        // {type: 'object', transform: ..., finish: ..., props: {...}}
+    // {type: 'obj', props: {...}, transform: v => v, finish: v => v}
+    obj: function (input, params, types) {
+        // {type: 'obj', transform: ..., finish: ..., props: {...}}
         // adjust, complete, finish, realize, apply_limits, balance
         const value_obj = (params.transform ? params.transform(input) : make_obj(input));
         return Object.fromEntries(Object.entries(params.props||{}).map(function ([k, v]) {
@@ -152,13 +152,13 @@ function make(expr, input, types)
         return null;
     }
 
-    // 🩼 When `expr` is an object, it is the same as `{type: 'object', props: ...}`, unless it has `type` property.
+    // 🩼 When `expr` is an object, it is the same as `{type: 'obj', props: ...}`, unless it has `type` property.
     if (!('type' in expr)) {
-        return make({type: 'object', props: expr}, input, types);
+        return make({type: 'obj', props: expr}, input, types);
     }
     // 🩼 A way to remove special meaning from `type` property is to wrap its value into array
     if (is_array(expr.type)) {
-        return make({type: 'object', props: {...expr, type: expr.type[0]}}, input, types);
+        return make({type: 'obj', props: {...expr, type: expr.type[0]}}, input, types);
     }
 
     // Standard types
@@ -183,7 +183,7 @@ function make(expr, input, types)
             // }
             return make({...types[expr.type], ...expr, type: types[expr.type].type}, input, types);
         }
-        // Custom type defined without [type] property is a set of props for [object]
+        // Custom type defined without [type] property is a set of props for [obj]
         return make(types[expr.type], input, types);
     }
 
