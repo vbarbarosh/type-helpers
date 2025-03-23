@@ -101,6 +101,26 @@ const standard_types = {
         }
         return params.options[0];
     },
+    // {type: 'enum', options: ['foo', 'bar', 'baz']}
+    tags: function (input, params) {
+        if (!is_array(params.options)) {
+            throw new Error('[type=tags] should have options defined');
+        }
+        const all = new Set(params.options);
+        const out = [];
+        if (is_array(input)) {
+            const taken = new Set();
+            input.forEach(function (tmp) {
+                if (all.has(tmp)) {
+                    if (!taken.has(tmp)) {
+                        taken.add(tmp);
+                        out.push(tmp);
+                    }
+                }
+            });
+        }
+        return out;
+    },
     // {type: 'obj', props: {...}, transform: v => v, finish: v => v}
     obj: function (input, params, types) {
         // {type: 'obj', transform: ..., finish: ..., props: {...}}

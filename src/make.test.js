@@ -477,6 +477,11 @@ describe('make', function () {
             const expected = ['Thu', 'Sat'];
             assert.deepStrictEqual(actual, expected);
         });
+        it('tags', function () {
+            const actual = make({type: 'tags', options: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']}, ['Sat', 'Thu', 'gg']);
+            const expected = ['Sat', 'Thu'];
+            assert.deepStrictEqual(actual, expected);
+        });
         it('weekdays-map', function () {
             const types = {
                 weekdays: {
