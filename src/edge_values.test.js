@@ -1,8 +1,8 @@
 const edge_values = require('./edge_values');
-const is_async_generator = require('./is_async_generator');
 const is_ctor = require('./is_ctor');
-const is_function = require('./is_function');
-const is_generator = require('./is_generator');
+const is_fn = require('./is_fn');
+const is_gen = require('./is_gen');
+const is_gen_async = require('./is_gen_async');
 
 describe('edge_values', function () {
     describe('mute nyc about uncalled functions', function () {
@@ -12,7 +12,12 @@ describe('edge_values', function () {
                     new item.value();
                 });
             }
-            else if (is_async_generator(item.value)) {
+            else if (is_gen(item.value)) {
+                it(item.label, async function () {
+                    Array.from(item.value());
+                });
+            }
+            else if (is_gen_async(item.value)) {
                 it(item.label, async function () {
                     // TypeError: Array.fromAsync is not a function
                     // Node.js: 22+
@@ -22,12 +27,7 @@ describe('edge_values', function () {
                     }
                 });
             }
-            else if (is_generator(item.value)) {
-                it(item.label, async function () {
-                    Array.from(item.value());
-                });
-            }
-            else if (is_function(item.value)) {
+            else if (is_fn(item.value)) {
                 it(item.label, async function () {
                     await item.value();
                 });

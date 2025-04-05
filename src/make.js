@@ -1,6 +1,6 @@
 const is_array = require('./is_array');
-const is_function = require('./is_function');
-const is_string = require('./is_string');
+const is_fn = require('./is_fn');
+const is_str = require('./is_str');
 const make_bool = require('./make_bool');
 const make_float = require('./make_float');
 const make_int = require('./make_int');
@@ -163,7 +163,7 @@ function make(expr, input, types)
         throw new Error('Empty expressions are not allowed');
     }
 
-    if (is_string(expr)) {
+    if (is_str(expr)) {
         return make({type: expr}, input, types);
     }
 
@@ -188,7 +188,7 @@ function make(expr, input, types)
 
     // Custom types
     if (types[expr.type]) {
-        if (is_function(types[expr.type])) {
+        if (is_fn(types[expr.type])) {
             return after(types[expr.type](before(input), expr, types));
         }
         if (is_array(types[expr.type])) {
@@ -211,13 +211,13 @@ function make(expr, input, types)
     throw new Error(`Invalid type: ${expr.type}`);
 
     function before(input) {
-        if (is_function(expr.before)) {
+        if (is_fn(expr.before)) {
             return expr.before(input);
         }
         return input;
     }
     function after(out) {
-        if (is_function(expr.after)) {
+        if (is_fn(expr.after)) {
             return expr.after(out);
         }
         return out;

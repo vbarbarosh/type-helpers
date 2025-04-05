@@ -1,4 +1,4 @@
-function is_async_function(input)
+function is_fn_async(input)
 {
     if (input === null || input === undefined) {
         return false;
@@ -11,4 +11,4 @@ async function x()
 {
 }
 
-module.exports = is_async_function;
+module.exports = is_fn_async;

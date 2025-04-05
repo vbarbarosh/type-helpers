@@ -1,6 +1,6 @@
-function is_number(input)
+function is_num(input)
 {
     return (typeof input === 'number') && isFinite(input);
 }
 
-module.exports = is_number;
+module.exports = is_num;

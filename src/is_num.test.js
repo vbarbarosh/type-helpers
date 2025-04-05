@@ -1,10 +1,10 @@
 const assert = require('assert');
 const edge_values = require('./edge_values');
-const is_number = require('./is_number');
+const is_num = require('./is_num');
 
-describe('is_number', function () {
+describe('is_num', function () {
     it('should accept no args', function () {
-        assert.strictEqual(is_number(), false);
+        assert.strictEqual(is_num(), false);
     });
     describe('should handle edge values', function () {
         edge_values.forEach(function (item) {
@@ -24,10 +24,10 @@ describe('is_number', function () {
                 case 'Number.MAX_VALUE':
                 case 'Number.MIN_SAFE_INTEGER':
                 case 'Number.MAX_SAFE_INTEGER':
-                    assert.strictEqual(is_number(item.value), true);
+                    assert.strictEqual(is_num(item.value), true);
                     break;
                 default:
-                    assert.strictEqual(is_number(item.value), false);
+                    assert.strictEqual(is_num(item.value), false);
                     break;
                 }
             });

@@ -1,4 +1,4 @@
-function is_async_generator(input)
+function is_gen_async(input)
 {
     if (input === null || input === undefined) {
         return false;
@@ -11,4 +11,4 @@ async function* x()
 {
 }
 
-module.exports = is_async_generator;
+module.exports = is_gen_async;

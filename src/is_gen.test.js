@@ -1,21 +1,20 @@
 const assert = require('assert');
 const edge_values = require('./edge_values');
-const is_async_function = require('./is_async_function');
+const is_gen = require('./is_gen');
 
-describe('is_async_function', function () {
+describe('is_gen', function () {
     it('should accept no args', function () {
-        assert.strictEqual(is_async_function(), false);
+        assert.strictEqual(is_gen(), false);
     });
     describe('should handle edge values', function () {
         edge_values.forEach(function (item) {
             it(item.label, function () {
                 switch (item.label) {
-                case 'async function':
-                case 'async () => 1':
-                    assert.strictEqual(is_async_function(item.value), true);
+                case 'function*':
+                    assert.strictEqual(is_gen(item.value), true);
                     break;
                 default:
-                    assert.strictEqual(is_async_function(item.value), false);
+                    assert.strictEqual(is_gen(item.value), false);
                     break;
                 }
             });

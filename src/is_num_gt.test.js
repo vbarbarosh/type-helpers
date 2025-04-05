@@ -1,10 +1,10 @@
 const assert = require('assert');
 const edge_values = require('./edge_values');
-const is_number_gt = require('./is_number_gt');
+const is_num_gt = require('./is_num_gt');
 
-describe('is_number_gt', function () {
+describe('is_num_gt', function () {
     it('should accept no args', function () {
-        assert.strictEqual(is_number_gt(), false);
+        assert.strictEqual(is_num_gt(), false);
     });
     describe('should handle edge values', function () {
         edge_values.forEach(function (item) {
@@ -18,10 +18,10 @@ describe('is_number_gt', function () {
                 case 'Number.MIN_VALUE':
                 case 'Number.MAX_VALUE':
                 case 'Number.MAX_SAFE_INTEGER':
-                    assert.strictEqual(is_number_gt(item.value, 0), true);
+                    assert.strictEqual(is_num_gt(item.value, 0), true);
                     break;
                 default:
-                    assert.strictEqual(is_number_gt(item.value, 0), false);
+                    assert.strictEqual(is_num_gt(item.value, 0), false);
                     break;
                 }
             });
