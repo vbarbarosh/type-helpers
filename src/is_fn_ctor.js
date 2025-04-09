@@ -8,7 +8,7 @@
  *
  * @link https://stackoverflow.com/a/40922715
  */
-function is_ctor(input)
+function is_fn_ctor(input)
 {
     try {
         Reflect.construct(String, [], input);
@@ -20,4 +20,4 @@ function is_ctor(input)
     // return !!(typeof value === 'function' && value.prototype && Object.getOwnPropertyNames(value.prototype).includes('constructor'));
 }
 
-module.exports = is_ctor;
+module.exports = is_fn_ctor;
