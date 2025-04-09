@@ -24,7 +24,7 @@ npm install @vbarbarosh/type-helpers
 2. Collect a set of functions for checking types in JavaScript
 3. Edge Values: create a list of edge values in JavaScript. This should be
    checked by functions to ensure they will handle all possible inputs
-   (separate `describe` section in test a `.test.js` file).
+   (separate `describe` section in a `.test.js` file).
 
 ```js
 const types = {
