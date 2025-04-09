@@ -197,7 +197,7 @@ function make(expr, input, types)
         }
         if (is_array(types[expr.type])) {
             // 💎 Could be a tuple
-            throw new Error('Type defined as array.');
+            throw new Error('Type defined as array');
         }
         if ('type' in types[expr.type]) {
             // ✳️ type aliases (custom types expressed as another custom types — topmost properties should have priority)

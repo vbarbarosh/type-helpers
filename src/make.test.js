@@ -3,14 +3,34 @@ const make = require('./make');
 const make_str = require('./make_str');
 
 describe('make', function () {
-    describe('arrays', function () {
-        it('should pass basic tests for arrays', function () {
-            assert.deepStrictEqual(make({type: 'array', of: 'str'}), []);
-            assert.deepStrictEqual(make({type: 'array', of: 'str', min: 2}, 'x'), ['x', '']);
-            assert.deepStrictEqual(make({type: 'array', of: 'int', min: 2}, ['1']), [1, 0]);
+    describe('expr', function () {
+        it('should throw Empty expressions are not allowed', function () {
+            assert.throws(() => make(), new Error('Empty expressions are not allowed'));
         });
-    });
-    describe('edge cases', function () {
+        it('should accept function', function () {
+            const actual = make(v => `[${v}]`, 'foo');
+            assert.deepStrictEqual(actual, '[foo]');
+        });
+        it('should accept string -> {type: "str"}', function () {
+            const actual = make('str');
+            const expected = make({type: 'str'});
+            assert.deepStrictEqual(actual, expected);
+        });
+        it('should accept nullable', function () {
+            const actual = make({type: 'str', nullable: true});
+            const expected = null;
+            assert.deepStrictEqual(actual, expected);
+        });
+        it('should accept object without [type] property -> {type: "obj", props: ...}', function () {
+            const actual = make({foo: 'str', bar: 'int', baz: 'bool'});
+            const expected = make({type: 'obj', props: {foo: 'str', bar: 'int', baz: 'bool'}});
+            assert.deepStrictEqual(actual, expected);
+        });
+        it('should accept object type property as array -> {type: "obj", props: {..., type: [0]}}', function () {
+            const actual = make({type: ['str'], foo: 'str', bar: 'int', baz: 'bool'});
+            const expected = make({type: 'obj', props: {type: 'str', foo: 'str', bar: 'int', baz: 'bool'}});
+            assert.deepStrictEqual(actual, expected);
+        });
         it('🩼 When `expr` is an object , it is the same as `{type: "obj", props: ...}`, unless it has `type` property.', function () {
             assert.deepStrictEqual(make({foo: 'int', bar: 'int'}), {foo: 0, bar: 0});
         });
@@ -19,11 +39,16 @@ describe('make', function () {
             assert.deepStrictEqual(make({type: [{type: 'int', min: 15}], foo: 'int', bar: 'int'}), {type: 15, foo: 0, bar: 0});
         });
     });
+    describe('arrays', function () {
+        it('should pass basic tests for arrays', function () {
+            assert.deepStrictEqual(make({type: 'array', of: 'str'}), []);
+            assert.deepStrictEqual(make({type: 'array', of: 'str', min: 2}, 'x'), ['x', '']);
+            assert.deepStrictEqual(make({type: 'array', of: 'int', min: 2}, ['1']), [1, 0]);
+        });
+    });
     describe('errors', function () {
         it('throw if type was defined as array', function () {
-            assert.throws(function () {
-                make('apple', '', {apple: []});
-            });
+            assert.throws(() => make('apple', '', {apple: []}), new Error('Type defined as array'));
         });
     });
     describe('edge', function () {
