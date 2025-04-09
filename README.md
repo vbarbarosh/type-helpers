@@ -237,6 +237,20 @@ assert.deepStrictEqual(make('widget', {kind: 'submit'}, types), {kind: 'submit',
 {type: 'union', prop: 'kind', options: {...}, nullable: false, before: input => input, after: out => out}
 ```
 
+## Bonus
+
+There are several `safe_` functions. They guarantee a valid result by falling
+back to `empty_value` if the `input` is `null`, `undefined`, or cannot be safely
+represented in the requested type.
+
+- [`safe_bool(input, empty_value = false)`](src/safe_bool.js)
+- [`safe_float(input, empty_value = 0, min = -Number.MAX_VALUE, max = Number.MAX_VALUE)`](src/safe_float.js)
+- [`safe_int(input, empty_value = 0, min = Number.MIN_SAFE_INTEGER, max = Number.MAX_SAFE_INTEGER)`](src/safe_int.js)
+- [`safe_obj(input, empty_value = {})`](src/safe_obj.js)
+- [`safe_str(input, empty_value = '')`](src/safe_str.js)
+
+⚠️ Note that `empty_value` is returned without additional type conversion. This is intentional.
+
 ## Related
 
 ### Reading
