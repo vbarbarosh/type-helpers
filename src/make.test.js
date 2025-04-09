@@ -343,7 +343,7 @@ describe('make', function () {
             const actual = make({type: 'movie'}, input, types);
             assert.deepStrictEqual(actual, expected);
         });
-        it('delegate a value create to a function', function () {
+        it('delegate value creation to a function', function () {
             const types = {
                 Custom: function (input) {
                     return {__delegated__: true, input};
