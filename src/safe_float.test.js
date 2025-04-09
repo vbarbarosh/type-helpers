@@ -1,17 +1,17 @@
 const assert = require('assert');
 const edge_values = require('./edge_values');
-const make_float = require('./make_float');
+const safe_float = require('./safe_float');
 
-const SP = Symbol('empty_value for make_float');
+const SP = Symbol('empty_value for safe_float');
 
-describe('make_float', function () {
+describe('safe_float', function () {
     it('should accept no args', function () {
-        assert.strictEqual(make_float(), 0);
+        assert.strictEqual(safe_float(), 0);
     });
     it('should return the default value for null, undefined, or NaN', function () {
-        assert.strictEqual(make_float(null, SP), SP);
-        assert.strictEqual(make_float(undefined, SP), SP);
-        assert.strictEqual(make_float(NaN, SP), SP);
+        assert.strictEqual(safe_float(null, SP), SP);
+        assert.strictEqual(safe_float(undefined, SP), SP);
+        assert.strictEqual(safe_float(NaN, SP), SP);
     });
     describe('should handle edge values', function () {
         edge_values.forEach(function (item) {
@@ -20,14 +20,14 @@ describe('make_float', function () {
                 case 'null':
                 case 'undefined':
                 case 'NaN':
-                    assert.strictEqual(make_float(item.value, SP), SP);
+                    assert.strictEqual(safe_float(item.value, SP), SP);
                     break;
                 case "''":
                 case 'false':
                 case '0':
                 case '-0':
                 case '0n':
-                    assert.strictEqual(make_float(item.value, SP), 0);
+                    assert.strictEqual(safe_float(item.value, SP), 0);
                     break;
                 case '0.49':
                 case '0.50':
@@ -41,27 +41,27 @@ describe('make_float', function () {
                 case 'Number.MAX_VALUE':
                 case 'Number.MIN_SAFE_INTEGER':
                 case 'Number.MAX_SAFE_INTEGER':
-                    assert.strictEqual(make_float(item.value, SP), item.value);
+                    assert.strictEqual(safe_float(item.value, SP), item.value);
                     break;
                 case '10n**100n':
-                    assert.strictEqual(make_float(item.value, SP), 1e100);
+                    assert.strictEqual(safe_float(item.value, SP), 1e100);
                     break;
                 case '-(10n**100n)':
-                    assert.strictEqual(make_float(item.value, SP), -1e100);
+                    assert.strictEqual(safe_float(item.value, SP), -1e100);
                     break;
                 case 'true':
-                    assert.strictEqual(make_float(item.value, SP), 1);
+                    assert.strictEqual(safe_float(item.value, SP), 1);
                     break;
                 case 'Infinity':
                 case 'Number.POSITIVE_INFINITY':
-                    assert.strictEqual(make_float(item.value, SP), Number.MAX_VALUE);
+                    assert.strictEqual(safe_float(item.value, SP), Number.MAX_VALUE);
                     break;
                 case '-Infinity':
                 case 'Number.NEGATIVE_INFINITY':
-                    assert.strictEqual(make_float(item.value, SP), -Number.MAX_VALUE);
+                    assert.strictEqual(safe_float(item.value, SP), -Number.MAX_VALUE);
                     break;
                 default:
-                    assert.strictEqual(make_float(item.value, SP), SP);
+                    assert.strictEqual(safe_float(item.value, SP), SP);
                     break;
                 }
             });

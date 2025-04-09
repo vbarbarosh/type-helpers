@@ -1,17 +1,17 @@
 const assert = require('assert');
 const edge_values = require('./edge_values');
-const make_str = require('./make_str');
+const safe_str = require('./safe_str');
 
-const SP = Symbol('empty_value for make_str');
+const SP = Symbol('empty_value for safe_str');
 
-describe('make_str', function () {
+describe('safe_str', function () {
     it('should accept no args', function () {
-        assert.strictEqual(make_str(), '');
+        assert.strictEqual(safe_str(), '');
     });
     it('should return the default value for null, undefined, or NaN', function () {
-        assert.strictEqual(make_str(null, SP), SP);
-        assert.strictEqual(make_str(undefined, SP), SP);
-        assert.strictEqual(make_str(NaN, SP), SP);
+        assert.strictEqual(safe_str(null, SP), SP);
+        assert.strictEqual(safe_str(undefined, SP), SP);
+        assert.strictEqual(safe_str(NaN, SP), SP);
     });
     describe('should handle edge values', function () {
         edge_values.forEach(function (item) {
@@ -22,7 +22,7 @@ describe('make_str', function () {
                 case "'undefined'":
                 case "'true'":
                 case "'false'":
-                    assert.strictEqual(make_str(item.value, SP), item.value);
+                    assert.strictEqual(safe_str(item.value, SP), item.value);
                     break;
                 case 'true':
                 case 'false':
@@ -42,13 +42,13 @@ describe('make_str', function () {
                 case 'Number.MAX_VALUE':
                 case 'Number.MIN_SAFE_INTEGER':
                 case 'Number.MAX_SAFE_INTEGER':
-                    assert.strictEqual(make_str(item.value, SP), item.value.toString());
+                    assert.strictEqual(safe_str(item.value, SP), item.value.toString());
                     break;
                 case '-0':
-                    assert.strictEqual(make_str(item.value, SP), '0');
+                    assert.strictEqual(safe_str(item.value, SP), '0');
                     break;
                 default:
-                    assert.strictEqual(make_str(item.value, SP), SP);
+                    assert.strictEqual(safe_str(item.value, SP), SP);
                     break;
                 }
             });
@@ -56,7 +56,7 @@ describe('make_str', function () {
     });
     describe('basic usage', function () {
         it('should convert Number to string', function () {
-            assert.strictEqual(make_str(555), '555');
+            assert.strictEqual(safe_str(555), '555');
         });
     });
 });

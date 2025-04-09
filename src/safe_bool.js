@@ -1,4 +1,4 @@
-function make_bool(input, empty_value = false)
+function safe_bool(input, empty_value = false)
 {
     if (input === null || input === undefined || Number.isNaN(input)) {
         return empty_value;
@@ -6,4 +6,4 @@ function make_bool(input, empty_value = false)
     return !!input;
 }
 
-module.exports = make_bool;
+module.exports = safe_bool;

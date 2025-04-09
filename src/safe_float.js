@@ -1,6 +1,6 @@
 const is_array = require('./is_array');
 
-function make_float(input, empty_value = 0, min = -Number.MAX_VALUE, max = Number.MAX_VALUE)
+function safe_float(input, empty_value = 0, min = -Number.MAX_VALUE, max = Number.MAX_VALUE)
 {
     if (input === null || input === undefined || is_array(input) || Number.isNaN(input)) {
         return empty_value;
@@ -23,4 +23,4 @@ function make_float(input, empty_value = 0, min = -Number.MAX_VALUE, max = Numbe
     return Math.max(min, Math.min(max, tmp||0));
 }
 
-module.exports = make_float;
+module.exports = safe_float;

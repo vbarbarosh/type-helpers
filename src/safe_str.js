@@ -1,4 +1,4 @@
-function make_str(input, empty_value = '')
+function safe_str(input, empty_value = '')
 {
     // if (value === null || value === undefined || value === Number.POSITIVE_INFINITY || value === Number.NEGATIVE_INFINITY || Number.isNaN(value)) {
     //     return empty_value;
@@ -24,4 +24,4 @@ function make_str(input, empty_value = '')
     }
 }
 
-module.exports = make_str;
+module.exports = safe_str;

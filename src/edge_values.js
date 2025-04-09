@@ -9,10 +9,10 @@
  *                 case 'null':
  *                 case 'undefined':
  *                 case 'NaN':
- *                     assert.strictEqual(make_bool(item.value, SP), SP);
+ *                     assert.strictEqual(safe_bool(item.value, SP), SP);
  *                     break;
  *                 default:
- *                     assert.strictEqual(make_bool(item.value, SP), !!item.value);
+ *                     assert.strictEqual(safe_bool(item.value, SP), !!item.value);
  *                     break;
  *                 }
  *             });

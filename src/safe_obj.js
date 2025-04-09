@@ -1,13 +1,13 @@
 /**
  * The main use case was to convert a value into something, which could be used with dot expression:
  *
- *     make_obj(val).xxx
+ *     safe_obj(val).xxx
  *
- * 🔦 Modern JavaScript have a better alternative:
+ * 🔦 Modern JavaScript have the optional chaining (?.) operator:
  *
  *     val?.xxx
  */
-function make_obj(input, empty_value = {})
+function safe_obj(input, empty_value = {})
 {
     if (input === null || typeof input !== 'object') {
         return empty_value;
@@ -15,4 +15,4 @@ function make_obj(input, empty_value = {})
     return input;
 }
 
-module.exports = make_obj;
+module.exports = safe_obj;

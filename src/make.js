@@ -1,11 +1,11 @@
 const is_array = require('./is_array');
 const is_fn = require('./is_fn');
 const is_str = require('./is_str');
-const make_bool = require('./make_bool');
-const make_float = require('./make_float');
-const make_int = require('./make_int');
-const make_obj = require('./make_obj');
-const make_str = require('./make_str');
+const safe_bool = require('./safe_bool');
+const safe_float = require('./safe_float');
+const safe_int = require('./safe_int');
+const safe_obj = require('./safe_obj');
+const safe_str = require('./safe_str');
 
 const standard_types = {
     // {type: 'raw', nullable: false, before: input => input, after: out => out}
@@ -26,25 +26,24 @@ const standard_types = {
     },
     // {type: 'bool', default: false, nullable: false, before: input => input, after: out => out}
     bool: function (input, params) {
-        return make_bool(input, params.default);
+        return safe_bool(input, null) ?? safe_bool(params.default);
     },
     // {type: 'int', min: 0, max: 100, default: 0, nullable: false, before: input => input, after: out => out}
     int: function (input, params) {
-        const min = make_int(params.min, Number.MIN_SAFE_INTEGER);
-        const max = make_int(params.max, Number.MAX_SAFE_INTEGER);
-        const default_value = Math.min(max, Math.max(min, make_int(params.default)));
-        return make_int(input, default_value, min, max);
+        const min = safe_int(params.min, Number.MIN_SAFE_INTEGER);
+        const max = safe_int(params.max, Number.MAX_SAFE_INTEGER);
+        return safe_int(input, null, min, max) ?? Math.min(max, Math.max(min, safe_int(params.default)));
     },
     // {type: 'float', min: 0, max: 100, default: 0, nullable: false, before: input => input, after: out => out}
     float: function (input, params) {
-        const min = make_float(params.min, -Number.MAX_VALUE);
-        const max = make_float(params.max, Number.MAX_VALUE);
-        const default_value = Math.min(max, Math.max(min, make_float(params.default)));
-        return make_float(input, default_value, min, max);
+        const min = safe_float(params.min, -Number.MAX_VALUE);
+        const max = safe_float(params.max, Number.MAX_VALUE);
+        const default_value = Math.min(max, Math.max(min, safe_float(params.default)));
+        return safe_float(input, default_value, min, max);
     },
     // {type: 'str', default: 'foo', nullable: false, before: input => input, after: out => out}
     str: function (input, params) {
-        return make_str(input, params.default);
+        return safe_str(input, null) ?? safe_str(params.default);
     },
     // {type: 'array', of: __type__, min: 0, nullable: false, before: input => input, after: out => out}
     array: function (input, params, types) {
@@ -125,7 +124,7 @@ const standard_types = {
     obj: function (input, params, types) {
         // {type: 'obj', transform: ..., finish: ..., props: {...}}
         // adjust, complete, finish, realize, apply_limits, balance
-        const value_obj = (params.transform ? params.transform(input) : make_obj(input));
+        const value_obj = (params.transform ? params.transform(input) : safe_obj(input));
         return Object.fromEntries(Object.entries(params.props||{}).map(function ([k, v]) {
             if (v.optional && value_obj[k] === undefined) {
                 return null;

@@ -1,6 +1,6 @@
 const assert = require('assert');
 const make = require('./make');
-const make_str = require('./make_str');
+const safe_str = require('./safe_str');
 
 describe('make', function () {
     describe('expr', function () {
@@ -502,7 +502,7 @@ describe('make', function () {
                 User: {
                     type: 'obj',
                     transform: function (v) {
-                        const [first, last] = make_str(v?.name).split(' ');
+                        const [first, last] = safe_str(v?.name).split(' ');
                         return {
                             ...v,
                             uid: v.uid ?? v.pub_id,
