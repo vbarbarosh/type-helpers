@@ -4,6 +4,7 @@
     "name": "@vbarbarosh/type-helpers",
     "version": "0.1.0",
     "description": "Utilities for transforming raw input into safe and well-typed values and objects.",
+    "main": "src/make.js",
     "files": [
         "README.md",
         "src"
