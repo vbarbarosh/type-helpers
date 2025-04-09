@@ -161,8 +161,16 @@ describe('make', function () {
             assert.deepStrictEqual(make('person2', 'ggg', types), '222ggg');
             assert.deepStrictEqual(make('person3', 'ggg', types), '333ggg');
         });
+        it('expr: function', function () {
+            assert.deepStrictEqual(make(v => `[${v}]`, 'ggg'), '[ggg]');
+        });
     });
     describe('objects', function () {
+        it('property: function', function () {
+            const actual = make('a', null, {a: {enabled: 'bool', foo: v => `[${v}]`}});
+            const expected = {enabled: false, foo: '[undefined]'};
+            assert.deepStrictEqual(actual, expected);
+        });
         it('edge case: union objects #1', function () {
             const types = {
                 period: {
