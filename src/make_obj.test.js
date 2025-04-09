@@ -2,7 +2,7 @@ const assert = require('assert');
 const edge_values = require('./edge_values');
 const make_obj = require('./make_obj');
 
-const SP = Symbol('default_value for make_obj');
+const SP = Symbol('empty_value for make_obj');
 
 describe('make_obj', function () {
     it('should accept no args', function () {

@@ -6,7 +6,7 @@ const make_int = require('./make_int');
 //     https://exploringjs.com/js/book/ch_numbers.html#converting-to-number
 // https://flaviocopes.com/how-to-convert-string-to-number-javascript/
 
-const SP = Symbol('default_value for make_int');
+const SP = Symbol('empty_value for make_int');
 
 describe('make_int', function () {
     it('should accept no args', function () {

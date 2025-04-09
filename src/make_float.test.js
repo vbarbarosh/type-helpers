@@ -2,7 +2,7 @@ const assert = require('assert');
 const edge_values = require('./edge_values');
 const make_float = require('./make_float');
 
-const SP = Symbol('default_value for make_float');
+const SP = Symbol('empty_value for make_float');
 
 describe('make_float', function () {
     it('should accept no args', function () {

@@ -1,7 +1,7 @@
-function make_bool(input, default_value = false)
+function make_bool(input, empty_value = false)
 {
     if (input === null || input === undefined || Number.isNaN(input)) {
-        return default_value;
+        return empty_value;
     }
     return !!input;
 }

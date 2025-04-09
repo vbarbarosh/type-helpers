@@ -2,7 +2,7 @@ const assert = require('assert');
 const edge_values = require('./edge_values');
 const make_bool = require('./make_bool');
 
-const SP = Symbol('default_value for make_bool');
+const SP = Symbol('empty_value for make_bool');
 
 describe('make_bool', function () {
     it('should accept no args', function () {

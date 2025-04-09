@@ -1,7 +1,7 @@
-function make_str(input, default_value = '')
+function make_str(input, empty_value = '')
 {
     // if (value === null || value === undefined || value === Number.POSITIVE_INFINITY || value === Number.NEGATIVE_INFINITY || Number.isNaN(value)) {
-    //     return default_value;
+    //     return empty_value;
     // }
     switch (typeof input) {
     case 'string':
@@ -20,7 +20,7 @@ function make_str(input, default_value = '')
         }
         // fall through
     default:
-        return default_value;
+        return empty_value;
     }
 }
 

@@ -7,10 +7,10 @@
  *
  *     val?.xxx
  */
-function make_obj(input, default_value = {})
+function make_obj(input, empty_value = {})
 {
     if (input === null || typeof input !== 'object') {
-        return default_value;
+        return empty_value;
     }
     return input;
 }
