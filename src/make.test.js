@@ -4,7 +4,7 @@ const make_str = require('./make_str');
 
 describe('make', function () {
     describe('expr', function () {
-        it('should throw Empty expressions are not allowed', function () {
+        it('should throw "Empty expressions are not allowed"', function () {
             assert.throws(() => make(), new Error('Empty expressions are not allowed'));
         });
         it('should accept function', function () {
@@ -38,30 +38,45 @@ describe('make', function () {
             assert.deepStrictEqual(make({type: ['int'], foo: 'int', bar: 'int'}), {type: 0, foo: 0, bar: 0});
             assert.deepStrictEqual(make({type: [{type: 'int', min: 15}], foo: 'int', bar: 'int'}), {type: 15, foo: 0, bar: 0});
         });
-    });
-    describe('arrays', function () {
-        it('should pass basic tests for arrays', function () {
-            assert.deepStrictEqual(make({type: 'array', of: 'str'}), []);
-            assert.deepStrictEqual(make({type: 'array', of: 'str', min: 2}, 'x'), ['x', '']);
-            assert.deepStrictEqual(make({type: 'array', of: 'int', min: 2}, ['1']), [1, 0]);
-        });
-    });
-    describe('errors', function () {
-        it('throw if type was defined as array', function () {
+        it('should throw "Type defined as array"', function () {
             assert.throws(() => make('apple', '', {apple: []}), new Error('Type defined as array'));
         });
     });
-    describe('edge', function () {
+    describe('type: raw', function () {
+        it('raw • always return input value', function () {
+            assert.deepStrictEqual(make('raw', 'ggg'), 'ggg');
+            assert.deepStrictEqual(make('raw', {foo: 1, bar: 2}), {foo: 1, bar: 2});
+        });
+    });
+    describe('type: any', function () {
+    });
+    describe('type: null', function () {
         it('null • always return null discarding any input provided', function () {
             assert.deepStrictEqual(make('null', 1), null);
             assert.deepStrictEqual(make('null', {foo: 1, bar: 2}), null);
         });
+    });
+    describe('type: const', function () {
         it('const • always return predefined value discarding any input provided', function () {
             const types = {
                 apple: {type: 'const', value: 'apple'},
             };
             assert.deepStrictEqual(make('apple', 'ggg', types), 'apple');
         });
+    });
+    describe('type: enum', function () {
+        it('should throw "[type=enum] should have at least one option"', function () {
+            assert.throws(() => make('enum'), new Error('[type=enum] should have at least one option'));
+        });
+    });
+    describe('type: array', function () {
+        it('should pass basic tests for arrays', function () {
+            assert.deepStrictEqual(make({type: 'array', of: 'str'}), []);
+            assert.deepStrictEqual(make({type: 'array', of: 'str', min: 2}, 'x'), ['x', '']);
+            assert.deepStrictEqual(make({type: 'array', of: 'int', min: 2}, ['1']), [1, 0]);
+        });
+    });
+    describe('edge', function () {
         // it('fn • always return predefined value discarding any input provided', function () {
         //     // ⚠️ Should it be [fn] or [value]?
         //     const types = {
@@ -69,16 +84,8 @@ describe('make', function () {
         //     };
         //     assert.deepStrictEqual(make('apple', 'ggg', types), {apple: 'foo'});
         // });
-        it('raw • always return input value', function () {
-            assert.deepStrictEqual(make('raw', 'ggg'), 'ggg');
-            assert.deepStrictEqual(make('raw', {foo: 1, bar: 2}), {foo: 1, bar: 2});
-        });
     });
     describe('basic types', function () {
-        it('should throws', function () {
-            assert.throws(() => make(), /^Error: Empty expressions are not allowed$/);
-            assert.throws(() => make('enum'), /^Error: \[type=enum] should have at least one option$/);
-        });
         it('defaults', function () {
             assert.deepStrictEqual(make('bool'), false);
             assert.deepStrictEqual(make('int'), 0);
