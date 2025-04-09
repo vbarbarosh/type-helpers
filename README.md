@@ -12,13 +12,13 @@ objects.
 <img src="img/logo-by-chat-gpt.webp" style="max-height:400px;">
 </p>
 
-## Installation
+## 💾 Installation
 
 ```
 npm install @vbarbarosh/type-helpers
 ```
 
-## Motivation
+## 🎯 Motivation
 
 1. Generate well-typed objects initialized from an untrusted source
 2. Collect a set of functions for checking types in JavaScript
@@ -39,7 +39,7 @@ const types = {
 const tabs = make('tabs', body?.card, types);
 ```
 
-## Basic usage
+## ✨ Basic usage
 
 Creating basic types:
 
@@ -151,7 +151,7 @@ assert.deepStrictEqual(make('widget', null, types), {kind: 'text', value: ''});
 assert.deepStrictEqual(make('widget', {kind: 'submit'}, types), {kind: 'submit', label: '', name: '', value: ''});
 ```
 
-## Built-in types
+## 📦 Built-in types
 
 ### raw
 
@@ -237,7 +237,7 @@ assert.deepStrictEqual(make('widget', {kind: 'submit'}, types), {kind: 'submit',
 {type: 'union', prop: 'kind', options: {...}, nullable: false, before: input => input, after: out => out}
 ```
 
-## Bonus
+## 🎁 Bonus
 
 There are several `safe_` functions. They guarantee a valid result by falling
 back to `empty_value` if the `input` is `null`, `undefined`, or cannot be safely
@@ -251,14 +251,14 @@ represented in the requested type.
 
 ⚠️ Note that `empty_value` is returned without additional type conversion. This is intentional.
 
-## Related
+## 🔗 Related
 
-### Reading
+### 📚 Reading
 
 * https://medium.com/hoppinger/type-driven-development-for-single-page-applications-bf8ee98d48e2
 * https://medium.com/flow-type/types-first-a-scalable-new-architecture-for-flow-3d8c7ba1d4eb
 
-### Tools
+### 🧰 Tools
 
 * https://zod.dev/
 * https://www.npmjs.com/package/schema-object
