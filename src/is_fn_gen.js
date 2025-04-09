@@ -1,4 +1,4 @@
-function is_gen(input)
+function is_fn_gen(input)
 {
     if (typeof input === 'function') {
         return input.constructor === x.constructor;
@@ -11,4 +11,4 @@ function* x()
 {
 }
 
-module.exports = is_gen;
+module.exports = is_fn_gen;
