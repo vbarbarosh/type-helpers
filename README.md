@@ -45,7 +45,7 @@ Creating basic types:
 
 ```js
 const assert = require('assert');
-const make = require('@vbarbarosh/type-helpers/src/make');
+const make = require('@vbarbarosh/type-helpers');
 
 assert.strictEqual(make('int'), 0);
 assert.strictEqual(make('int', -0), 0);
@@ -70,7 +70,7 @@ Creating enum:
 
 ```js
 const assert = require('assert');
-const make = require('@vbarbarosh/type-helpers/src/make');
+const make = require('@vbarbarosh/type-helpers');
 
 assert.strictEqual(make({type: 'enum', options: ['foo', 'bar', 'baz']}), 'foo');
 assert.strictEqual(make({type: 'enum', options: ['foo', 'bar', 'baz']}, 'x'), 'foo');
@@ -81,7 +81,7 @@ Creating uniform arrays (all values have the same type):
 
 ```js
 const assert = require('assert');
-const make = require('@vbarbarosh/type-helpers/src/make');
+const make = require('@vbarbarosh/type-helpers');
 
 assert.deepStrictEqual(make({type: 'array', of: 'str'}), []);
 assert.deepStrictEqual(make({type: 'array', of: 'str', min: 2}, 'x'), ['x', '']);
@@ -92,7 +92,7 @@ Creating tuples (an array with fixed number of elements and predefined types):
 
 ```js
 const assert = require('assert');
-const make = require('@vbarbarosh/type-helpers/src/make');
+const make = require('@vbarbarosh/type-helpers');
 
 assert.deepStrictEqual(make({type: 'tuple', items: ['str', 'str']}), ['', '']);
 assert.deepStrictEqual(make({type: 'tuple', items: ['str', 'str']}, ['a']), ['a', '']);
@@ -102,7 +102,7 @@ Creating objects:
 
 ```js
 const assert = require('assert');
-const make = require('@vbarbarosh/type-helpers/src/make');
+const make = require('@vbarbarosh/type-helpers');
 
 const types = {
     rect: {
@@ -121,7 +121,7 @@ Creating object unions (an object which shape is determined by value from a prop
 
 ```js
 const assert = require('assert');
-const make = require('@vbarbarosh/type-helpers/src/make');
+const make = require('@vbarbarosh/type-helpers');
 
 const types = {
     widget: {
