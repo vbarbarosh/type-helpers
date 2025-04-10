@@ -64,6 +64,14 @@ describe('make', function () {
             assert.deepStrictEqual(make('apple', 'ggg', types), 'apple');
         });
     });
+    describe('type: bool', function () {
+    });
+    describe('type: int', function () {
+    });
+    describe('type: float', function () {
+    });
+    describe('type: str', function () {
+    });
     describe('type: enum', function () {
         it('should throw "[type=enum] should have at least one option"', function () {
             assert.throws(() => make('enum'), new Error('[type=enum] should have at least one option'));
@@ -75,6 +83,32 @@ describe('make', function () {
             assert.deepStrictEqual(make({type: 'array', of: 'str', min: 2}, 'x'), ['x', '']);
             assert.deepStrictEqual(make({type: 'array', of: 'int', min: 2}, ['1']), [1, 0]);
         });
+        it('arrays', function () {
+            assert.deepStrictEqual(make({type: 'array', of: 'bool'}), [], 'array of bool');
+            assert.deepStrictEqual(make({type: 'array', of: 'int'}), [], 'array of int');
+            assert.deepStrictEqual(make({type: 'array', of: 'float'}), [], 'array of float');
+            assert.deepStrictEqual(make({type: 'array', of: 'str'}), [], 'array of str');
+        });
+        it('array min=1', function () {
+            assert.deepStrictEqual(make({type: 'array', of: 'bool', min: 1}), [false], 'array of bool, min=1');
+            assert.deepStrictEqual(make({type: 'array', of: 'int', min: 1}), [0], 'array of int, min=1');
+            assert.deepStrictEqual(make({type: 'array', of: 'float', min: 1}), [0], 'array of float, min=1');
+            assert.deepStrictEqual(make({type: 'array', of: 'str', min: 1}), [''], 'array of str, min=1');
+        });
+        it('array of bool, min=1', function () {
+            assert.deepStrictEqual(make({type: 'array', of: 'bool'}, [0, -1, 'a']), [false, true, true], 'array of bool, min=1');
+            assert.deepStrictEqual(make({type: 'array', of: 'int'}, 'a'), [], 'array of int');
+            assert.deepStrictEqual(make({type: 'array', of: 'float'}), [], 'array of float');
+            assert.deepStrictEqual(make({type: 'array', of: 'str'}), [], 'array of str');
+        });
+    });
+    describe('type: tuple', function () {
+    });
+    describe('type: tags', function () {
+    });
+    describe('type: obj', function () {
+    });
+    describe('type: union', function () {
     });
     describe('edge', function () {
         // it('fn • always return predefined value discarding any input provided', function () {
@@ -133,26 +167,6 @@ describe('make', function () {
             assert.deepStrictEqual(make({type: 'int', nullable: true}, -Infinity), Number.MIN_SAFE_INTEGER);
             assert.deepStrictEqual(make({type: 'float', nullable: true}, -Infinity), -Number.MAX_VALUE, '⚠️ gotcha');
             assert.deepStrictEqual(make({type: 'str', nullable: true}, -Infinity), '');
-        });
-    });
-    describe('arrays', function () {
-        it('arrays', function () {
-            assert.deepStrictEqual(make({type: 'array', of: 'bool'}), [], 'array of bool');
-            assert.deepStrictEqual(make({type: 'array', of: 'int'}), [], 'array of int');
-            assert.deepStrictEqual(make({type: 'array', of: 'float'}), [], 'array of float');
-            assert.deepStrictEqual(make({type: 'array', of: 'str'}), [], 'array of str');
-        });
-        it('array min=1', function () {
-            assert.deepStrictEqual(make({type: 'array', of: 'bool', min: 1}), [false], 'array of bool, min=1');
-            assert.deepStrictEqual(make({type: 'array', of: 'int', min: 1}), [0], 'array of int, min=1');
-            assert.deepStrictEqual(make({type: 'array', of: 'float', min: 1}), [0], 'array of float, min=1');
-            assert.deepStrictEqual(make({type: 'array', of: 'str', min: 1}), [''], 'array of str, min=1');
-        });
-        it('array of bool, min=1', function () {
-            assert.deepStrictEqual(make({type: 'array', of: 'bool'}, [0, -1, 'a']), [false, true, true], 'array of bool, min=1');
-            assert.deepStrictEqual(make({type: 'array', of: 'int'}, 'a'), [], 'array of int');
-            assert.deepStrictEqual(make({type: 'array', of: 'float'}), [], 'array of float');
-            assert.deepStrictEqual(make({type: 'array', of: 'str'}), [], 'array of str');
         });
     });
     describe('custom types', function () {
