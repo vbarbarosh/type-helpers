@@ -20,6 +20,7 @@ describe('safe_obj', function () {
                 case '/./':
                 case '{}':
                 case '[]':
+                case 'Math':
                     assert.strictEqual(safe_obj(item.value, empty_value), item.value);
                     break;
                 default:

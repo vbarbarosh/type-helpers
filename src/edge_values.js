@@ -84,6 +84,10 @@ const edge_values = [
     {label: 'async () => 1', value: async () => 1},
     {label: 'Symbol', value: Symbol},
     {label: 'Symbol()', value: Symbol()},
+
+    {label: 'Math', value: Math},
+    // {label: 'Math()', value: Math()}, // TypeError: Math is not a function
+    // {label: 'new Math()', value: new Math()}, // TypeError: Math is not a constructor
 ];
 
 // 🤯 -0 and NaN are the edge of edge cases

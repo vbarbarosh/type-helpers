@@ -13,6 +13,7 @@ describe('is_empty', function () {
                 case '{}':
                 case '[]':
                 case '/./':
+                case 'Math':
                     assert.strictEqual(is_empty(item.value), true);
                     break;
                 default:
