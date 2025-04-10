@@ -603,7 +603,6 @@ describe('make', function () {
             //   | { kind: 'unauthorized' }
             //   | { kind: 'error', error?: Error }
             const types = {
-                any: v => v,
                 error: {
                     message: 'str',
                 },
