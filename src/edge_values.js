@@ -82,6 +82,7 @@ const edge_values = [
     {label: 'class Foo { constructor() {} }', value: class Foo { constructor() {} }},
     {label: '() => 1', value: () => 1},
     {label: 'async () => 1', value: async () => 1},
+    {label: 'Symbol', value: Symbol},
     {label: 'Symbol()', value: Symbol()},
 ];
 

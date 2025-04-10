@@ -10,6 +10,9 @@
  */
 function is_fn_ctor(input)
 {
+    if (input === Symbol) {
+        return false;
+    }
     try {
         Reflect.construct(String, [], input);
     }
