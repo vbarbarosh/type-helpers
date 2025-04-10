@@ -45,6 +45,32 @@ const standard_types = {
     str: function (input, params) {
         return safe_str(input, null) ?? safe_str(params.default);
     },
+    // {type: 'enum', options: [], transform: v => v, nullable: false, before: input => input, after: out => out}
+    enum: function (input, params) {
+        if (!is_array(params.options) || params.options.length === 0) {
+            throw new Error('[type=enum] should have at least one option');
+        }
+        let tmp = input;
+        if (params.transform) {
+            switch (typeof params.transform) {
+            case 'object':
+                if (input in params.transform) {
+                    tmp = params.transform[input];
+                }
+                break;
+            case 'function':
+                tmp = params.transform(input, params);
+                break;
+            }
+        }
+        if (params.options.includes(tmp)) {
+            return tmp;
+        }
+        if ('default' in params) {
+            return params.default;
+        }
+        return params.options[0];
+    },
     // {type: 'array', of: __type__, min: 0, nullable: false, before: input => input, after: out => out}
     array: function (input, params, types) {
         const conf = make({
@@ -73,32 +99,6 @@ const standard_types = {
         }
         const values = is_array(input) ? input : [];
         return params.items.map((v,i) => make(v, values[i], types));
-    },
-    // {type: 'enum', options: [], transform: v => v, nullable: false, before: input => input, after: out => out}
-    enum: function (input, params) {
-        if (!is_array(params.options) || params.options.length === 0) {
-            throw new Error('[type=enum] should have at least one option');
-        }
-        let tmp = input;
-        if (params.transform) {
-            switch (typeof params.transform) {
-            case 'object':
-                if (input in params.transform) {
-                    tmp = params.transform[input];
-                }
-                break;
-            case 'function':
-                tmp = params.transform(input, params);
-                break;
-            }
-        }
-        if (params.options.includes(tmp)) {
-            return tmp;
-        }
-        if ('default' in params) {
-            return params.default;
-        }
-        return params.options[0];
     },
     // {type: 'tags', options: ['foo', 'bar', 'baz'], nullable: false, before: input => input, after: out => out}
     tags: function (input, params) {
