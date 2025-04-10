@@ -5,13 +5,14 @@ const is_array = require('./is_array');
 //
 function safe_int(input, empty_value = 0, min = Number.MIN_SAFE_INTEGER, max = Number.MAX_SAFE_INTEGER)
 {
-    if (input === null || input === undefined || is_array(input) || Number.isNaN(input)) {
+    if (input === null || input === undefined || Number.isNaN(input)) {
         return empty_value;
     }
 
     switch (typeof input) {
     case 'bigint':
         return Math.max(min, Math.min(max, Number(input)));
+    case 'object':
     case 'symbol':
     case 'function':
         return empty_value;
