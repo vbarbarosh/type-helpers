@@ -2,10 +2,15 @@ const assert = require('assert');
 const make = require('./make');
 const safe_str = require('./safe_str');
 
+const SP = Symbol();
+
 describe('make', function () {
     describe('expr', function () {
         it('should throw "Empty expressions are not allowed"', function () {
             assert.throws(() => make(), new Error('Empty expressions are not allowed'));
+        });
+        it('should throw "Type defined as array"', function () {
+            assert.throws(() => make('apple', '', {apple: []}), new Error('Type defined as array'));
         });
         it('should accept function', function () {
             const actual = make(v => `[${v}]`, 'foo');
@@ -38,9 +43,6 @@ describe('make', function () {
             assert.deepStrictEqual(make({type: ['int'], foo: 'int', bar: 'int'}), {type: 0, foo: 0, bar: 0});
             assert.deepStrictEqual(make({type: [{type: 'int', min: 15}], foo: 'int', bar: 'int'}), {type: 15, foo: 0, bar: 0});
         });
-        it('should throw "Type defined as array"', function () {
-            assert.throws(() => make('apple', '', {apple: []}), new Error('Type defined as array'));
-        });
     });
     describe('type: raw', function () {
         it('raw • always return input value', function () {
@@ -65,12 +67,24 @@ describe('make', function () {
         });
     });
     describe('type: bool', function () {
+        it('should cast the default value to a valid range', function () {
+            assert.deepStrictEqual(make({type: 'bool', default: ''}), false);
+        });
     });
     describe('type: int', function () {
+        it('should cast the default value to a valid range', function () {
+            assert.deepStrictEqual(make({type: 'int', default: ''}), 0);
+        });
     });
     describe('type: float', function () {
+        it('should cast the default value to a valid range', function () {
+            assert.deepStrictEqual(make({type: 'float', default: ''}), 0);
+        });
     });
     describe('type: str', function () {
+        it('should cast the default value to a valid range', function () {
+            assert.deepStrictEqual(make({type: 'str', default: SP}), '');
+        });
     });
     describe('type: enum', function () {
         it('should throw "[type=enum] should have at least one option"', function () {
