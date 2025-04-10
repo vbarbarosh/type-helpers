@@ -10,7 +10,6 @@ describe('is_fn_ctor', function () {
         assert.strictEqual(is_fn_ctor(Array), true);
         assert.strictEqual(is_fn_ctor(Function), true);
         assert.strictEqual(is_fn_ctor(new Function), true);
-        assert.strictEqual(is_fn_ctor(Symbol), false);
 
         assert.strictEqual(typeof class Banner {}, 'function');
         assert.strictEqual(typeof class Banner { constructor() {} }, 'function');
@@ -19,11 +18,12 @@ describe('is_fn_ctor', function () {
         assert.strictEqual(typeof Array, 'function');
         assert.strictEqual(typeof Function, 'function');
         assert.strictEqual(typeof new Function, 'function');
-        assert.strictEqual(typeof Symbol, 'function');
     });
     it('false', function () {
         assert.strictEqual(is_fn_ctor(() => 0), false);
+        assert.strictEqual(is_fn_ctor(Symbol), false);
 
         assert.strictEqual(typeof (() => 0), 'function');
+        assert.strictEqual(typeof Symbol, 'function');
     });
 });
