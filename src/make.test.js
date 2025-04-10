@@ -117,12 +117,21 @@ describe('make', function () {
         });
     });
     describe('type: tuple', function () {
+        it('should throw "[type=tuple] should have at least one option"', function () {
+            assert.throws(() => make('tuple'), new Error('[type=tuple] should have at least one option'));
+        });
     });
     describe('type: tags', function () {
+        it('should throw "[type=tags] should have options defined"', function () {
+            assert.throws(() => make('tags'), new Error('[type=tags] should have options defined'));
+        });
     });
     describe('type: obj', function () {
     });
     describe('type: union', function () {
+        it('should throw "Union type option not found"', function () {
+            assert.throws(() => make('union'), new Error(`Union type option not found: [type / undefined]`));
+        });
     });
     describe('edge', function () {
         // it('fn • always return predefined value discarding any input provided', function () {
