@@ -12,7 +12,7 @@ describe('safe_int', function () {
     it('should accept no args', function () {
         assert.strictEqual(safe_int(), 0);
     });
-    it('should return the default value for null, undefined, or NaN', function () {
+    it('should return the empty_value for null, undefined, or NaN', function () {
         assert.strictEqual(safe_int(null, SP), SP);
         assert.strictEqual(safe_int(undefined, SP), SP);
         assert.strictEqual(safe_int(NaN, SP), SP);
@@ -102,7 +102,7 @@ describe('safe_int', function () {
             assert.strictEqual(safe_int('123.456'), 123);
             assert.strictEqual(safe_int('  -789  '), -789);
         });
-        it('should respect input value when default value was set', function () {
+        it('should respect input value when empty_value was set', function () {
             assert.strictEqual(safe_int(0, SP), 0);
             assert.strictEqual(safe_int(0.1, SP), 0);
             assert.strictEqual(safe_int(0.5, SP), 0);

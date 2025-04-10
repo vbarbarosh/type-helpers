@@ -8,7 +8,7 @@ describe('safe_bool', function () {
     it('should accept no args', function () {
         assert.strictEqual(safe_bool(), false);
     });
-    it('should return the default value for null, undefined, or NaN', function () {
+    it('should return the empty_value for null, undefined, or NaN', function () {
         assert.strictEqual(safe_bool(null, SP), SP);
         assert.strictEqual(safe_bool(undefined, SP), SP);
         assert.strictEqual(safe_bool(NaN, SP), SP);

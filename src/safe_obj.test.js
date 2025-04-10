@@ -8,7 +8,7 @@ describe('safe_obj', function () {
     it('should accept no args', function () {
         assert.deepStrictEqual(safe_obj(), {});
     });
-    it('should return the default value for null, undefined, or NaN', function () {
+    it('should return the empty_value for null, undefined, or NaN', function () {
         assert.strictEqual(safe_obj(null, SP), SP);
         assert.strictEqual(safe_obj(undefined, SP), SP);
         assert.strictEqual(safe_obj(NaN, SP), SP);
