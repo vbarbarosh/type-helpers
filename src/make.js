@@ -17,6 +17,7 @@ const standard_types = {
         return input === undefined ? params.default : input;
     },
     // {type: 'null', nullable: false, before: input => input, after: out => out}
+    // A shorthand for {type: 'const', value: null}
     null: function () {
         return null;
     },
