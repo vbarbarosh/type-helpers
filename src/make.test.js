@@ -1,6 +1,7 @@
 const assert = require('assert');
 const make = require('./make');
 const safe_str = require('./safe_str');
+const is_num = require('./is_num');
 
 const SP = Symbol();
 
@@ -10,52 +11,52 @@ describe('make', function () {
             assert.throws(() => make(), new Error('Empty expressions are not allowed'));
         });
         it('should throw "Type defined as array"', function () {
-            assert.throws(() => make('apple', '', {apple: []}), new Error('Type defined as array'));
+            assert.throws(() => make('', 'apple', {apple: []}), new Error('Type defined as array'));
         });
         it('should accept function', function () {
-            const actual = make(v => `[${v}]`, 'foo');
+            const actual = make('foo', v => `[${v}]`);
             assert.deepStrictEqual(actual, '[foo]');
         });
         it('should accept string -> {type: "str"}', function () {
-            const actual = make('str');
-            const expected = make({type: 'str'});
+            const actual = make('', 'str');
+            const expected = make('', {type: 'str'});
             assert.deepStrictEqual(actual, expected);
         });
         it('should accept nullable', function () {
-            const actual = make({type: 'str', nullable: true});
+            const actual = make(null, {type: 'str', nullable: true});
             const expected = null;
             assert.deepStrictEqual(actual, expected);
         });
         it('should accept object without [type] property -> {type: "obj", props: ...}', function () {
-            const actual = make({foo: 'str', bar: 'int', baz: 'bool'});
-            const expected = make({type: 'obj', props: {foo: 'str', bar: 'int', baz: 'bool'}});
+            const actual = make(null, {foo: 'str', bar: 'int', baz: 'bool'});
+            const expected = make(null, {type: 'obj', props: {foo: 'str', bar: 'int', baz: 'bool'}});
             assert.deepStrictEqual(actual, expected);
         });
         it('should accept object type property as array -> {type: "obj", props: {..., type: [0]}}', function () {
-            const actual = make({type: ['str'], foo: 'str', bar: 'int', baz: 'bool'});
-            const expected = make({type: 'obj', props: {type: 'str', foo: 'str', bar: 'int', baz: 'bool'}});
+            const actual = make(null, {type: ['str'], foo: 'str', bar: 'int', baz: 'bool'});
+            const expected = make(null, {type: 'obj', props: {type: 'str', foo: 'str', bar: 'int', baz: 'bool'}});
             assert.deepStrictEqual(actual, expected);
         });
         it('🩼 When `expr` is an object , it is the same as `{type: "obj", props: ...}`, unless it has `type` property.', function () {
-            assert.deepStrictEqual(make({foo: 'int', bar: 'int'}), {foo: 0, bar: 0});
+            assert.deepStrictEqual(make(null, {foo: 'int', bar: 'int'}), {foo: 0, bar: 0});
         });
         it('🩼 A way to remove special meaning from `type` property is to wrap its value into array', function () {
-            assert.deepStrictEqual(make({type: ['int'], foo: 'int', bar: 'int'}), {type: 0, foo: 0, bar: 0});
-            assert.deepStrictEqual(make({type: [{type: 'int', min: 15}], foo: 'int', bar: 'int'}), {type: 15, foo: 0, bar: 0});
+            assert.deepStrictEqual(make(null, {type: ['int'], foo: 'int', bar: 'int'}), {type: 0, foo: 0, bar: 0});
+            assert.deepStrictEqual(make(null, {type: [{type: 'int', min: 15}], foo: 'int', bar: 'int'}), {type: 15, foo: 0, bar: 0});
         });
     });
     describe('type: raw', function () {
         it('raw • always return input value', function () {
-            assert.deepStrictEqual(make('raw', 'ggg'), 'ggg');
-            assert.deepStrictEqual(make('raw', {foo: 1, bar: 2}), {foo: 1, bar: 2});
+            assert.deepStrictEqual(make('ggg', 'raw'), 'ggg');
+            assert.deepStrictEqual(make({foo: 1, bar: 2}, 'raw'), {foo: 1, bar: 2});
         });
     });
     describe('type: any', function () {
     });
     describe('type: null', function () {
         it('null • always return null discarding any input provided', function () {
-            assert.deepStrictEqual(make('null', 1), null);
-            assert.deepStrictEqual(make('null', {foo: 1, bar: 2}), null);
+            assert.deepStrictEqual(make(1, 'null'), null);
+            assert.deepStrictEqual(make({foo: 1, bar: 2}, 'null'), null);
         });
     });
     describe('type: const', function () {
@@ -63,74 +64,74 @@ describe('make', function () {
             const types = {
                 apple: {type: 'const', value: 'apple'},
             };
-            assert.deepStrictEqual(make('apple', 'ggg', types), 'apple');
+            assert.deepStrictEqual(make('ggg', 'apple', types), 'apple');
         });
     });
     describe('type: bool', function () {
         it('should cast the default value to a valid range', function () {
-            assert.deepStrictEqual(make({type: 'bool', default: ''}), false);
+            assert.deepStrictEqual(make(null, {type: 'bool', default: ''}), false);
         });
     });
     describe('type: int', function () {
         it('should cast the default value to a valid range', function () {
-            assert.deepStrictEqual(make({type: 'int', default: ''}), 0);
+            assert.deepStrictEqual(make(null, {type: 'int', default: ''}), 0);
         });
     });
     describe('type: float', function () {
         it('should cast the default value to a valid range', function () {
-            assert.deepStrictEqual(make({type: 'float', default: ''}), 0);
+            assert.deepStrictEqual(make(null, {type: 'float', default: ''}), 0);
         });
     });
     describe('type: str', function () {
         it('should cast the default value to a valid range', function () {
-            assert.deepStrictEqual(make({type: 'str', default: SP}), '');
+            assert.deepStrictEqual(make(null, {type: 'str', default: SP}), '');
         });
     });
     describe('type: enum', function () {
         it('should throw "[type=enum] should have at least one option"', function () {
-            assert.throws(() => make('enum'), new Error('[type=enum] should have at least one option'));
+            assert.throws(() => make(null, 'enum'), new Error('[type=enum] should have at least one option'));
         });
     });
     describe('type: array', function () {
         it('should pass basic tests for arrays', function () {
-            assert.deepStrictEqual(make({type: 'array', of: 'str'}), []);
-            assert.deepStrictEqual(make({type: 'array', of: 'str', min: 2}, 'x'), ['x', '']);
-            assert.deepStrictEqual(make({type: 'array', of: 'int', min: 2}, ['1']), [1, 0]);
+            assert.deepStrictEqual(make(null, {type: 'array', of: 'str'}), []);
+            assert.deepStrictEqual(make('x', {type: 'array', of: 'str', min: 2}), ['x', '']);
+            assert.deepStrictEqual(make(['1'], {type: 'array', of: 'int', min: 2}), [1, 0]);
         });
         it('arrays', function () {
-            assert.deepStrictEqual(make({type: 'array', of: 'bool'}), [], 'array of bool');
-            assert.deepStrictEqual(make({type: 'array', of: 'int'}), [], 'array of int');
-            assert.deepStrictEqual(make({type: 'array', of: 'float'}), [], 'array of float');
-            assert.deepStrictEqual(make({type: 'array', of: 'str'}), [], 'array of str');
+            assert.deepStrictEqual(make(null, {type: 'array', of: 'bool'}), [], 'array of bool');
+            assert.deepStrictEqual(make(null, {type: 'array', of: 'int'}), [], 'array of int');
+            assert.deepStrictEqual(make(null, {type: 'array', of: 'float'}), [], 'array of float');
+            assert.deepStrictEqual(make(null, {type: 'array', of: 'str'}), [], 'array of str');
         });
         it('array min=1', function () {
-            assert.deepStrictEqual(make({type: 'array', of: 'bool', min: 1}), [false], 'array of bool, min=1');
-            assert.deepStrictEqual(make({type: 'array', of: 'int', min: 1}), [0], 'array of int, min=1');
-            assert.deepStrictEqual(make({type: 'array', of: 'float', min: 1}), [0], 'array of float, min=1');
-            assert.deepStrictEqual(make({type: 'array', of: 'str', min: 1}), [''], 'array of str, min=1');
+            assert.deepStrictEqual(make(null, {type: 'array', of: 'bool', min: 1}), [false], 'array of bool, min=1');
+            assert.deepStrictEqual(make(null, {type: 'array', of: 'int', min: 1}), [0], 'array of int, min=1');
+            assert.deepStrictEqual(make(null, {type: 'array', of: 'float', min: 1}), [0], 'array of float, min=1');
+            assert.deepStrictEqual(make(null, {type: 'array', of: 'str', min: 1}), [''], 'array of str, min=1');
         });
         it('array of bool, min=1', function () {
-            assert.deepStrictEqual(make({type: 'array', of: 'bool'}, [0, -1, 'a']), [false, true, true], 'array of bool, min=1');
-            assert.deepStrictEqual(make({type: 'array', of: 'int'}, 'a'), [], 'array of int');
-            assert.deepStrictEqual(make({type: 'array', of: 'float'}), [], 'array of float');
-            assert.deepStrictEqual(make({type: 'array', of: 'str'}), [], 'array of str');
+            assert.deepStrictEqual(make([0, -1, 'a'], {type: 'array', of: 'bool'}), [false, true, true], 'array of bool, min=1');
+            assert.deepStrictEqual(make('a', {type: 'array', of: 'int'}), [], 'array of int');
+            assert.deepStrictEqual(make(null, {type: 'array', of: 'float'}), [], 'array of float');
+            assert.deepStrictEqual(make(null, {type: 'array', of: 'str'}), [], 'array of str');
         });
     });
     describe('type: tuple', function () {
         it('should throw "[type=tuple] should have at least one option"', function () {
-            assert.throws(() => make('tuple'), new Error('[type=tuple] should have at least one option'));
+            assert.throws(() => make(null, 'tuple'), new Error('[type=tuple] should have at least one option'));
         });
     });
     describe('type: tags', function () {
         it('should throw "[type=tags] should have options defined"', function () {
-            assert.throws(() => make('tags'), new Error('[type=tags] should have options defined'));
+            assert.throws(() => make(null, 'tags'), new Error('[type=tags] should have options defined'));
         });
     });
     describe('type: obj', function () {
     });
     describe('type: union', function () {
         it('should throw "Union type option not found"', function () {
-            assert.throws(() => make('union'), new Error(`Union type option not found: [type / undefined]`));
+            assert.throws(() => make(null, 'union'), new Error(`Union type option not found: [type / undefined]`));
         });
     });
     describe('edge', function () {
@@ -139,69 +140,69 @@ describe('make', function () {
         //     const types = {
         //         apple: {type: 'fn', fn: () => ({apple: 'foo'})},
         //     };
-        //     assert.deepStrictEqual(make('apple', 'ggg', types), {apple: 'foo'});
+        //     assert.deepStrictEqual(make('ggg', 'apple', types), {apple: 'foo'});
         // });
     });
     describe('basic types', function () {
         it('defaults', function () {
-            assert.deepStrictEqual(make('bool'), false);
-            assert.deepStrictEqual(make('int'), 0);
-            assert.deepStrictEqual(make('float'), 0);
-            assert.deepStrictEqual(make('str'), '');
-            assert.deepStrictEqual(make('array'), []);
-            assert.deepStrictEqual(make('obj'), {});
+            assert.deepStrictEqual(make(null, 'bool'), false);
+            assert.deepStrictEqual(make(null, 'int'), 0);
+            assert.deepStrictEqual(make(null, 'float'), 0);
+            assert.deepStrictEqual(make(null, 'str'), '');
+            assert.deepStrictEqual(make(null, 'array'), []);
+            assert.deepStrictEqual(make(null, 'obj'), {});
         });
     });
     describe('nullable types should be marked explicitly', function () {
         it('null -> null', function () {
-            assert.deepStrictEqual(make({type: 'bool', nullable: true}, null), null);
-            assert.deepStrictEqual(make({type: 'int', nullable: true}, null), null);
-            assert.deepStrictEqual(make({type: 'float', nullable: true}, null), null);
-            assert.deepStrictEqual(make({type: 'str', nullable: true}, null), null);
-            assert.deepStrictEqual(make({type: 'array', nullable: true}, null), null);
-            assert.deepStrictEqual(make({type: 'obj', nullable: true}, null), null);
-            assert.deepStrictEqual(make({type: 'enum', nullable: true}, null), null);
+            assert.deepStrictEqual(make(null, {type: 'bool', nullable: true}), null);
+            assert.deepStrictEqual(make(null, {type: 'int', nullable: true}), null);
+            assert.deepStrictEqual(make(null, {type: 'float', nullable: true}), null);
+            assert.deepStrictEqual(make(null, {type: 'str', nullable: true}), null);
+            assert.deepStrictEqual(make(null, {type: 'array', nullable: true}), null);
+            assert.deepStrictEqual(make(null, {type: 'obj', nullable: true}), null);
+            assert.deepStrictEqual(make(null, {type: 'enum', nullable: true}), null);
         });
         it('undefined -> null', function () {
-            assert.deepStrictEqual(make({type: 'bool', nullable: true}, undefined), null);
-            assert.deepStrictEqual(make({type: 'int', nullable: true}, undefined), null);
-            assert.deepStrictEqual(make({type: 'float', nullable: true}, undefined), null);
-            assert.deepStrictEqual(make({type: 'str', nullable: true}, undefined), null);
-            assert.deepStrictEqual(make({type: 'array', nullable: true}, undefined), null);
-            assert.deepStrictEqual(make({type: 'obj', nullable: true}, undefined), null);
-            assert.deepStrictEqual(make({type: 'enum', nullable: true}, undefined), null);
+            assert.deepStrictEqual(make(undefined, {type: 'bool', nullable: true}), null);
+            assert.deepStrictEqual(make(undefined, {type: 'int', nullable: true}), null);
+            assert.deepStrictEqual(make(undefined, {type: 'float', nullable: true}), null);
+            assert.deepStrictEqual(make(undefined, {type: 'str', nullable: true}), null);
+            assert.deepStrictEqual(make(undefined, {type: 'array', nullable: true}), null);
+            assert.deepStrictEqual(make(undefined, {type: 'obj', nullable: true}), null);
+            assert.deepStrictEqual(make(undefined, {type: 'enum', nullable: true}), null);
         });
     });
     describe('edge cases', function () {
         it('NaN usually means that operands was malformed (e.g. 5/"8a")', function () {
-            assert.deepStrictEqual(make({type: 'bool', nullable: true}, NaN), false);
-            assert.deepStrictEqual(make({type: 'int', nullable: true}, NaN), 0);
-            assert.deepStrictEqual(make({type: 'float', nullable: true}, NaN), 0);
-            assert.deepStrictEqual(make({type: 'str', nullable: true}, NaN), '');
+            assert.deepStrictEqual(make(NaN, {type: 'bool', nullable: true}), false);
+            assert.deepStrictEqual(make(NaN, {type: 'int', nullable: true}), 0);
+            assert.deepStrictEqual(make(NaN, {type: 'float', nullable: true}), 0);
+            assert.deepStrictEqual(make(NaN, {type: 'str', nullable: true}), '');
         });
         it('Infinity usually means division by zero', function () {
-            assert.deepStrictEqual(make({type: 'bool', nullable: true}, Infinity), true, '⚠️ gotcha');
-            assert.deepStrictEqual(make({type: 'int', nullable: true}, Infinity), Number.MAX_SAFE_INTEGER);
-            assert.deepStrictEqual(make({type: 'float', nullable: true}, Infinity), Number.MAX_VALUE, '⚠️ gotcha');
-            assert.deepStrictEqual(make({type: 'str', nullable: true}, Infinity), '');
+            assert.deepStrictEqual(make(Infinity, {type: 'bool', nullable: true}), true, '⚠️ gotcha');
+            assert.deepStrictEqual(make(Infinity, {type: 'int', nullable: true}), Number.MAX_SAFE_INTEGER);
+            assert.deepStrictEqual(make(Infinity, {type: 'float', nullable: true}), Number.MAX_VALUE, '⚠️ gotcha');
+            assert.deepStrictEqual(make(Infinity, {type: 'str', nullable: true}), '');
         });
         it('-Infinity', function () {
-            assert.deepStrictEqual(make({type: 'bool', nullable: true}, -Infinity), true, '⚠️ gotcha');
-            assert.deepStrictEqual(make({type: 'int', nullable: true}, -Infinity), Number.MIN_SAFE_INTEGER);
-            assert.deepStrictEqual(make({type: 'float', nullable: true}, -Infinity), -Number.MAX_VALUE, '⚠️ gotcha');
-            assert.deepStrictEqual(make({type: 'str', nullable: true}, -Infinity), '');
+            assert.deepStrictEqual(make(-Infinity, {type: 'bool', nullable: true}), true, '⚠️ gotcha');
+            assert.deepStrictEqual(make(-Infinity, {type: 'int', nullable: true}), Number.MIN_SAFE_INTEGER);
+            assert.deepStrictEqual(make(-Infinity, {type: 'float', nullable: true}), -Number.MAX_VALUE, '⚠️ gotcha');
+            assert.deepStrictEqual(make(-Infinity, {type: 'str', nullable: true}), '');
         });
     });
     describe('custom types', function () {
         it('custom type #1', function () {
-            const actual = make('fps', null, {
+            const actual = make(null, 'fps', {
                 fps: {type: 'int', min: 1, max: 60},
                 fps_limit: {type: 'int', min: 1, max: 60},
             });
             assert.deepStrictEqual(actual, 1);
         });
         it('custom type #2', function () {
-            const actual = make('fps', 30, {
+            const actual = make(30, 'fps', {
                 fps: {type: 'int', min: 1, max: 60},
                 fps_limit: {type: 'int', min: 1, max: 60},
             });
@@ -213,30 +214,30 @@ describe('make', function () {
                 int3: {type: 'int2', min: 100},
                 int4: {type: 'int3', max: 200},
             };
-            assert.deepStrictEqual(make('int2', null, types), 50);
-            assert.deepStrictEqual(make('int3', null, types), 100);
-            assert.deepStrictEqual(make('int4', 1000, types), 200);
+            assert.deepStrictEqual(make(null, 'int2', types), 50);
+            assert.deepStrictEqual(make(null, 'int3', types), 100);
+            assert.deepStrictEqual(make(1000, 'int4', types), 200);
         });
         it('alias to custom type', function () {
             const types = {
-                person: function (value, expr) {
-                    const prefix = make('str', expr.prefix);
-                    return prefix + make('str', value);
+                person: function (input, expr) {
+                    const prefix = make(expr.prefix, 'str');
+                    return prefix + make(input, 'str');
                 },
                 person2: {type: 'person', prefix: '222'},
                 person3: {type: 'person2', prefix: '333'},
             };
-            assert.deepStrictEqual(make('person', 'ggg', types), 'ggg');
-            assert.deepStrictEqual(make('person2', 'ggg', types), '222ggg');
-            assert.deepStrictEqual(make('person3', 'ggg', types), '333ggg');
+            assert.deepStrictEqual(make('ggg', 'person', types), 'ggg');
+            assert.deepStrictEqual(make('ggg', 'person2', types), '222ggg');
+            assert.deepStrictEqual(make('ggg', 'person3', types), '333ggg');
         });
         it('expr: function', function () {
-            assert.deepStrictEqual(make(v => `[${v}]`, 'ggg'), '[ggg]');
+            assert.deepStrictEqual(make('ggg', v => `[${v}]`), '[ggg]');
         });
     });
     describe('objects', function () {
         it('property: function', function () {
-            const actual = make('a', null, {a: {enabled: 'bool', foo: v => `[${v}]`}});
+            const actual = make(null, {enabled: 'bool', foo: v => `[${v}]`});
             const expected = {enabled: false, foo: '[undefined]'};
             assert.deepStrictEqual(actual, expected);
         });
@@ -267,14 +268,14 @@ describe('make', function () {
             };
             // https://developers.google.com/drive/api/reference/rest/v3/about/get?apix_params=%7B%22fields%22%3A%22*%22%7D
             // https://developers.google.com/drive/api/reference/rest/v3/files/list?apix_params=%7B%22fields%22%3A%22*%22%7D
-            assert.deepStrictEqual(make('period', null, types), {type: 'today', value: null});
-            assert.deepStrictEqual(make('period', {type: 'xxx'}, types), {type: 'today', value: null});
-            assert.deepStrictEqual(make('period', {type: 'today'}, types), {type: 'today', value: null});
-            assert.deepStrictEqual(make('period', {type: 'yesterday'}, types), {type: 'yesterday', value: null});
-            assert.deepStrictEqual(make('period', {type: 'custom', value: {begin: 100, end: 200}}, types), {type: 'custom', value: {begin: 100, end: 500}});
+            assert.deepStrictEqual(make(null, 'period', types), {type: 'today', value: null});
+            assert.deepStrictEqual(make({type: 'xxx'}, 'period', types), {type: 'today', value: null});
+            assert.deepStrictEqual(make({type: 'today'}, 'period', types), {type: 'today', value: null});
+            assert.deepStrictEqual(make({type: 'yesterday'}, 'period', types), {type: 'yesterday', value: null});
+            assert.deepStrictEqual(make({type: 'custom', value: {begin: 100, end: 200}}, 'period', types), {type: 'custom', value: {begin: 100, end: 500}});
         });
         it('edge case: union objects', function () {
-            const actual = make('item', {type: 'banner'}, {
+            const actual = make({type: 'banner'}, 'item', {
                 url: {type: 'str', default: 'https://example.com/'},
                 uint: {type: 'int', min: 0},
                 item: {
@@ -330,7 +331,7 @@ describe('make', function () {
                     balance: {type: 'int', nullable: true},
                 },
             };
-            const actual = make({type: 'person'}, {company2: {name: 'ggg'}}, types);
+            const actual = make({company2: {name: 'ggg'}}, 'person', types);
             const expected = {
                 salary: null,
                 company: {name: '', balance: null},
@@ -377,7 +378,7 @@ describe('make', function () {
                     {name: 'Diego the sabre-toothed tiger'},
                 ],
             };
-            const actual = make({type: 'movie'}, input, types);
+            const actual = make(input, 'movie', types);
             assert.deepStrictEqual(actual, expected);
         });
         it('delegate value creation to a function', function () {
@@ -386,7 +387,7 @@ describe('make', function () {
                     return {__delegated__: true, input};
                 },
             };
-            const actual = make('Custom', {pub_id: 'banner1'}, types);
+            const actual = make({pub_id: 'banner1'}, 'Custom', types);
             assert.deepStrictEqual(actual, {__delegated__: true, input: {pub_id: 'banner1'}});
         });
         // it('when one property is taken from another #1', function () {
@@ -397,7 +398,7 @@ describe('make', function () {
         //             uid: {read: true, from: 'pub_id'},
         //         },
         //     };
-        //     const actual = make('Banner', {pub_id: 'banner1'}, types);
+        //     const actual = make({pub_id: 'banner1'}, 'Banner', types);
         //     assert.deepStrictEqual(actual, {type: 'banner', uid: 'banner1'});
         // });
         // it('when one property is taken from another #2', function () {
@@ -408,13 +409,13 @@ describe('make', function () {
         //             uid: {type: 'str', from: 'pub_id'}, // from pub_id
         //         },
         //     };
-        //     const actual = make('Banner', {pub_id: 'banner1'}, types);
+        //     const actual = make({pub_id: 'banner1'}, 'Banner', types);
         //     assert.deepStrictEqual(actual, {type: 'banner', uid: 'banner1'});
         // });
         xit('objects.dependable.hooks #1', function () {
             const types = {
                 tmp: function (input) {
-                    const out = make('anon', input, {
+                    const out = make(input, 'anon', {
                         fps: {type: 'int', min: 1, max: 60},
                         fps_limit: {type: 'int', min: 1, max: 60},
                     });
@@ -427,7 +428,7 @@ describe('make', function () {
                 fps: 30,
                 fps_limit: 45,
             };
-            const actual = make('tmp', input, types);
+            const actual = make(input, 'tmp', types);
             assert.deepStrictEqual(actual, expected);
         });
         it('should return classes', function () {
@@ -435,8 +436,11 @@ describe('make', function () {
             // - converting obsolete format to new format
             class Banner {
                 constructor(input) {
-                    const expr = {uid: 'str', width: 'int', height: 'int'};
-                    Object.assign(this, make(expr, {...input, uid: input.uid ?? input.pub_id}));
+                    Object.assign(this, make({uid: input.pub_id, ...input}, {
+                        uid: 'str',
+                        width: 'int',
+                        height: 'int'
+                    }));
                 }
                 publish() {
                     console.log('Publishing...');
@@ -445,7 +449,7 @@ describe('make', function () {
             const types = {
                 Banner: v => new Banner(v),
             };
-            const actual = make('Banner', {pub_id: 'banner1'}, types);
+            const actual = make({pub_id: 'banner1'}, 'Banner', types);
             assert.ok(actual instanceof Banner);
             assert.deepEqual(actual, {uid: 'banner1', width: 0, height: 0});
         });
@@ -465,7 +469,7 @@ describe('make', function () {
                 },
                 tabs: {type: 'array', of: 'tab', before: v => v, after: v => array_unique(v, vv => vv.name)}
             };
-            const tabs = make('tabs', [{name: 'foo'}, {name: 'bar'}, {name: 'bar'}], types);
+            const tabs = make([{name: 'foo'}, {name: 'bar'}, {name: 'bar'}], 'tabs', types);
             const expected = [{name: 'foo'}, {name: 'bar'}];
             assert.deepStrictEqual(tabs, expected);
         });
@@ -478,21 +482,21 @@ describe('make', function () {
                 if (typeof value === 'string' && value.trim()) {
                     return value;
                 }
-                const prefix = make({type: 'str'}, expr.prefix);
+                const prefix = make(expr.prefix, 'str');
                 return `${prefix}a${next_uid++}`;
             },
         };
         it('uid • generate new uid only when necessary', function () {
             next_uid = 1;
-            assert.deepStrictEqual(make('uid', null, types), 'a1');
-            assert.deepStrictEqual(make('uid', null, types), 'a2');
-            assert.deepStrictEqual(make('uid', 'ggg', types), 'ggg');
-            assert.deepStrictEqual(make('uid', null, types), 'a3');
-            assert.deepStrictEqual(make({type: 'uid', prefix: 'usr_'}, null, types), 'usr_a4');
+            assert.deepStrictEqual(make(null, 'uid', types), 'a1');
+            assert.deepStrictEqual(make(null, 'uid', types), 'a2');
+            assert.deepStrictEqual(make('ggg', 'uid', types), 'ggg');
+            assert.deepStrictEqual(make(null, 'uid', types), 'a3');
+            assert.deepStrictEqual(make(null, {type: 'uid', prefix: 'usr_'}, types), 'usr_a4');
         });
         it('pub_id -> uid', function () {
             next_uid = 1;
-            const actual = make('Banner', {pub_id: 'banner_1'}, {
+            const actual = make({pub_id: 'banner_1'}, 'Banner', {
                 ...types,
                 Banner: {
                     type: 'obj',
@@ -512,7 +516,7 @@ describe('make', function () {
         });
         it('{first, last} -> name', function () {
             next_uid = 1;
-            const actual = make('User', {pub_id: 'user_1', first: 'Jack', last: 'White'}, {
+            const actual = make({pub_id: 'user_1', first: 'Jack', last: 'White'}, 'User', {
                 ...types,
                 User: {
                     type: 'obj',
@@ -534,7 +538,7 @@ describe('make', function () {
         });
         it('name -> {first, last}', function () {
             next_uid = 1;
-            const actual = make('User', {pub_id: 'user_1', name: 'Jack White'}, {
+            const actual = make({pub_id: 'user_1', name: 'Jack White'}, 'User', {
                 ...types,
                 User: {
                     type: 'obj',
@@ -558,24 +562,24 @@ describe('make', function () {
             assert.deepStrictEqual(actual, expected);
         });
         it('weekday', function () {
-            const actual = make({type: 'enum', options: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']}, 'Sat');
+            const actual = make('Sat', {type: 'enum', options: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']});
             const expected = 'Sat';
             assert.deepStrictEqual(actual, expected);
         });
         it('weekdays', function () {
             const types = {
-                weekdays: function (value, expr, types) {
-                    const tmp = make({type: 'array', of: 'str'}, value);
+                weekdays: function (input, expr, types) {
+                    const tmp = make(input, {type: 'array', of: 'str'});
                     const allowed = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
                     return array_unique(tmp.filter(v => allowed.includes(v)));
                 },
             };
-            const actual = make('weekdays', ['Thu', 'Sat', 'gg'], types);
+            const actual = make(['Thu', 'Sat', 'gg'], 'weekdays', types);
             const expected = ['Thu', 'Sat'];
             assert.deepStrictEqual(actual, expected);
         });
         it('tags', function () {
-            const actual = make({type: 'tags', options: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']}, ['Sat', 'Thu', 'gg']);
+            const actual = make(['Sat', 'Thu', 'gg'], {type: 'tags', options: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']});
             const expected = ['Sat', 'Thu'];
             assert.deepStrictEqual(actual, expected);
         });
@@ -591,7 +595,7 @@ describe('make', function () {
                     Sun: 'bool',
                 },
             };
-            const actual = make('weekdays', {Thu: 1, Sat: 1, ggg: 1}, types);
+            const actual = make({Thu: 1, Sat: 1, ggg: 1}, 'weekdays', types);
             const expected = {Mon: false, Tue: false, Wed: false, Thu: true, Fri: false, Sat: true, Sun: false};
             assert.deepStrictEqual(actual, expected);
         });
@@ -619,11 +623,11 @@ describe('make', function () {
                     },
                 }
             };
-            assert.deepStrictEqual(make('response', {kind: 'error', message: 'ggg'}, types), {kind: 'error', message: 'ggg'});
-            assert.deepStrictEqual(make('response', {kind: 'success', value: 1}, types), {kind: 'success', value: 1});
-            assert.deepStrictEqual(make('response', {kind: 'success', value: {a: 1, b: 2, c: 3}}, types), {kind: 'success', value: {a: 1, b: 2, c: 3}});
-            assert.deepStrictEqual(make('response', {kind: 'not-found'}, types), {kind: 'not-found'});
-            assert.deepStrictEqual(make('response', {kind: 'unauthorized'}, types), {kind: 'unauthorized'});
+            assert.deepStrictEqual(make({kind: 'error', message: 'ggg'}, 'response', types), {kind: 'error', message: 'ggg'});
+            assert.deepStrictEqual(make({kind: 'success', value: 1}, 'response', types), {kind: 'success', value: 1});
+            assert.deepStrictEqual(make({kind: 'success', value: {a: 1, b: 2, c: 3}}, 'response', types), {kind: 'success', value: {a: 1, b: 2, c: 3}});
+            assert.deepStrictEqual(make({kind: 'not-found'}, 'response', types), {kind: 'not-found'});
+            assert.deepStrictEqual(make({kind: 'unauthorized'}, 'response', types), {kind: 'unauthorized'});
         });
         it('optional fields', function () {
             const types = {
@@ -632,29 +636,29 @@ describe('make', function () {
                     stack: {type: 'array', of: 'str', optional: true},
                 },
             };
-            assert.deepStrictEqual(make('error', {message: 'ggg'}, types), {message: 'ggg'});
-            assert.deepStrictEqual(make('error', {message: 'ggg', stack: [111, '222']}, types), {message: 'ggg', stack: ['111', '222']});
+            assert.deepStrictEqual(make({message: 'ggg'}, 'error', types), {message: 'ggg'});
+            assert.deepStrictEqual(make({message: 'ggg', stack: [111, '222']}, 'error', types), {message: 'ggg', stack: ['111', '222']});
         });
         it('enum transform: was - on,off; now - enabled,disabled', function () {
             const types = {
                 switch: {type: 'enum', transform: {off: 'disabled', on: 'enabled'}, options: ['disabled', 'enabled']},
             };
-            assert.deepStrictEqual(make('switch', null, types), 'disabled');
-            assert.deepStrictEqual(make('switch', 'off', types), 'disabled');
-            assert.deepStrictEqual(make('switch', 'on', types), 'enabled');
-            assert.deepStrictEqual(make('switch', 'enabled', types), 'enabled');
+            assert.deepStrictEqual(make(null, 'switch', types), 'disabled');
+            assert.deepStrictEqual(make('off', 'switch', types), 'disabled');
+            assert.deepStrictEqual(make('on', 'switch', types), 'enabled');
+            assert.deepStrictEqual(make('enabled', 'switch', types), 'enabled');
         });
         it('array of exact 3 members', function () {
             const types = {
                 in: {type: 'enum', options: ['none', 'in1', 'in2', 'in3', 'in4']},
                 stay: {type: 'enum', options: ['none', 'stay1', 'stay2', 'stay3']},
                 out: {type: 'enum', options: ['none', 'out1', 'out2', 'out3']},
-                transitions: function (value, expr, types) {
-                    const [a, b, c] = make('array', value);
-                    return [make('in', a, types), make('stay', b, types), make('out', c, types)];
+                transitions: function (input, expr, types) {
+                    const [a, b, c] = make(input, 'array');
+                    return [make(a, 'in', types), make(b, 'stay', types), make(c, 'out', types)];
                 },
             };
-            assert.deepStrictEqual(make('transitions', null, types), ['none', 'none', 'none']);
+            assert.deepStrictEqual(make(null, 'transitions', types), ['none', 'none', 'none']);
         });
         it('array of exact 3 members (using tuples)', function () {
             const types = {
@@ -668,26 +672,27 @@ describe('make', function () {
                 out: {type: 'enum', options: ['none', 'out1', 'out2', 'out3']},
                 transitions: {type: 'tuple', items: ['in', 'stay', 'out']},
             };
-            assert.deepStrictEqual(make('transitions', null, types), ['none', 'none', 'none']);
-            assert.deepStrictEqual(make('transitions', [null, 'stay2', 'out5'], types), ['none', 'stay2', 'none']);
+            assert.deepStrictEqual(make(null, 'transitions', types), ['none', 'none', 'none']);
+            assert.deepStrictEqual(make([null, 'stay2', 'out5'], 'transitions', types), ['none', 'stay2', 'none']);
         });
         it('union: string or number', function () {
             const types = {
-                str_num: function (value) {
-                    if (typeof value === 'number') {
-                        return make('float', value);
+                str_num: function (input) {
+                    if (is_num(input)) {
+                        return make(input, 'float');
                     }
-                    return make('str', value);
+                    return make(input, 'str');
                 },
             };
-            assert.deepStrictEqual(make('str_num', null, types), '');
-            assert.deepStrictEqual(make('str_num', '555', types), '555');
-            assert.deepStrictEqual(make('str_num', 555, types), 555);
+            assert.deepStrictEqual(make(null, 'str_num', types), '');
+            assert.deepStrictEqual(make('555', 'str_num', types), '555');
+            assert.deepStrictEqual(make(555, 'str_num', types), 555);
+            assert.deepStrictEqual(make(NaN, 'str_num', types), '');
         });
         it('px', function () {
             const types = {
-                px: function (value) {
-                    const tmp = make({type: 'int'}, value);
+                px: function (input) {
+                    const tmp = make(input, 'int');
                     return tmp ? `${tmp}px` : '0';
                 },
                 position: {
@@ -695,19 +700,19 @@ describe('make', function () {
                     left: 'px',
                 },
             };
-            assert.deepStrictEqual(make('px', null, types), '0');
-            assert.deepStrictEqual(make('px', 5, types), '5px');
-            assert.deepStrictEqual(make('position', {top: 5, left: 0}, types), {top: '5px', left: '0'});
+            assert.deepStrictEqual(make(null, 'px', types), '0');
+            assert.deepStrictEqual(make(5, 'px', types), '5px');
+            assert.deepStrictEqual(make({top: 5, left: 0}, 'position', types), {top: '5px', left: '0'});
         });
         it('array of 3 Banner: should return an array of 3 different banenrs', function () {
             let next_uid = 1;
             const types = {
                 // {type: 'uid', prefix: 'banner_'}
-                uid: function (value, expr, types) {
-                    if (typeof value === 'string' && value.trim()) {
-                        return value;
+                uid: function (input, expr, types) {
+                    if (typeof input === 'string' && input.trim()) {
+                        return input;
                     }
-                    const prefix = make({type: 'str'}, expr.prefix);
+                    const prefix = make(expr.prefix, 'str');
                     return `${prefix}a${next_uid++}`;
                 },
                 Banner: {
@@ -715,17 +720,17 @@ describe('make', function () {
                 },
             };
             const expected = [{uid: 'banner_a1'}, {uid: 'banner_a2'}, {uid: 'banner_a3'}];
-            assert.deepStrictEqual(make({type: 'array', of: 'Banner', min: 3}, null, types), expected);
+            assert.deepStrictEqual(make(null, {type: 'array', of: 'Banner', min: 3}, types), expected);
         });
         it('array of 2 Banner, min=4: should return an array of 4 different banners', function () {
             let next_uid = 1;
             const types = {
                 // {type: 'uid', prefix: 'banner_'}
-                uid: function (value, expr, types) {
-                    if (typeof value === 'string' && value.trim()) {
-                        return value;
+                uid: function (input, expr, types) {
+                    if (typeof input === 'string' && input.trim()) {
+                        return input;
                     }
-                    const prefix = make({type: 'str'}, expr.prefix);
+                    const prefix = make(expr.prefix, 'str');
                     return `${prefix}a${next_uid++}`;
                 },
                 Banner: {
@@ -733,7 +738,7 @@ describe('make', function () {
                 },
             };
             const expected = [{uid: 'a'}, {uid: 'b'}, {uid: 'banner_a1'}, {uid: 'banner_a2'}];
-            assert.deepStrictEqual(make({type: 'array', of: 'Banner', min: 4}, [{uid: 'a'}, {uid: 'b'}], types), expected);
+            assert.deepStrictEqual(make([{uid: 'a'}, {uid: 'b'}], {type: 'array', of: 'Banner', min: 4}, types), expected);
         });
     });
 });

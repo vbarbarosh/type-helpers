@@ -36,7 +36,7 @@ const types = {
     },
     tabs: {type: 'array', of: 'tab'}
 };
-const tabs = make('tabs', body?.card, types);
+const tabs = make(body?.card, 'tabs', types);
 ```
 
 ## ✨ Basic usage
@@ -47,23 +47,23 @@ Creating basic types:
 const assert = require('assert');
 const make = require('@vbarbarosh/type-helpers');
 
-assert.strictEqual(make('int'), 0);
-assert.strictEqual(make('int', -0), 0);
-assert.strictEqual(make('int', '15.55'), 15);
-assert.strictEqual(make('int', '15.999'), 15);
+assert.strictEqual(make(null, 'int'), 0);
+assert.strictEqual(make(-0, 'int', -0), 0);
+assert.strictEqual(make('15.55', 'int'), 15);
+assert.strictEqual(make('15.999', 'int'), 15);
 
-assert.strictEqual(make('float'), 0);
-assert.strictEqual(make('float', -0), 0);
-assert.strictEqual(make('float', '15.55'), 15.55);
-assert.strictEqual(make('float', '15.999'), 15.999);
+assert.strictEqual(make(null, 'float'), 0);
+assert.strictEqual(make(-0, 'float'), 0);
+assert.strictEqual(make('15.55', 'float'), 15.55);
+assert.strictEqual(make('15.999', 'float'), 15.999);
 
-assert.strictEqual(make('bool', ''), false);
-assert.strictEqual(make('bool', '1'), true);
-assert.strictEqual(make('bool', 'x'), true);
+assert.strictEqual(make('', 'bool'), false);
+assert.strictEqual(make('1', 'bool'), true);
+assert.strictEqual(make('x', 'bool'), true);
 
-assert.strictEqual(make('str', 1), '1');
-assert.strictEqual(make('str', true), 'true');
-assert.strictEqual(make('str', false), 'false');
+assert.strictEqual(make(1, 'str'), '1');
+assert.strictEqual(make(true, 'str'), 'true');
+assert.strictEqual(make(false, 'str'), 'false');
 ```
 
 Creating enum:
@@ -72,9 +72,9 @@ Creating enum:
 const assert = require('assert');
 const make = require('@vbarbarosh/type-helpers');
 
-assert.strictEqual(make({type: 'enum', options: ['foo', 'bar', 'baz']}), 'foo');
-assert.strictEqual(make({type: 'enum', options: ['foo', 'bar', 'baz']}, 'x'), 'foo');
-assert.strictEqual(make({type: 'enum', options: ['foo', 'bar', 'baz']}, 'bar'), 'bar');
+assert.strictEqual(make(null, {type: 'enum', options: ['foo', 'bar', 'baz']}), 'foo');
+assert.strictEqual(make('x', {type: 'enum', options: ['foo', 'bar', 'baz']}), 'foo');
+assert.strictEqual(make('bar', {type: 'enum', options: ['foo', 'bar', 'baz']}), 'bar');
 ```
 
 Creating uniform arrays (all values have the same type):
@@ -83,9 +83,9 @@ Creating uniform arrays (all values have the same type):
 const assert = require('assert');
 const make = require('@vbarbarosh/type-helpers');
 
-assert.deepStrictEqual(make({type: 'array', of: 'str'}), []);
-assert.deepStrictEqual(make({type: 'array', of: 'str', min: 2}, 'x'), ['x', '']);
-assert.deepStrictEqual(make({type: 'array', of: 'int', min: 2}, ['1']), [1, 0]);
+assert.deepStrictEqual(make(null, {type: 'array', of: 'str'}), []);
+assert.deepStrictEqual(make('x', {type: 'array', of: 'str', min: 2}), ['x', '']);
+assert.deepStrictEqual(make(['1'], {type: 'array', of: 'int', min: 2}), [1, 0]);
 ```
 
 Creating tuples (an array with fixed number of elements and predefined types):
@@ -94,8 +94,8 @@ Creating tuples (an array with fixed number of elements and predefined types):
 const assert = require('assert');
 const make = require('@vbarbarosh/type-helpers');
 
-assert.deepStrictEqual(make({type: 'tuple', items: ['str', 'str']}), ['', '']);
-assert.deepStrictEqual(make({type: 'tuple', items: ['str', 'str']}, ['a']), ['a', '']);
+assert.deepStrictEqual(make(null, {type: 'tuple', items: ['str', 'str']}), ['', '']);
+assert.deepStrictEqual(make(['a'], {type: 'tuple', items: ['str', 'str']}), ['a', '']);
 ```
 
 Creating objects:
@@ -111,10 +111,10 @@ const types = {
     },
 };
 
-assert.deepStrictEqual(make('rect', null, types), {width: 0, height: 0});
-assert.deepStrictEqual(make('rect', {}, types), {width: 0, height: 0});
-assert.deepStrictEqual(make('rect', {width: -100}, types), {width: 0, height: 0});
-assert.deepStrictEqual(make('rect', {width: 15, height: 25}, types), {width: 15, height: 25});
+assert.deepStrictEqual(make(null, 'rect', types), {width: 0, height: 0});
+assert.deepStrictEqual(make({}, 'rect', types), {width: 0, height: 0});
+assert.deepStrictEqual(make({width: -100}, 'rect', types), {width: 0, height: 0});
+assert.deepStrictEqual(make({width: 15, height: 25}, 'rect', types), {width: 15, height: 25});
 ```
 
 Creating object unions (an object which shape is determined by value from a property):
@@ -147,8 +147,8 @@ const types = {
     },
 };
 
-assert.deepStrictEqual(make('widget', null, types), {kind: 'text', value: ''});
-assert.deepStrictEqual(make('widget', {kind: 'submit'}, types), {kind: 'submit', label: '', name: '', value: ''});
+assert.deepStrictEqual(make(null, 'widget', types), {kind: 'text', value: ''});
+assert.deepStrictEqual(make({kind: 'submit'}, 'widget', types), {kind: 'submit', label: '', name: '', value: ''});
 ```
 
 ## 📦 Built-in types

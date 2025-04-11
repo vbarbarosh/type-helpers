@@ -74,22 +74,22 @@ const standard_types = {
     },
     // {type: 'array', of: __type__, min: 0, nullable: false, before: input => input, after: out => out}
     array: function (input, params, types) {
-        const conf = make({
+        const conf = make(params, {
             of: {type: 'any', default: 'raw'},
             min: {type: 'int', min: 0}
-        }, params, types);
+        }, types);
         let out;
         if (is_array(input)) {
-            out = input.map(v => make(conf.of, v, types));
+            out = input.map(v => make(v, conf.of, types));
         }
         else if (conf.min > 0) {
-            out = [make(conf.of, input, types)];
+            out = [make(input, conf.of, types)];
         }
         else {
             out = [];
         }
         while (out.length < conf.min) {
-            out.push(make(conf.of, null, types));
+            out.push(make(null, conf.of, types));
         }
         return out;
     },
@@ -99,7 +99,7 @@ const standard_types = {
             throw new Error('[type=tuple] should have at least one option');
         }
         const values = is_array(input) ? input : [];
-        return params.items.map((v,i) => make(v, values[i], types));
+        return params.items.map((v,i) => make(values[i], v, types));
     },
     // {type: 'tags', options: ['foo', 'bar', 'baz'], nullable: false, before: input => input, after: out => out}
     tags: function (input, params) {
@@ -130,7 +130,7 @@ const standard_types = {
             if (v.optional && value_obj[k] === undefined) {
                 return null;
             }
-            return [k, make(v, value_obj[k], types)];
+            return [k, make(value_obj[k], v, types)];
         }).filter(v => v));
     },
     // {type: 'union', prop: 'kind', options: {...}, nullable: false, before: input => input, after: out => out}
@@ -150,14 +150,14 @@ const standard_types = {
         }
         const out = {};
         out[params.prop || 'type'] = type;
-        return Object.assign(out, make(expr2, input, types));
+        return Object.assign(out, make(input, expr2, types));
     },
 };
 
 /**
  * Make values from spec. Kind of class/type factory.
  */
-function make(expr, input, types)
+function make(input, expr, types)
 {
     if (!expr) {
         throw new Error('Empty expressions are not allowed');
@@ -168,7 +168,7 @@ function make(expr, input, types)
     }
 
     if (is_str(expr)) {
-        return make({type: expr}, input, types);
+        return make(input, {type: expr}, types);
     }
 
     // 🤯 {type: 'array', of: 'int', min: 5, nullable: true}
@@ -178,11 +178,11 @@ function make(expr, input, types)
 
     // 🩼 When `expr` is an object, it is the same as `{type: 'obj', props: ...}`, unless it has `type` property.
     if (!('type' in expr)) {
-        return make({type: 'obj', props: expr}, input, types);
+        return make(input, {type: 'obj', props: expr}, types);
     }
     // 🩼 A way to remove special meaning from `type` property is to wrap its value into array
     if (is_array(expr.type)) {
-        return make({type: 'obj', props: {...expr, type: expr.type[0]}}, input, types);
+        return make(input, {type: 'obj', props: {...expr, type: expr.type[0]}}, types);
     }
 
     // Standard types
@@ -206,10 +206,10 @@ function make(expr, input, types)
             //     // The intention here - is to reuse type int_0_100 the way it was configured, just set max to 10.
             //     int_0_10: {type: 'int_0_100', max: 10},
             // }
-            return make({...types[expr.type], ...expr, type: types[expr.type].type}, input, types);
+            return make(input, {...types[expr.type], ...expr, type: types[expr.type].type}, types);
         }
         // Custom type defined without [type] property is a set of props for [obj]
-        return make(types[expr.type], input, types);
+        return make(input, types[expr.type], types);
     }
 
     throw new Error(`Invalid type: ${expr.type}`);

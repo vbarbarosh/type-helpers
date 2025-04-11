@@ -12,6 +12,7 @@
 - I don't like multiline `make({}, input)`. I would prefer `make(input, {})`.
 + make_float, make_int, make_bool - rename; they conflict with functions making types
 + all make_ functions should have the same signature
+- "make" could be renamed to "bake" to justify its signature: bake(input, expr).
 
 ## Goals
 
