@@ -134,15 +134,6 @@ describe('make', function () {
             assert.throws(() => make(null, 'union'), new Error(`Union type option not found: [type / undefined]`));
         });
     });
-    describe('edge', function () {
-        // it('fn • always return predefined value discarding any input provided', function () {
-        //     // ⚠️ Should it be [fn] or [value]?
-        //     const types = {
-        //         apple: {type: 'fn', fn: () => ({apple: 'foo'})},
-        //     };
-        //     assert.deepStrictEqual(make('ggg', 'apple', types), {apple: 'foo'});
-        // });
-    });
     describe('basic types', function () {
         it('defaults', function () {
             assert.deepStrictEqual(make(null, 'bool'), false);
@@ -235,10 +226,12 @@ describe('make', function () {
             assert.deepStrictEqual(make('ggg', v => `[${v}]`), '[ggg]');
         });
         it('type: function', function () {
-            assert.deepStrictEqual(make('ggg', 'custom', {custom: v => `[${v}]`}), '[ggg]');
+            const types = {custom: v => `[${v}]`};
+            assert.deepStrictEqual(make('ggg', 'custom', types), '[ggg]');
         });
         it('{type: function}', function () {
-            assert.deepStrictEqual(make('ggg', 'custom', {custom: {type: v => `[${v}]`}}), '[ggg]');
+            const types = {custom: {type: v => `[${v}]`}};
+            assert.deepStrictEqual(make('ggg', 'custom', types), '[ggg]');
         });
     });
     describe('objects', function () {
