@@ -191,6 +191,11 @@ function make(input, expr, types)
     }
 
     // Custom types
+
+    if (is_fn(expr.type)) {
+        return after(expr.type(before(input), expr, types));
+    }
+
     if (types[expr.type]) {
         if (is_fn(types[expr.type])) {
             return after(types[expr.type](before(input), expr, types));

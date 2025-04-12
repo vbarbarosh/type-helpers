@@ -234,6 +234,12 @@ describe('make', function () {
         it('expr: function', function () {
             assert.deepStrictEqual(make('ggg', v => `[${v}]`), '[ggg]');
         });
+        it('type: function', function () {
+            assert.deepStrictEqual(make('ggg', 'custom', {custom: v => `[${v}]`}), '[ggg]');
+        });
+        it('{type: function}', function () {
+            assert.deepStrictEqual(make('ggg', 'custom', {custom: {type: v => `[${v}]`}}), '[ggg]');
+        });
     });
     describe('objects', function () {
         it('property: function', function () {
