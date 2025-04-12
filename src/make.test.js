@@ -492,6 +492,24 @@ describe('make', function () {
             assert.deepStrictEqual(actual, expected);
         });
     });
+    describe('Real-world Scenarios • Migrate to new [uid] property from old [pub_id]', function () {
+        it('pub_id -> uid', function () {
+            const actual = make({pub_id: 'banner_1'}, {
+                type: 'obj',
+                props: {
+                    uid: {type: 'str'},
+                    title: {type: 'str', nullable: true},
+                    width: {type: 'int', min: 0},
+                    height: {type: 'int', min: 0},
+                },
+                before: function (input) {
+                    return {uid: input?.pub_id, ...input};
+                },
+            });
+            const expected = {uid: 'banner_1', title: null, width: 0, height: 0};
+            assert.deepStrictEqual(actual, expected);
+        });
+    });
     describe('some random scenarios', function () {
         let next_uid = 1;
         const types = {
@@ -511,26 +529,6 @@ describe('make', function () {
             assert.deepStrictEqual(make('ggg', 'uid', types), 'ggg');
             assert.deepStrictEqual(make(null, 'uid', types), 'a3');
             assert.deepStrictEqual(make(null, {type: 'uid', prefix: 'usr_'}, types), 'usr_a4');
-        });
-        it('pub_id -> uid', function () {
-            next_uid = 1;
-            const actual = make({pub_id: 'banner_1'}, 'Banner', {
-                ...types,
-                Banner: {
-                    type: 'obj',
-                    transform: function (v) {
-                        return {...v, uid: v.uid ?? v.pub_id};
-                    },
-                    props: {
-                        uid: {type: 'uid', prefix: 'banner_'},
-                        title: {type: 'str', nullable: true},
-                        width: {type: 'int', min: 0},
-                        height: {type: 'int', min: 0},
-                    },
-                },
-            });
-            const expected = {uid: 'banner_1', title: null, width: 0, height: 0};
-            assert.deepStrictEqual(actual, expected);
         });
         it('{first, last} -> name', function () {
             next_uid = 1;
