@@ -1,7 +1,8 @@
 const assert = require('assert');
+const is_num = require('./is_num');
+const is_str = require('./is_str');
 const make = require('./make');
 const safe_str = require('./safe_str');
-const is_num = require('./is_num');
 
 const SP = Symbol();
 
@@ -453,12 +454,12 @@ describe('make', function () {
             assert.deepEqual(actual, {uid: 'banner1', width: 0, height: 0});
         });
     });
-    describe('scenario: an array of tabs', function () {
+    describe('Real-world Scenarios • an array of tabs', function () {
         // - an array of tabs
         // - each tab must have a unique name
         // - only one tab can be active at a time
         // - at least one tab must be enabled
-        xit('each tab must have a unique name', function () {
+        it('each tab must have a unique name', function () {
             const types = {
                 tab: {
                     name: 'str',
@@ -466,11 +467,29 @@ describe('make', function () {
                     active: 'bool',
                     disabled: 'bool',
                 },
-                tabs: {type: 'array', of: 'tab', before: v => v, after: v => array_unique(v, vv => vv.name)}
+                tabs: {
+                    type: 'array',
+                    of: 'tab',
+                    before: function (input) {
+                        if (is_str(input)) {
+                            return input.split(',').map(v => ({name: v, label: v}));
+                        }
+                        return input;
+                    },
+                    after: function (out) {
+                        out = array_unique(out, v => v.name);
+                        const i = Math.max(0, out.findIndex(v => v.active));
+                        out.forEach((v, j) => v.active = (i === j));
+                        return out;
+                    },
+                },
             };
-            const tabs = make([{name: 'foo'}, {name: 'bar'}, {name: 'bar'}], 'tabs', types);
-            const expected = [{name: 'foo'}, {name: 'bar'}];
-            assert.deepStrictEqual(tabs, expected);
+            const actual = make('foo,bar,bar', 'tabs', types);
+            const expected = [
+                {name: 'foo', label: 'foo', active: true, disabled: false},
+                {name: 'bar', label: 'bar', active: false, disabled: false},
+            ];
+            assert.deepStrictEqual(actual, expected);
         });
     });
     describe('some random scenarios', function () {
