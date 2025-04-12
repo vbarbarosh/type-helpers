@@ -41,6 +41,8 @@ const tabs = make(body?.card, 'tabs', types);
 
 ## ✨ Basic usage
 
+`make(input, expr, types)`
+
 Creating basic types:
 
 ```js
@@ -150,6 +152,37 @@ const types = {
 assert.deepStrictEqual(make(null, 'widget', types), {kind: 'text', value: ''});
 assert.deepStrictEqual(make({kind: 'submit'}, 'widget', types), {kind: 'submit', label: '', name: '', value: ''});
 ```
+
+## Expressions
+
+`make(input, expr, types)`
+
+In general, an expression is an object with the following **reserved**
+properties:
+
+| Name       | Type                    | Description                                                                                                           |
+|------------|-------------------------|-----------------------------------------------------------------------------------------------------------------------|
+| `type`     | `string`<br/>`function` | Either the name of a built-in or user-defined type, or a function with 3 arguments: `function(input, params, types)`. |
+| `nullable` | `boolean`               | If it evaluates to `true`, then the value could be `null`.                                                            |
+| `before`   | `function`              | A preprocessor for input data: `before(input)`.                                                                       |
+| `after`    | `function`              | A postprocessor for output data: `after(out)`.                                                                        |
+
+When **nullable** evaluates to `true`, a function will return `null` when
+**input** is either `null` or `undefined`.
+
+Depending on the type, it might have more properties. For example, `{type:
+'int'}` expects `min`, `max`, and `default`, while `{type: 'enum'}` expects an
+`options` array.
+
+As syntactic sugar, the expression could be a `string`, a `function`, or an
+`object` without the **reserved** property `type`. In that case, it is treated
+as `{type: expr}`.
+
+| Type       | Example                                                                                          |
+|------------|--------------------------------------------------------------------------------------------------|
+| `string`   | `make(input, 'int')` →<br/>`make(input, {type: 'int'}`)                                          |
+| `function` | `make(input, v => [${v}])`→<br/>`make(input, {type: v => [${v}]})`                               |
+| `object`   | `make(input, {w: 'int', h: 'int})`→<br/>`make(input, {type: 'obj', props: {w: 'int', h: 'int}})` |
 
 ## 📦 Built-in types
 
