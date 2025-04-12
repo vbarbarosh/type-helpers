@@ -163,11 +163,7 @@ function make(input, expr, types)
         throw new Error('Empty expressions are not allowed');
     }
 
-    if (is_fn(expr)) {
-        return after(expr(before(input), expr, types));
-    }
-
-    if (is_str(expr)) {
+    if (is_str(expr) || is_fn(expr)) {
         return make(input, {type: expr}, types);
     }
 
