@@ -167,10 +167,10 @@ properties:
 | `before`   | `function`              | A preprocessor for input data: `before(input)`.                                                                        |
 | `after`    | `function`              | A postprocessor for output data: `after(out)`.                                                                         |
 
-When **nullable** evaluates to `true`, a function will return `null` when
-**input** is either `null` or `undefined`.
+When **nullable** evaluates to `true`, `make` will return `null` when **input**
+is either `null` or `undefined`.
 
-Depending on the type, it might have more properties. For example, `{type:
+Depending on the type, `expr` might have more properties. For example, `{type:
 'int'}` expects `min`, `max`, and `default`, while `{type: 'enum'}` expects an
 `options` array.
 
