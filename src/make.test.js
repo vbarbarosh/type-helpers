@@ -45,21 +45,21 @@ describe('make', function () {
             assert.deepStrictEqual(make(null, {type: [{type: 'int', min: 15}], foo: 'int', bar: 'int'}), {type: 15, foo: 0, bar: 0});
         });
     });
-    describe('type: raw', function () {
+    describe('built-in types • raw', function () {
         it('raw • always return input value', function () {
             assert.deepStrictEqual(make('ggg', 'raw'), 'ggg');
             assert.deepStrictEqual(make({foo: 1, bar: 2}, 'raw'), {foo: 1, bar: 2});
         });
     });
-    describe('type: any', function () {
+    describe('built-in types • any', function () {
     });
-    describe('type: null', function () {
+    describe('built-in types • null', function () {
         it('null • always return null discarding any input provided', function () {
             assert.deepStrictEqual(make(1, 'null'), null);
             assert.deepStrictEqual(make({foo: 1, bar: 2}, 'null'), null);
         });
     });
-    describe('type: const', function () {
+    describe('built-in types • const', function () {
         it('const • always return predefined value discarding any input provided', function () {
             const types = {
                 apple: {type: 'const', value: 'apple'},
@@ -67,32 +67,32 @@ describe('make', function () {
             assert.deepStrictEqual(make('ggg', 'apple', types), 'apple');
         });
     });
-    describe('type: bool', function () {
+    describe('built-in types • bool', function () {
         it('should cast the default value to a valid range', function () {
             assert.deepStrictEqual(make(null, {type: 'bool', default: ''}), false);
         });
     });
-    describe('type: int', function () {
+    describe('built-in types • int', function () {
         it('should cast the default value to a valid range', function () {
             assert.deepStrictEqual(make(null, {type: 'int', default: ''}), 0);
         });
     });
-    describe('type: float', function () {
+    describe('built-in types • float', function () {
         it('should cast the default value to a valid range', function () {
             assert.deepStrictEqual(make(null, {type: 'float', default: ''}), 0);
         });
     });
-    describe('type: str', function () {
+    describe('built-in types • str', function () {
         it('should cast the default value to a valid range', function () {
             assert.deepStrictEqual(make(null, {type: 'str', default: SP}), '');
         });
     });
-    describe('type: enum', function () {
+    describe('built-in types • enum', function () {
         it('should throw "[type=enum] should have at least one option"', function () {
             assert.throws(() => make(null, 'enum'), new Error('[type=enum] should have at least one option'));
         });
     });
-    describe('type: array', function () {
+    describe('built-in types • array', function () {
         it('should pass basic tests for arrays', function () {
             assert.deepStrictEqual(make(null, {type: 'array', of: 'str'}), []);
             assert.deepStrictEqual(make('x', {type: 'array', of: 'str', min: 2}), ['x', '']);
@@ -117,19 +117,19 @@ describe('make', function () {
             assert.deepStrictEqual(make(null, {type: 'array', of: 'str'}), [], 'array of str');
         });
     });
-    describe('type: tuple', function () {
+    describe('built-in types • tuple', function () {
         it('should throw "[type=tuple] should have at least one option"', function () {
             assert.throws(() => make(null, 'tuple'), new Error('[type=tuple] should have at least one option'));
         });
     });
-    describe('type: tags', function () {
+    describe('built-in types • tags', function () {
         it('should throw "[type=tags] should have options defined"', function () {
             assert.throws(() => make(null, 'tags'), new Error('[type=tags] should have options defined'));
         });
     });
-    describe('type: obj', function () {
+    describe('built-in types • obj', function () {
     });
-    describe('type: union', function () {
+    describe('built-in types • union', function () {
         it('should throw "Union type option not found"', function () {
             assert.throws(() => make(null, 'union'), new Error(`Union type option not found: [type / undefined]`));
         });
