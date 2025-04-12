@@ -160,12 +160,12 @@ assert.deepStrictEqual(make({kind: 'submit'}, 'widget', types), {kind: 'submit',
 In general, an expression is an object with the following **reserved**
 properties:
 
-| Name       | Type                    | Description                                                                                                           |
-|------------|-------------------------|-----------------------------------------------------------------------------------------------------------------------|
-| `type`     | `string`<br/>`function` | Either the name of a built-in or user-defined type, or a function with 3 arguments: `function(input, params, types)`. |
-| `nullable` | `boolean`               | If it evaluates to `true`, then the value could be `null`.                                                            |
-| `before`   | `function`              | A preprocessor for input data: `before(input)`.                                                                       |
-| `after`    | `function`              | A postprocessor for output data: `after(out)`.                                                                        |
+| Name       | Type                    | Description                                                                                                            |
+|------------|-------------------------|------------------------------------------------------------------------------------------------------------------------|
+| `type`     | `string`<br/>`function` | Either the name of a built-in or user-defined type, or a function with 3 arguments: `function (input, params, types)`. |
+| `nullable` | `boolean`               | If it evaluates to `true`, then the value could be `null`.                                                             |
+| `before`   | `function`              | A preprocessor for input data: `before(input)`.                                                                        |
+| `after`    | `function`              | A postprocessor for output data: `after(out)`.                                                                         |
 
 When **nullable** evaluates to `true`, a function will return `null` when
 **input** is either `null` or `undefined`.
