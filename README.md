@@ -170,9 +170,9 @@ properties:
 When **nullable** evaluates to `true`, `make` will return `null` when **input**
 is either `null` or `undefined`.
 
-Depending on the type, `expr` might have more properties. For example, `{type:
-'int'}` expects `min`, `max`, and `default`, while `{type: 'enum'}` expects an
-`options` array.
+Depending on the type, expression might have more properties. For example,
+`{type: 'int'}` expects `min`, `max`, and `default`, while `{type: 'enum'}`
+expects an `options` array.
 
 As syntactic sugar, the expression could be a `string`, a `function`, or an
 `object` without the **reserved** property `type`. In that case, it is treated
