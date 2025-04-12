@@ -1,6 +1,8 @@
 ## Inconsistencies
 
 - check all snippets in README.md
+- remove enum.transform
+- remove obj.transform
 + Some types adjust default values, some - returns it without modifications:
     + `make({type: 'bool', default: 555}) -> 555` ⚠️
     + `make({type: 'int', default: 1, min: 100) -> 100`
