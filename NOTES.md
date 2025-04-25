@@ -127,3 +127,15 @@ function is_str_match(input, re)
 ```js
 const s = make(input, 'strx');
 ```
+
+## use-case: make can be used for expressive and safe way to extract parameters
+
+```js
+const types = {
+    // {type: 'uid', prefix: 'banner_', engine: cuid|uuid|int}
+    uid: function (input, params, types) {
+        const {prefix, engine} = make(params, {prefix: 'str', engine: {type: 'enum', options: ['cuid', 'uuid', 'int']}});
+        return `${prefix}a${next_uid++}`;
+    },
+}
+```
