@@ -121,3 +121,9 @@ function is_str_match(input, re)
     return typeof input === 'string' && input.match(re);
 }
 ```
+
+## should throw human-readable error, when no type was found
+
+```js
+const s = make(input, 'strx');
+```
