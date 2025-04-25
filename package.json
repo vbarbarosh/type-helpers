@@ -29,6 +29,7 @@
         "bluebird": "*"
     },
     "devDependencies": {
+        "@vbarbarosh/node-helpers": "^3.65.0",
         "mocha": "^11.1.0",
         "nyc": "^17.1.0"
     }
