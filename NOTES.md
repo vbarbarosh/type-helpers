@@ -122,7 +122,7 @@ function is_str_match(input, re)
 }
 ```
 
-## should throw human-readable error, when no type was found
+## should throw a human-readable error when no type was found
 
 ```js
 const s = make(input, 'strx');
