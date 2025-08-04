@@ -1,5 +1,3 @@
-const is_array = require('./is_array');
-
 // Returning empty_value as is will allow the following:
 //     safe_int(v.width, null, 0, 4096)
 //
