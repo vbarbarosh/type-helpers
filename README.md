@@ -2,7 +2,7 @@ Utilities for transforming raw input into safe and well-typed values and
 objects.
 
 <p align="center">
-<a href="https://github.com/vbarbarosh/type-helpers/actions"><img src="https://github.com/vbarbarosh/type-helpers/actions/workflows/node.js.yml/badge.svg" alt="@vbarbarosh/node-helpers CI status" /></a>
+<a href="https://github.com/vbarbarosh/type-helpers/actions"><img src="https://github.com/vbarbarosh/type-helpers/actions/workflows/node.js.yml/badge.svg" alt="@vbarbarosh/type-helpers CI status" /></a>
 <a href="https://opensource.org/licenses/MIT" rel="nofollow"><img src="https://img.shields.io/github/license/vbarbarosh/type-helpers" alt="License"></a>
 <a href="https://www.npmjs.com/package/@vbarbarosh/type-helpers" rel="nofollow"><img src="https://img.shields.io/npm/dw/@vbarbarosh/type-helpers.svg" alt="npm"></a>
 <a href="https://github.com/vbarbarosh/type-helpers" rel="nofollow"><img src="https://img.shields.io/github/stars/vbarbarosh/type-helpers" alt="stars"></a>
@@ -50,7 +50,7 @@ const assert = require('assert');
 const make = require('@vbarbarosh/type-helpers');
 
 assert.strictEqual(make(null, 'int'), 0);
-assert.strictEqual(make(-0, 'int', -0), 0);
+assert.strictEqual(make(-0, 'int'), 0);
 assert.strictEqual(make('15.55', 'int'), 15);
 assert.strictEqual(make('15.999', 'int'), 15);
 
@@ -181,8 +181,8 @@ as `{type: expr}`.
 | Type       | Example                                                                                          |
 |------------|--------------------------------------------------------------------------------------------------|
 | `string`   | `make(input, 'int')` →<br/>`make(input, {type: 'int'}`)                                          |
-| `function` | `make(input, v => [${v}])`→<br/>`make(input, {type: v => [${v}]})`                               |
-| `object`   | `make(input, {w: 'int', h: 'int})`→<br/>`make(input, {type: 'obj', props: {w: 'int', h: 'int}})` |
+| `function` | ``make(input, v => `[${v}]`)``→<br/>``make(input, {type: v => `[${v}]`})``                          |
+| `object`   | `make(input, {w: 'int', h: 'int'})`→<br/>`make(input, {type: 'obj', props: {w: 'int', h: 'int'}})` |
 
 ## 📦 Built-in types
 
@@ -275,6 +275,10 @@ as `{type: expr}`.
 There are several `safe_` functions. They guarantee a valid result by falling
 back to `empty_value` if the `input` is `null`, `undefined`, or cannot be safely
 represented in the requested type.
+
+```js
+const safe_int = require('@vbarbarosh/type-helpers/src/safe_int');
+```
 
 - [`safe_bool(input, empty_value = false)`](src/safe_bool.js)
 - [`safe_float(input, empty_value = 0, min = -Number.MAX_VALUE, max = Number.MAX_VALUE)`](src/safe_float.js)

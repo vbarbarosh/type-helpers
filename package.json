@@ -7,8 +7,12 @@
     "main": "src/make.js",
     "files": [
         "README.md",
-        "src"
+        "src",
+        "!src/*.test.js"
     ],
+    "engines": {
+        "node": ">=18"
+    },
     "scripts": {
         "test": "nyc mocha src/**/*.test.js"
     },
@@ -23,10 +27,6 @@
     },
     "bugs": {
         "url": "https://github.com/vbarbarosh/type-helpers/issues"
-    },
-    "peerDependencies": {
-        "axios": "*",
-        "bluebird": "*"
     },
     "devDependencies": {
         "@vbarbarosh/node-helpers": "^3.65.0",
