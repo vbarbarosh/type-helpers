@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">
+    <defs>
+        <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#0d1117"/>
+            <stop offset="1" stop-color="#10182e"/>
+        </linearGradient>
+        <linearGradient id="box" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#1f6feb"/>
+            <stop offset="1" stop-color="#388bfd"/>
+        </linearGradient>
+        <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+            <stop offset="0" stop-color="#1f6feb" stop-opacity="0.35"/>
+            <stop offset="1" stop-color="#1f6feb" stop-opacity="0"/>
+        </radialGradient>
+    </defs>
+
+    <rect width="1200" height="630" fill="url(#bg)"/>
+
+    <!-- title -->
+    <text x="600" y="76" text-anchor="middle" font-size="40" font-weight="bold" fill="#e6edf3">@vbarbarosh/type-helpers</text>
+    <text x="600" y="112" text-anchor="middle" font-size="16" fill="#8b949e">Utilities for transforming raw input into safe and well-typed values and objects</text>
+
+    <!-- flow lines: chaos converging into make() -->
+    <g fill="none" stroke="#8b949e" stroke-opacity="0.28" stroke-width="1.5">
+        <path d="M 130 210 C 280 230, 360 330, 430 364"/>
+        <path d="M 250 258 C 330 280, 380 340, 430 366"/>
+        <path d="M 150 310 C 280 330, 360 350, 430 368"/>
+        <path d="M 240 362 C 310 364, 370 366, 430 368"/>
+        <path d="M 120 412 C 270 400, 360 380, 430 370"/>
+        <path d="M 260 462 C 330 440, 380 390, 430 372"/>
+        <path d="M 140 512 C 290 490, 370 400, 430 374"/>
+        <path d="M 320 210 C 380 250, 400 330, 432 362"/>
+        <path d="M 340 530 C 390 490, 410 400, 432 374"/>
+    </g>
+
+    <!-- flow lines: make() emitting order -->
+    <g fill="none" stroke="#3fb950" stroke-opacity="0.35" stroke-width="1.5">
+        <path d="M 770 364 C 800 360, 810 260, 836 242"/>
+        <path d="M 770 366 C 800 364, 810 312, 836 292"/>
+        <path d="M 770 368 C 800 368, 810 348, 836 342"/>
+        <path d="M 770 370 C 800 372, 810 388, 836 392"/>
+        <path d="M 770 372 C 800 376, 810 428, 836 442"/>
+        <path d="M 770 374 C 800 380, 810 478, 836 492"/>
+    </g>
+
+    <!-- chaos: raw input -->
+    <g font-size="20">
+        <text x="110" y="215" fill="#f85149" transform="rotate(-8 110 215)">NaN</text>
+        <text x="200" y="262" fill="#8b949e" transform="rotate(5 200 262)">undefined</text>
+        <text x="120" y="315" fill="#d29922" transform="rotate(-4 120 315)">'12px'</text>
+        <text x="150" y="366" fill="#db61a2" transform="rotate(3 150 366)">new Boolean(false)</text>
+        <text x="100" y="416" fill="#f85149" transform="rotate(10 100 416)">-0</text>
+        <text x="190" y="466" fill="#d29922" transform="rotate(-6 190 466)">10n**100n</text>
+        <text x="120" y="516" fill="#f0883e" transform="rotate(4 120 516)">Infinity</text>
+        <text x="300" y="214" fill="#8b949e" transform="rotate(12 300 214)">{}</text>
+        <text x="300" y="534" fill="#db61a2" transform="rotate(-10 300 534)">' 42 '</text>
+    </g>
+
+    <!-- make() -->
+    <circle cx="600" cy="368" r="190" fill="url(#glow)"/>
+    <rect x="435" y="336" width="330" height="64" rx="14" fill="#161b22" stroke="url(#box)" stroke-width="2"/>
+    <text x="600" y="376" text-anchor="middle" font-size="21" fill="#e6edf3">make(<tspan fill="#ffa657">input</tspan>, <tspan fill="#79c0ff">expr</tspan>, <tspan fill="#7ee787">types</tspan>)</text>
+
+    <!-- order: well-typed output -->
+    <g font-size="20" fill="#7ee787">
+        <text x="840" y="248">0</text>
+        <text x="840" y="298">15.55</text>
+        <text x="840" y="348">false</text>
+        <text x="840" y="398">'apple'</text>
+        <text x="840" y="448">['a', '']</text>
+        <text x="840" y="498">{w: 15, h: 25}</text>
+    </g>
+    <g font-size="16" fill="#8b949e">
+        <text x="1030" y="248">// int</text>
+        <text x="1030" y="298">// float</text>
+        <text x="1030" y="348">// bool</text>
+        <text x="1030" y="398">// enum</text>
+        <text x="1030" y="448">// array</text>
+        <text x="1030" y="498">// obj</text>
+    </g>
+
+    <!-- footer -->
+    <text x="600" y="592" text-anchor="middle" font-size="15" fill="#58a6ff">garbage in — well-typed values out</text>
+</svg>

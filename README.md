@@ -9,7 +9,7 @@ objects.
 </p>
 
 <p align="center">
-<img src="img/logo-by-chat-gpt.webp" style="max-height:400px;">
+<img src="img/cover.svg" alt="@vbarbarosh/type-helpers — garbage in, well-typed values out">
 </p>
 
 ## 💾 Installation
