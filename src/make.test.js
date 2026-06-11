@@ -14,6 +14,10 @@ describe('make', function () {
         it('should throw "Type defined as array"', function () {
             assert.throws(() => make('', 'apple', {apple: []}), new Error('Type defined as array'));
         });
+        it('should throw "Invalid type" for unknown type names', function () {
+            assert.throws(() => make('', 'strx'), new Error('Invalid type: strx'));
+            assert.throws(() => make('', 'strx', {apple: 'str'}), new Error('Invalid type: strx'));
+        });
         it('should accept function', function () {
             const actual = make('foo', v => `[${v}]`);
             assert.deepStrictEqual(actual, '[foo]');
@@ -92,6 +96,15 @@ describe('make', function () {
         it('should throw "[type=enum] should have at least one option"', function () {
             assert.throws(() => make(null, 'enum'), new Error('[type=enum] should have at least one option'));
         });
+        it('should apply transform function', function () {
+            assert.deepStrictEqual(make('BAR', {type: 'enum', options: ['foo', 'bar'], transform: v => safe_str(v).toLowerCase()}), 'bar');
+        });
+        it('should apply transform object', function () {
+            assert.deepStrictEqual(make('BAR', {type: 'enum', options: ['foo', 'bar'], transform: {BAR: 'bar'}}), 'bar');
+        });
+        it('should return default when input is not in options', function () {
+            assert.deepStrictEqual(make('x', {type: 'enum', options: ['foo', 'bar'], default: 'bar'}), 'bar');
+        });
     });
     describe('built-in types • array', function () {
         it('should pass basic tests for arrays', function () {
@@ -127,12 +140,27 @@ describe('make', function () {
         it('should throw "[type=tags] should have options defined"', function () {
             assert.throws(() => make(null, 'tags'), new Error('[type=tags] should have options defined'));
         });
+        it('should return empty array when input is not an array', function () {
+            assert.deepStrictEqual(make(null, {type: 'tags', options: ['foo', 'bar']}), []);
+            assert.deepStrictEqual(make('foo', {type: 'tags', options: ['foo', 'bar']}), []);
+        });
+        it('should remove duplicates', function () {
+            assert.deepStrictEqual(make(['bar', 'foo', 'bar', 'foo'], {type: 'tags', options: ['foo', 'bar']}), ['bar', 'foo']);
+        });
     });
     describe('built-in types • obj', function () {
     });
     describe('built-in types • union', function () {
         it('should throw "Union type option not found"', function () {
-            assert.throws(() => make(null, 'union'), new Error(`Union type option not found: [type / undefined]`));
+            assert.throws(() => make(null, 'union'), new Error(`Union type option not found: prop=type, value=undefined, default=undefined`));
+        });
+        it('should include the input value in the error message', function () {
+            const expr = {type: 'union', prop: 'kind', options: {a: {v: 'str'}}};
+            assert.throws(() => make({kind: 'x'}, expr), new Error(`Union type option not found: prop=kind, value=x, default=undefined`));
+        });
+        it('should write the discriminator to the same property it was read from, even when [prop] is falsy', function () {
+            const expr = {type: 'union', prop: '', options: {a: {v: 'str'}}};
+            assert.deepStrictEqual(make({'': 'a', v: 'ggg'}, expr), {'': 'a', v: 'ggg'});
         });
     });
     describe('basic types', function () {

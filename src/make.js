@@ -146,10 +146,10 @@ const standard_types = {
             expr2 = params.options?.[type];
         }
         if (!expr2) {
-            throw new Error(`Union type option not found: [${prop} / ${params.default}]`);
+            throw new Error(`Union type option not found: prop=${prop}, value=${input?.[prop]}, default=${params.default}`);
         }
         const out = {};
-        out[params.prop || 'type'] = type;
+        out[prop] = type;
         return Object.assign(out, make(input, expr2, types));
     },
 };
@@ -192,7 +192,7 @@ function make(input, expr, types)
         return after(expr.type(before(input), expr, types));
     }
 
-    if (types[expr.type]) {
+    if (types?.[expr.type]) {
         if (is_fn(types[expr.type])) {
             return after(types[expr.type](before(input), expr, types));
         }
