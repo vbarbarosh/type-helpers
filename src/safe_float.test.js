@@ -52,7 +52,23 @@ describe('safe_float', function () {
                 case 'true':
                     assert.strictEqual(safe_float(item.value, empty_value), 1);
                     break;
+                case "'123'":
+                    assert.strictEqual(safe_float(item.value, empty_value), 123);
+                    break;
+                case "'15.99'":
+                    assert.strictEqual(safe_float(item.value, empty_value), 15.99);
+                    break;
+                case "' 42 '":
+                    assert.strictEqual(safe_float(item.value, empty_value), 42);
+                    break;
+                case "'1e3'":
+                    assert.strictEqual(safe_float(item.value, empty_value), 1000);
+                    break;
+                case "'0x1F'":
+                    assert.strictEqual(safe_float(item.value, empty_value), 31);
+                    break;
                 case 'Infinity':
+                case "'Infinity'":
                 case 'Number.POSITIVE_INFINITY':
                     assert.strictEqual(safe_float(item.value, empty_value), Number.MAX_VALUE);
                     break;

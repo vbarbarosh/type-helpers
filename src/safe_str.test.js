@@ -22,6 +22,13 @@ describe('safe_str', function () {
                 case "'undefined'":
                 case "'true'":
                 case "'false'":
+                case "'123'":
+                case "'15.99'":
+                case "' 42 '":
+                case "'1e3'":
+                case "'0x1F'":
+                case "'Infinity'":
+                case "'12px'":
                     assert.strictEqual(safe_str(item.value, empty_value), item.value);
                     break;
                 case 'true':

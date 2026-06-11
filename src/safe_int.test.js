@@ -39,9 +39,25 @@ describe('safe_int', function () {
                 case 'true':
                     assert.strictEqual(safe_int(item.value, empty_value), 1);
                     break;
+                case "'123'":
+                    assert.strictEqual(safe_int(item.value, empty_value), 123);
+                    break;
+                case "'15.99'":
+                    assert.strictEqual(safe_int(item.value, empty_value), 15);
+                    break;
+                case "' 42 '":
+                    assert.strictEqual(safe_int(item.value, empty_value), 42);
+                    break;
+                case "'1e3'":
+                    assert.strictEqual(safe_int(item.value, empty_value), 1000);
+                    break;
+                case "'0x1F'":
+                    assert.strictEqual(safe_int(item.value, empty_value), 31);
+                    break;
                 case '1e100':
                 case '10n**100n':
                 case 'Infinity':
+                case "'Infinity'":
                 case 'Number.MAX_VALUE':
                 case 'Number.MAX_SAFE_INTEGER':
                 case 'Number.POSITIVE_INFINITY':

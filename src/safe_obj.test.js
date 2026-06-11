@@ -20,7 +20,18 @@ describe('safe_obj', function () {
                 case '/./':
                 case '{}':
                 case '[]':
+                case "['5']":
+                case '[1, 2]':
                 case 'Math':
+                case 'Object.create(null)':
+                case 'new Number(5)':
+                case "new String('5')":
+                case 'new Boolean(false)':
+                case 'new Date(0)':
+                case 'new Date(NaN)':
+                case 'new Map([[1, 2]])':
+                case 'new Set([1])':
+                case 'Promise.resolve()':
                     assert.strictEqual(safe_obj(item.value, empty_value), item.value);
                     break;
                 default:

@@ -30,6 +30,17 @@ const edge_values = [
     {label: "'undefined'", value: 'undefined'},
     {label: "'true'", value: 'true'},
     {label: "'false'", value: 'false'},
+    {label: "'123'", value: '123'},
+    {label: "'15.99'", value: '15.99'},
+    {label: "' 42 '", value: ' 42 '},
+    {label: "'1e3'", value: '1e3'},
+    {label: "'0x1F'", value: '0x1F'},
+    {label: "'Infinity'", value: 'Infinity'},
+    {label: "'12px'", value: '12px', description: `
+        Partially-numeric string:
+          - '12px'*1 -> NaN
+          - parseInt('12px') -> 12
+    `},
     {label: 'null', value: null},
     {label: 'undefined', value: undefined},
     {label: 'true', value: true},
@@ -74,6 +85,27 @@ const edge_values = [
     {label: 'Number.NEGATIVE_INFINITY', value: Number.NEGATIVE_INFINITY},
     {label: '{}', value: {}},
     {label: '[]', value: []},
+    {label: "['5']", value: ['5'], description: `
+        Single-element arrays convert to numbers in raw JS:
+          - ['5']*1 -> 5
+    `},
+    {label: '[1, 2]', value: [1, 2]},
+    {label: 'Object.create(null)', value: Object.create(null), description: `
+        An object without a prototype:
+          - Object.create(null) + '' -> TypeError
+          - Object.create(null).hasOwnProperty -> undefined
+    `},
+    {label: 'new Number(5)', value: new Number(5)},
+    {label: "new String('5')", value: new String('5')},
+    {label: 'new Boolean(false)', value: new Boolean(false), description: `
+        Boxed primitives are always truthy:
+          - !!new Boolean(false) -> true
+    `},
+    {label: 'new Date(0)', value: new Date(0)},
+    {label: 'new Date(NaN)', value: new Date(NaN)},
+    {label: 'new Map([[1, 2]])', value: new Map([[1, 2]])},
+    {label: 'new Set([1])', value: new Set([1])},
+    {label: 'Promise.resolve()', value: Promise.resolve()},
     {label: 'function', value: function () {}},
     {label: 'function*', value: function* () {}},
     {label: 'async function', value: async function () {}},

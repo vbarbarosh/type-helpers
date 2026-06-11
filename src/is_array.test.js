@@ -11,6 +11,8 @@ describe('is_array', function () {
             it(item.label, function () {
                 switch (item.label) {
                 case '[]':
+                case "['5']":
+                case '[1, 2]':
                     assert.strictEqual(is_array(item.value), true);
                     break;
                 default:
