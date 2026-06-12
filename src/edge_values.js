@@ -1,5 +1,5 @@
 /**
- * A collection of JavaScript values which could cause unexpected behaviour.
+ * A collection of JavaScript values which could cause unexpected behavior.
  * Initially designed for use in tests in the following way:
  *
  *     describe('should handle edge values', function () {
