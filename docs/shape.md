@@ -81,7 +81,7 @@ without parametric polymorphism:
 - **Untagged unions** — "string or number" needs a function type (the
   `str_num` test does exactly this). No first-match-wins over arbitrary shapes.
 - **String refinements** — no pattern, length, or format with fallback
-  semantics (`make_color` in NOTES.md is a function type precisely because of
+  semantics (`make_color` in notes/scratchpad.md is a function type precisely because of
   this). A declarative
   `{type: 'str', match: /^#[0-9a-f]{6}$/, default: '#000000'}` would fit the
   coercion philosophy fine.
