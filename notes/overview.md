@@ -27,7 +27,7 @@ Three layers, each usable on its own:
 
 ## Design philosophy
 
-`docs/shape.md` (written by the author, 2026-06-11) states it precisely:
+[shape.md](shape.md) (written by the author, 2026-06-11) states it precisely:
 `make` is a **total normalizer**, not a validator. Every input maps to a
 valid output; there is no error channel for data (errors are for schema
 authors). Outputs are fixed points: `make(make(x, e), e) === make(x, e)`.

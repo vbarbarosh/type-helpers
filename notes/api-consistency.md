@@ -77,4 +77,4 @@
 - `is_int` (`Number.isInteger` wrapper), `is_num_gte`/`is_num_lt` siblings
   for `is_num_gt`.
 - `array` has `min` but no `max`; no `record` type (dynamic keys) — both
-  already catalogued as design gaps in `docs/shape.md`.
+  already catalogued as design gaps in [shape.md](shape.md).

@@ -5,7 +5,7 @@ finding below was executed against the current code, not just read. All
 1,186 existing tests pass; none of these contradicts a pinned test — they
 live in the untested space around them.*
 
-The library's own rule (docs/shape.md) is: data never errors, only schema
+The library's own rule ([shape.md](shape.md)) is: data never errors, only schema
 authors do. Findings 1–5 are places where that promise frays; the rest are
 sharp-but-intentional edges.
 
@@ -51,7 +51,7 @@ transform result in `safe_obj(...)` would keep totality
 `make(1, 'a', {a: {type: 'a'}})` → `RangeError: Maximum call stack size
 exceeded` (verified; the alias-merge path `src/make.js:210` recurses with
 the same name). Same family as the known non-well-founded recursion
-(`of: 'node', min: 1` on null input) documented in `docs/shape.md`. A
+(`of: 'node', min: 1` on null input) documented in [shape.md](shape.md). A
 seen-set of alias names during a single resolution chain would turn this
 into a readable schema error.
 

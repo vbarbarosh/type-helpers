@@ -17,7 +17,7 @@ including the honest ⚠️ notes (`nullable` doesn't catch `NaN`;
   Given [scratchpad.md](scratchpad.md) floats "remove obj.transform",
   deciding its fate should precede documenting it.
 
-## docs/shape.md
+## shape.md (formerly docs/shape.md)
 
 A high-quality design essay (total-normalizer framing, expressiveness
 ceiling, verified claims appendix). One sharpening: it claims "no error

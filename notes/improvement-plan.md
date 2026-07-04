@@ -70,7 +70,7 @@ Each item ships with its pinning test in the same change. Target version:
 10. README: document `obj.transform` (per A), the union-without-default
     throw (per D), enum default behavior (per B), and union options
     referencing registry type names.
-11. `docs/shape.md`: one-line caveat sharpening "no error channel for
+11. [shape.md](shape.md): one-line caveat sharpening "no error channel for
     data" with the union exception (D).
 12. [scratchpad.md](scratchpad.md): delete resolved/contradicted items (bool-default-555,
     remove-transform lines, human-readable-error wish); keep only live ideas.
