@@ -9,7 +9,7 @@ objects.
 </p>
 
 <p align="center">
-<img src="img/cover.svg" alt="@vbarbarosh/type-helpers — garbage in, well-typed values out">
+<img src="img/cover.png" alt="@vbarbarosh/type-helpers — garbage in, well-typed values out">
 </p>
 
 ## 💾 Installation

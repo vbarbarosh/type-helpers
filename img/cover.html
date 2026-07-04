@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <title>cover</title>
+    <style>
+body {
+    margin: 0;
+    width: 1280px;
+    height: 640px;
+    overflow: hidden;
+    position: relative;
+    font-family: 'JetBrains Mono', monospace;
+    background: linear-gradient(135deg, #0d1117 0%, #101b38 100%);
+    color: #e6edf3;
+}
+
+.dots {
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    background-size: 24px 24px;
+}
+
+/* ---- header ---- */
+
+.title {
+    position: absolute;
+    left: 0;
+    top: 48px;
+    width: 1280px;
+    text-align: center;
+    font-size: 38px;
+    font-weight: 700;
+}
+
+.tagline {
+    position: absolute;
+    left: 0;
+    top: 106px;
+    width: 1280px;
+    text-align: center;
+    font-size: 17px;
+    color: #8b949e;
+}
+
+/* ---- cards ---- */
+
+.card {
+    position: absolute;
+    top: 180px;
+    width: 480px;
+    height: 300px;
+    background: #161b22;
+    border: 1.5px solid #30363d;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+}
+
+.card pre {
+    margin: 0;
+    padding: 0 28px;
+    font-family: inherit;
+    font-size: 18px;
+    line-height: 32px;
+}
+
+.card-spec { left: 70px; border-top: 3px solid #388bfd; }
+.card-value { left: 730px; border-top: 3px solid #3fb950; }
+
+.chip {
+    position: absolute;
+    top: 152px;
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    color: #8b949e;
+}
+
+/* ---- the gate ---- */
+
+.arrow {
+    position: absolute;
+    top: 312px;
+    font-size: 26px;
+    color: #58a6ff;
+    opacity: 0.65;
+}
+
+.make {
+    position: absolute;
+    left: 640px;
+    top: 330px;
+    transform: translate(-50%, -50%);
+    background: #161b22;
+    border: 2px solid #388bfd;
+    border-radius: 12px;
+    padding: 11px 22px;
+    font-size: 21px;
+    box-shadow: 0 0 40px rgba(31, 111, 235, 0.35);
+}
+
+/* ---- syntax ---- */
+
+.k { color: #79c0ff; }          /* property names */
+.t { color: #7ee787; }          /* type names in the spec */
+.s { color: #a5d6ff; }          /* value strings */
+.b { color: #79c0ff; }          /* booleans */
+.kw { color: #ff7b72; }         /* keywords */
+
+/* ---- footer ---- */
+
+.npm {
+    position: absolute;
+    left: 0;
+    top: 570px;
+    width: 1280px;
+    text-align: center;
+    font-size: 15px;
+    color: #58a6ff;
+}
+    </style>
+</head>
+<body>
+
+    <div class="dots"></div>
+
+    <div class="title">@vbarbarosh/type-helpers</div>
+    <div class="tagline">make values from spec</div>
+
+    <div class="chip" style="left:72px;">SPEC</div>
+    <div class="card card-spec"><pre><span class="kw">const</span> types = {
+    <span class="k">tab</span>: {
+        <span class="k">name</span>: <span class="t">'str'</span>,
+        <span class="k">active</span>: <span class="t">'bool'</span>,
+    },
+    <span class="k">tabs</span>: {<span class="k">type</span>: <span class="t">'array'</span>, <span class="k">of</span>: <span class="t">'tab'</span>},
+};</pre></div>
+
+    <div class="arrow" style="left:562px;">&rarr;</div>
+    <div class="make">make()</div>
+    <div class="arrow" style="left:700px;">&rarr;</div>
+
+    <div class="chip" style="left:732px;">VALUE</div>
+    <div class="card card-value"><pre>[
+    {<span class="k">name</span>: <span class="s">'home'</span>, <span class="k">active</span>: <span class="b">true</span>},
+    {<span class="k">name</span>: <span class="s">'docs'</span>, <span class="k">active</span>: <span class="b">false</span>},
+    {<span class="k">name</span>: <span class="s">'faq'</span>, <span class="k">active</span>: <span class="b">false</span>},
+]</pre></div>
+
+    <div class="npm">$ npm i @vbarbarosh/type-helpers</div>
+
+</body>
+</html>
