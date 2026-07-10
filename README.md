@@ -485,7 +485,9 @@ describe('should handle edge values', function () {
 });
 ```
 
-Every function in this library is tested this way.
+The standalone `is_*` and `safe_*` helpers use this sweep, except
+`is_fn_ctor`, whose constructability behavior is covered by targeted cases.
+`make` uses expression- and scenario-focused tests instead.
 
 ## 🎁 safe_* helpers
 
