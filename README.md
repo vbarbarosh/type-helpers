@@ -98,12 +98,16 @@ as `{type: expr}`.
 
 ### nullable
 
-When **nullable** evaluates to `true`, `make` will return `null` when **input**
-is either `null` or `undefined`:
+When **nullable** evaluates to `true`, `make` returns `null` immediately when
+**input** is either `null` or `undefined`; `before`, conversion, and `after`
+are not called. For non-nullish input, `before` runs normally. If it returns
+`null` or `undefined`, `make` also returns `null` without conversion or
+`after`.
 
 ```js
 assert.strictEqual(make(null, {type: 'int', nullable: true}), null);
 assert.strictEqual(make(undefined, {type: 'str', nullable: true}), null);
+assert.strictEqual(make('', {type: 'int', nullable: true, before: v => v === '' ? null : v}), null);
 assert.strictEqual(make(NaN, {type: 'int', nullable: true}), 0); // ⚠️ NaN is not null/undefined
 ```
 

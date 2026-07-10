@@ -172,7 +172,7 @@ function make(input, expr, types)
 
     // 🤯 {type: 'array', of: 'int', min: 5, nullable: true}
     if (expr.nullable && (input === null || input === undefined)) {
-        return after(before(null));
+        return null;
     }
 
     // 🩼 When `expr` is an object, it is the same as `{type: 'obj', props: ...}`, unless it has `type` property.
@@ -187,19 +187,19 @@ function make(input, expr, types)
     // Standard types
     const standard_type = get_own(standard_types, expr.type);
     if (standard_type) {
-        return after(standard_type(before(input), expr, types));
+        return convert(input => standard_type(input, expr, types));
     }
 
     // Custom types
 
     if (is_fn(expr.type)) {
-        return after(expr.type(before(input), expr, types));
+        return convert(input => expr.type(input, expr, types));
     }
 
     const custom_type = get_own(types, expr.type);
     if (custom_type) {
         if (is_fn(custom_type)) {
-            return after(custom_type(before(input), expr, types));
+            return convert(input => custom_type(input, expr, types));
         }
         if (is_array(custom_type)) {
             // 💎 Could be a tuple
@@ -220,6 +220,13 @@ function make(input, expr, types)
 
     throw new Error(`Invalid type: ${expr.type}`);
 
+    function convert(fn) {
+        const input2 = before(input);
+        if (expr.nullable && (input2 === null || input2 === undefined)) {
+            return null;
+        }
+        return after(fn(input2));
+    }
     function before(input) {
         if (is_fn(expr.before)) {
             return expr.before(input);

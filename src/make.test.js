@@ -256,6 +256,57 @@ describe('make', function () {
             assert.deepStrictEqual(make(undefined, {type: 'obj', nullable: true}), null);
             assert.deepStrictEqual(make(undefined, {type: 'enum', nullable: true}), null);
         });
+        it('should not run before for nullable null input', function () {
+            let before_called = false;
+            const value = make(null, {
+                type: 'int',
+                nullable: true,
+                before: function () {
+                    before_called = true;
+                    return 5;
+                },
+            });
+            assert.deepStrictEqual({value, before_called}, {value: null, before_called: false});
+        });
+        it('should not run after for nullable undefined input', function () {
+            let after_called = false;
+            const value = make(undefined, {
+                type: 'int',
+                nullable: true,
+                after: function () {
+                    after_called = true;
+                    return 5;
+                },
+            });
+            assert.deepStrictEqual({value, after_called}, {value: null, after_called: false});
+        });
+        it('should skip conversion and after when before returns a nullish value', function () {
+            const before_inputs = [];
+            let convert_called = false;
+            let after_called = false;
+            const expr = {
+                type: function () {
+                    convert_called = true;
+                    return 5;
+                },
+                nullable: true,
+                before: function (input) {
+                    before_inputs.push(input);
+                    return input === 'null' ? null : undefined;
+                },
+                after: function () {
+                    after_called = true;
+                    return 5;
+                },
+            };
+            const values = [make('null', expr), make('undefined', expr)];
+            assert.deepStrictEqual({values, before_inputs, convert_called, after_called}, {
+                values: [null, null],
+                before_inputs: ['null', 'undefined'],
+                convert_called: false,
+                after_called: false,
+            });
+        });
     });
     describe('edge cases', function () {
         it('NaN usually means that operands was malformed (e.g. 5/"8a")', function () {
