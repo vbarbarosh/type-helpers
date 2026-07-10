@@ -109,6 +109,11 @@ describe('make', function () {
         it('should return default when input is not in options', function () {
             assert.deepStrictEqual(make('x', {type: 'enum', options: ['foo', 'bar'], default: 'bar'}), 'bar');
         });
+        it('should return default when input cannot be used as a transform key', function () {
+            const input = Object.create(null);
+            const expr = {type: 'enum', options: ['foo'], default: SP, transform: {}};
+            assert.strictEqual(make(input, expr), SP);
+        });
     });
     describe('built-in types • array', function () {
         it('should pass basic tests for arrays', function () {
@@ -153,6 +158,10 @@ describe('make', function () {
         });
     });
     describe('built-in types • obj', function () {
+        it('should use an empty object when transform returns null', function () {
+            const expr = {type: 'obj', props: {name: 'str'}, transform: () => null};
+            assert.deepStrictEqual(make({}, expr), {name: ''});
+        });
     });
     describe('built-in types • union', function () {
         it('should throw "Union type option not found"', function () {

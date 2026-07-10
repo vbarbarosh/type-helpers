@@ -55,7 +55,7 @@ const standard_types = {
         if (params.transform) {
             switch (typeof params.transform) {
             case 'object':
-                if (input in params.transform) {
+                if (has_own(params.transform, input)) {
                     tmp = params.transform[input];
                 }
                 break;
@@ -125,7 +125,7 @@ const standard_types = {
     obj: function (input, params, types) {
         // {type: 'obj', transform: ..., finish: ..., props: {...}}
         // adjust, complete, finish, realize, apply_limits, balance
-        const value_obj = (params.transform ? params.transform(input) : safe_obj(input));
+        const value_obj = safe_obj(params.transform ? params.transform(input) : input);
         return Object.fromEntries(Object.entries(params.props||{}).map(function ([k, v]) {
             if (v.optional && value_obj[k] === undefined) {
                 return null;
@@ -154,7 +154,17 @@ const standard_types = {
 
 function get_own(input, key)
 {
-    return input && Object.hasOwn(input, key) ? input[key] : undefined;
+    return has_own(input, key) ? input[key] : undefined;
+}
+
+function has_own(input, key)
+{
+    try {
+        return !!input && Object.hasOwn(input, key);
+    }
+    catch (error) {
+        return false;
+    }
 }
 
 /**
