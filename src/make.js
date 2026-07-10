@@ -148,9 +148,7 @@ const standard_types = {
         if (!expr2) {
             throw new Error(`Union type option not found: prop=${prop}, value=${input?.[prop]}, default=${params.default}`);
         }
-        const out = {};
-        out[prop] = type;
-        return Object.assign(out, make(input, expr2, types));
+        return {[prop]: type, ...make(input, expr2, types)};
     },
 };
 

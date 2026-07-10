@@ -191,6 +191,41 @@ describe('make', function () {
             const expected = {kind: 'constructor', name: 'admin'};
             assert.deepStrictEqual(actual, expected);
         });
+        it('should preserve a __proto__ payload property without changing the output prototype', function () {
+            const input = JSON.parse('{"kind":"safe","__proto__":{"admin":true}}');
+            const expr = {
+                type: 'union',
+                prop: 'kind',
+                options: {
+                    safe: {
+                        type: 'obj',
+                        props: {['__proto__']: 'raw'},
+                    },
+                },
+            };
+            const actual = make(input, expr);
+            const expected = Object.fromEntries([
+                ['kind', 'safe'],
+                ['__proto__', {admin: true}],
+            ]);
+            assert.deepStrictEqual(actual, expected);
+        });
+        it('should write a __proto__ discriminator as an own property', function () {
+            const input = JSON.parse('{"__proto__":"safe","name":"admin"}');
+            const expr = {
+                type: 'union',
+                prop: '__proto__',
+                options: {
+                    safe: {name: 'str'},
+                },
+            };
+            const actual = make(input, expr);
+            const expected = Object.fromEntries([
+                ['__proto__', 'safe'],
+                ['name', 'admin'],
+            ]);
+            assert.deepStrictEqual(actual, expected);
+        });
     });
     describe('basic types', function () {
         it('defaults', function () {
