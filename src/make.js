@@ -172,12 +172,21 @@ function has_own(input, key)
  */
 function make(input, expr, types)
 {
+    return make_impl(input, expr, types, []);
+}
+
+function make_impl(input, expr, types, alias_path)
+{
     if (!expr) {
         throw new Error('Empty expressions are not allowed');
     }
 
     if (is_str(expr) || is_fn(expr)) {
-        return make(input, {type: expr}, types);
+        return make_impl(input, {type: expr}, types, alias_path);
+    }
+
+    if (typeof expr !== 'object') {
+        throw new Error(`Invalid expression: ${String(expr)}`);
     }
 
     // 🤯 {type: 'array', of: 'int', min: 5, nullable: true}
@@ -191,7 +200,14 @@ function make(input, expr, types)
     }
     // 🩼 A way to remove special meaning from `type` property is to wrap its value into array
     if (is_array(expr.type)) {
-        return make(input, {type: 'obj', props: {...expr, type: expr.type[0]}}, types);
+        const {type, nullable, before, after, ...props} = expr;
+        return make_impl(input, {
+            type: 'obj',
+            props: {type: type[0], ...props},
+            nullable,
+            before,
+            after,
+        }, types, alias_path);
     }
 
     // Standard types
@@ -216,13 +232,16 @@ function make(input, expr, types)
             throw new Error('Type defined as array');
         }
         if ('type' in custom_type) {
+            if (alias_path.includes(expr.type)) {
+                throw new Error(`Circular type alias: ${[...alias_path, expr.type].join(' -> ')}`);
+            }
             // ✳️ type aliases (custom types expressed as another custom types — topmost properties should have priority)
             // const types = {
             //     int_0_100: {type: 'int', min: 0, max: 100, default: 1},
             //     // The intention here - is to reuse type int_0_100 the way it was configured, just set max to 10.
             //     int_0_10: {type: 'int_0_100', max: 10},
             // }
-            return make(input, {...custom_type, ...expr, type: custom_type.type}, types);
+            return make_impl(input, {...custom_type, ...expr, type: custom_type.type}, types, [...alias_path, expr.type]);
         }
         // Custom type defined without [type] property is a set of props for [obj]
         return make(input, custom_type, types);

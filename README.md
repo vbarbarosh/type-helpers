@@ -143,6 +143,9 @@ assert.deepStrictEqual(
     {type: '', width: 0});
 ```
 
+`nullable`, `before`, and `after` remain expression modifiers in this form;
+they are not emitted as properties of the resulting object.
+
 ## 📦 Built-in types
 
 ### raw

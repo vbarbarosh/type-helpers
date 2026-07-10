@@ -11,8 +11,16 @@ describe('make', function () {
         it('should throw "Empty expressions are not allowed"', function () {
             assert.throws(() => make(), new Error('Empty expressions are not allowed'));
         });
+        it('should throw "Invalid expression" for unsupported expressions', function () {
+            assert.throws(() => make('', true), new Error('Invalid expression: true'));
+            assert.throws(() => make('', 5), new Error('Invalid expression: 5'));
+        });
         it('should throw "Type defined as array"', function () {
             assert.throws(() => make('', 'apple', {apple: []}), new Error('Type defined as array'));
+        });
+        it('should throw "Circular type alias" with the alias path', function () {
+            const types = {a: {type: 'b'}, b: {type: 'a'}};
+            assert.throws(() => make('', 'a', types), new Error('Circular type alias: a -> b -> a'));
         });
         it('should throw "Invalid type" for unknown type names', function () {
             assert.throws(() => make('', 'strx'), new Error('Invalid type: strx'));
@@ -45,6 +53,16 @@ describe('make', function () {
             const actual = make(null, {type: ['str'], foo: 'str', bar: 'int', baz: 'bool'});
             const expected = make(null, {type: 'obj', props: {type: 'str', foo: 'str', bar: 'int', baz: 'bool'}});
             assert.deepStrictEqual(actual, expected);
+        });
+        it('should preserve reserved modifiers when type is escaped as an object property', function () {
+            const expr = {
+                type: ['str'],
+                width: 'int',
+                nullable: true,
+                before: input => ({...input, width: '5'}),
+                after: out => ({...out, width: out.width + 1}),
+            };
+            assert.deepStrictEqual(make({}, expr), {type: '', width: 6});
         });
         it('🩼 When `expr` is an object , it is the same as `{type: "obj", props: ...}`, unless it has `type` property.', function () {
             assert.deepStrictEqual(make(null, {foo: 'int', bar: 'int'}), {foo: 0, bar: 0});
