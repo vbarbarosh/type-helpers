@@ -1,6 +1,6 @@
 # API design & consistency
 
-*Part of the 2026-07-04 analysis; see [overview.md](overview.md).*
+*Part of the 2026-07-04 analysis; refreshed 2026-07-10.*
 
 ## What is consistent (and deliberately so)
 
@@ -18,6 +18,8 @@
 - Numeric-string semantics are the `*1` family (`'1e3'` → 1000, `'0x1F'` → 31,
   `' 42 '` → 42, `'12px'` → reject), consistently in both `safe_int` and
   `safe_float`, all pinned by tests.
+- Built-in/custom type registries, union options, and enum transform maps use
+  own-property lookup; inherited names are not treated as schema entries.
 
 ## Inconsistencies worth knowing about
 
@@ -45,22 +47,22 @@
    and rely on autoboxing for primitives). Both work for honest values;
    picking one mechanism would be more uniform.
 
-4. **`is_fn_ctor` is the only function without an `edge_values` sweep.**
+4. **`is_fn_ctor` is the only helper without an `edge_values` sweep.**
    Its tests are hand-picked true/false lists (`src/is_fn_ctor.js` test
-   block). README claims "Every function in this library is tested this
-   way" — not strictly true for this one. It also special-cases `Symbol`
-   because `Reflect.construct(String, [], Symbol)` succeeds although
+   block). README documents this targeted-test exception. It also special-cases
+   `Symbol` because `Reflect.construct(String, [], Symbol)` succeeds although
    `new Symbol()` throws.
 
 5. **`enum` default is unvalidated; `union` default is validated.**
    `{type:'enum', options:['a'], default:'zzz'}` returns `'zzz'` even though
-   it is not an option (`src/make.js:70-72`). `union` by contrast resolves
-   `params.default` against `options` and throws when it doesn't resolve
-   (`src/make.js:144-150`). Two different policies for the same concept.
+   it is not an option. A regression pins this policy with a sentinel default
+   outside `options`. `union` by contrast resolves
+   `params.default` against `options` and throws when it doesn't resolve. Two
+   different policies for the same concept.
    (Still idempotent — the out-of-options default keeps mapping to itself.)
 
 6. **Registry cannot shadow built-ins, silently.** `standard_types` is
-   checked before `types` (`src/make.js:185`), so
+   checked before `types`, so
    `make('5', 'int', {int: myFn})` ignores the custom entry (verified:
    returns `5`). Reasonable precedence, but no warning; a registry author
    gets no signal their `int`/`str`/`obj` entry is dead.

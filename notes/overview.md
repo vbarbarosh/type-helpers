@@ -1,25 +1,27 @@
 # Overview & architecture
 
-*Analysis of `@vbarbarosh/type-helpers` v0.2.0, written 2026-07-04.
+*Analysis of `@vbarbarosh/type-helpers` v0.2.0, written 2026-07-04 and
+refreshed 2026-07-10.
 Companion notes: [api-consistency.md](api-consistency.md),
 [correctness.md](correctness.md), [tests.md](tests.md),
 [docs-packaging.md](docs-packaging.md).*
 
 ## What it is
 
-A zero-runtime-dependency CommonJS library (~700 lines of implementation,
-~1,500 lines of tests) for turning untrusted input into well-typed values.
+A zero-runtime-dependency CommonJS library (~660 lines of implementation,
+~1,700 lines of tests) for turning untrusted input into well-typed values.
 Three layers, each usable on its own:
 
 1. **`edge_values.js`** — a curated list of ~50 tricky JS values (`-0`, `NaN`,
    `10n**100n`, `'0x1F'`, `new Boolean(false)`, `Object.create(null)`, …)
-   designed to be swept through every function's test suite. It is both a test
-   fixture and a shipped, documented export.
+   designed for broad test sweeps. Most standalone helpers use it; `make` and
+   `is_fn_ctor` use targeted tests. It is both a fixture and a shipped,
+   documented export.
 2. **Predicates and coercers** — 13 `is_*` predicates (strict, boolean-only)
    and 5 `safe_*` coercers (`safe_bool/int/float/str/obj`), each a single-file
    module with a colocated `*.test.js`.
 3. **`make(input, expr, types)`** — a small recursive interpreter over a
-   spec DSL (`src/make.js`), built on the `safe_*` layer. 12 built-in types
+   spec DSL (`src/make.js`), built on the `safe_*` layer. 14 built-in types
    (`raw any null const bool int float str enum array tuple tags obj union`)
    plus an extensible registry (`types`) supporting aliases with
    topmost-wins parameter override, plain-object shorthands, and function
@@ -29,10 +31,11 @@ Three layers, each usable on its own:
 
 [shape.md](shape.md) (written by the author, 2026-06-11) states it precisely:
 `make` is a **total normalizer**, not a validator. Every input maps to a
-valid output; there is no error channel for data (errors are for schema
-authors). Outputs are fixed points: `make(make(x, e), e) === make(x, e)`.
+valid output; errors are generally for schema authors. A union without a valid
+default is the input-dependent exception. Outputs are fixed points:
+`make(make(x, e), e) === make(x, e)`.
 This puts it in a different category from zod/yup/io-ts. One sharpening of
-that claim is in [correctness.md](correctness.md) §6 (union without
+that claim is in [correctness.md](correctness.md) §2 (union without
 `default` throws on data).
 
 A notable structural detail: the spec language is self-hosting — the
@@ -61,12 +64,11 @@ A notable structural detail: the spec language is self-hosting — the
 
 ## Health snapshot
 
-- Tests: 1,186 passing, 3 pending, 64 ms; **100% statement/branch/function/line
+- Tests: 1,199 passing, 3 pending; **100% statement/branch/function/line
   coverage** on every file (nyc).
 - CI: GitHub Actions matrix on Node 18/20/22/24; `engines: node >= 18`.
 - Release: `bin/release major|minor|patch` — tests, version bump, tag, push,
   `npm publish`; guarded by clean-worktree check.
 - Repo hygiene: `dist/` exists but is empty (leftover, not shipped, invisible
-  to git); the author's scratchpad ([scratchpad.md](scratchpad.md),
-  formerly root `NOTES.md`) is partially stale (see
-  [docs-packaging.md](docs-packaging.md)).
+  to git). The scratchpad now contains only live ideas and current-signature
+  examples.

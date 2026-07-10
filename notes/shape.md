@@ -1,14 +1,15 @@
 # The shape of the library
 
 *An analysis of what `make(input, expr, types)` is, how expressive it is, and
-what it can and cannot express. Written 2026-06-11.*
+what it can and cannot express. Written 2026-06-11; refreshed 2026-07-10.*
 
 ## What it is
 
 `make` is a **total normalizer**, and that single design choice determines
-everything else. Every input maps to a valid output; there is no error channel
-for data. Errors exist only for the programmer (bad schema: unknown type, empty
-enum, unresolvable union). This puts it in a fundamentally different category
+everything else. Almost every input maps to a valid output; a union without a
+valid `default` is the one input-dependent throw. Other errors are for the
+programmer (bad schema: unknown type, empty enum, circular alias). This puts it
+in a fundamentally different category
 from zod/yup/io-ts, which are *parsers* — they answer "is this valid?" and
 reject. `make` answers "what's the closest valid value to this?" and always has
 an answer. The closest relatives in spirit are proto3 default semantics and
