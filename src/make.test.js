@@ -18,6 +18,10 @@ describe('make', function () {
             assert.throws(() => make('', 'strx'), new Error('Invalid type: strx'));
             assert.throws(() => make('', 'strx', {apple: 'str'}), new Error('Invalid type: strx'));
         });
+        it('should resolve only own properties as type names', function () {
+            assert.throws(() => make('', 'constructor'), new Error('Invalid type: constructor'));
+            assert.strictEqual(make('foo', 'constructor', {constructor: v => `[${v}]`}), '[foo]');
+        });
         it('should accept function', function () {
             const actual = make('foo', v => `[${v}]`);
             assert.deepStrictEqual(actual, '[foo]');
@@ -161,6 +165,31 @@ describe('make', function () {
         it('should write the discriminator to the same property it was read from, even when [prop] is falsy', function () {
             const expr = {type: 'union', prop: '', options: {a: {v: 'str'}}};
             assert.deepStrictEqual(make({'': 'a', v: 'ggg'}, expr), {'': 'a', v: 'ggg'});
+        });
+        it('should use default when discriminator matches an inherited option property', function () {
+            const expr = {
+                type: 'union',
+                prop: 'kind',
+                default: 'safe',
+                options: {
+                    safe: {name: 'str'},
+                },
+            };
+            const actual = make({kind: 'constructor', admin: true}, expr);
+            const expected = {kind: 'safe', name: ''};
+            assert.deepStrictEqual(actual, expected);
+        });
+        it('should accept an explicitly defined option named like an inherited property', function () {
+            const expr = {
+                type: 'union',
+                prop: 'kind',
+                options: {
+                    constructor: {name: 'str'},
+                },
+            };
+            const actual = make({kind: 'constructor', name: 'admin'}, expr);
+            const expected = {kind: 'constructor', name: 'admin'};
+            assert.deepStrictEqual(actual, expected);
         });
     });
     describe('basic types', function () {

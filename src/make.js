@@ -140,10 +140,10 @@ const standard_types = {
         // [options] could be replaced by [match] as in PHP or Rust
         const prop = params.prop ?? 'type';
         let type = input?.[prop];
-        let expr2 = params.options?.[type];
+        let expr2 = get_own(params.options, type);
         if (!expr2) {
             type = params.default;
-            expr2 = params.options?.[type];
+            expr2 = get_own(params.options, type);
         }
         if (!expr2) {
             throw new Error(`Union type option not found: prop=${prop}, value=${input?.[prop]}, default=${params.default}`);
@@ -153,6 +153,11 @@ const standard_types = {
         return Object.assign(out, make(input, expr2, types));
     },
 };
+
+function get_own(input, key)
+{
+    return input && Object.hasOwn(input, key) ? input[key] : undefined;
+}
 
 /**
  * Make values from spec. Kind of class/type factory.
@@ -182,8 +187,9 @@ function make(input, expr, types)
     }
 
     // Standard types
-    if (standard_types[expr.type]) {
-        return after(standard_types[expr.type](before(input), expr, types));
+    const standard_type = get_own(standard_types, expr.type);
+    if (standard_type) {
+        return after(standard_type(before(input), expr, types));
     }
 
     // Custom types
@@ -192,25 +198,26 @@ function make(input, expr, types)
         return after(expr.type(before(input), expr, types));
     }
 
-    if (types?.[expr.type]) {
-        if (is_fn(types[expr.type])) {
-            return after(types[expr.type](before(input), expr, types));
+    const custom_type = get_own(types, expr.type);
+    if (custom_type) {
+        if (is_fn(custom_type)) {
+            return after(custom_type(before(input), expr, types));
         }
-        if (is_array(types[expr.type])) {
+        if (is_array(custom_type)) {
             // 💎 Could be a tuple
             throw new Error('Type defined as array');
         }
-        if ('type' in types[expr.type]) {
+        if ('type' in custom_type) {
             // ✳️ type aliases (custom types expressed as another custom types — topmost properties should have priority)
             // const types = {
             //     int_0_100: {type: 'int', min: 0, max: 100, default: 1},
             //     // The intention here - is to reuse type int_0_100 the way it was configured, just set max to 10.
             //     int_0_10: {type: 'int_0_100', max: 10},
             // }
-            return make(input, {...types[expr.type], ...expr, type: types[expr.type].type}, types);
+            return make(input, {...custom_type, ...expr, type: custom_type.type}, types);
         }
         // Custom type defined without [type] property is a set of props for [obj]
-        return make(input, types[expr.type], types);
+        return make(input, custom_type, types);
     }
 
     throw new Error(`Invalid type: ${expr.type}`);
