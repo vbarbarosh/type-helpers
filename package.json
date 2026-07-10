@@ -29,8 +29,8 @@
         "url": "https://github.com/vbarbarosh/type-helpers/issues"
     },
     "devDependencies": {
-        "@vbarbarosh/node-helpers": "^3.65.0",
-        "mocha": "^11.1.0",
+        "@vbarbarosh/node-helpers": "3.71.0",
+        "mocha": "^11.7.6",
         "nyc": "^17.1.0"
     }
 }
