@@ -125,7 +125,7 @@ const standard_types = {
     obj: function (input, params, types) {
         const value_obj = safe_obj(params.transform ? params.transform(input) : input);
         return Object.fromEntries(Object.entries(params.props||{}).map(function ([k, v]) {
-            if (v.optional && value_obj[k] === undefined) {
+            if (v?.optional && value_obj[k] === undefined) {
                 return null;
             }
             return [k, make(value_obj[k], v, types)];

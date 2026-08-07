@@ -207,6 +207,10 @@ describe('make', function () {
             const expr = {type: 'obj', props: {name: 'str'}, transform: () => null};
             assert.deepStrictEqual(make({}, expr), {name: ''});
         });
+        it('should throw "Empty expressions are not allowed" for a nullish prop expression', function () {
+            assert.throws(() => make({}, {x: null}), new Error('Empty expressions are not allowed'));
+            assert.throws(() => make({}, {type: 'obj', props: {x: undefined}}), new Error('Empty expressions are not allowed'));
+        });
     });
     describe('built-in types • union', function () {
         it('should throw "Union type option not found"', function () {

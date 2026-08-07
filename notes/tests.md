@@ -34,8 +34,8 @@ Deviations from the house style:
 
 ## Holes in make.test.js
 
-- **obj section gaps**: `obj` has a dedicated transform-totality regression,
-  but prop dropping, array-as-props, and the undocumented `finish` comment
+- **obj section gaps**: `obj` has dedicated transform-totality and
+  nullish-prop-expression regressions, but prop dropping and array-as-props
   remain uncovered in that section.
 - **Remaining policy coverage**: array-as-props-source in `obj`, degenerate
   `min > max` ranges, and built-in registry precedence still need explicit
