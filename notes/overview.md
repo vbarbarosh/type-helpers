@@ -12,11 +12,11 @@ A zero-runtime-dependency CommonJS library (~700 lines of implementation,
 ~1,750 lines of tests) for turning untrusted input into well-typed values.
 Three layers, each usable on its own:
 
-1. **`edge_values.js`** — a curated list of ~50 tricky JS values (`-0`, `NaN`,
+1. **`edge_values.js`** — a curated list of ~60 tricky JS values (`-0`, `NaN`,
    `10n**100n`, `'0x1F'`, `new Boolean(false)`, `Object.create(null)`, …)
-   designed for broad test sweeps. Most standalone helpers use it; `make` and
-   `is_fn_ctor` use targeted tests. It is both a fixture and a shipped,
-   documented export.
+   designed for broad test sweeps. Most standalone helpers use it, and `make`
+   sweeps it across its scalar types; `is_fn_ctor` uses targeted tests. It is
+   both a fixture and a shipped, documented export.
 2. **Predicates and coercers** — 14 `is_*` predicates (strict, boolean-only)
    and 5 `safe_*` coercers (`safe_bool/int/float/str/obj`), each a single-file
    module with a colocated `*.test.js`.
@@ -65,7 +65,7 @@ A notable structural detail: the spec language is self-hosting — the
 
 ## Health snapshot
 
-- Tests: 1,268 passing, 0 pending; **100% statement/branch/function/line
+- Tests: 1,337 passing, 0 pending; **100% statement/branch/function/line
   coverage** on every implementation file (nyc; `edge_values.js` is fixture
   data excluded from instrumentation).
 - CI: GitHub Actions matrix on Node 18/20/22/24; `engines: node >= 18`.

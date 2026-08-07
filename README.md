@@ -488,7 +488,7 @@ For a real-world example — a factory for table column definitions — see
 JavaScript has a long tail of values that break naive conversions: `-0`,
 `NaN`, `Infinity`, `10n**100n`, `'0x1F'`, `'12px'`, `new Boolean(false)`,
 `Object.create(null)`, an unawaited `Promise`, … —
-[`edge_values`](src/edge_values.js) is a list of ~50 of them, designed to be
+[`edge_values`](src/edge_values.js) is a list of ~60 of them, designed to be
 swept through every function you write:
 
 ```js
@@ -521,7 +521,8 @@ describe('should handle edge values', function () {
 
 The standalone `is_*` and `safe_*` helpers use this sweep, except
 `is_fn_ctor`, whose constructability behavior is covered by targeted cases.
-`make` uses expression- and scenario-focused tests instead.
+`make` sweeps it across its scalar types and uses expression- and
+scenario-focused tests for the rest.
 
 ## 🎁 safe_* helpers
 

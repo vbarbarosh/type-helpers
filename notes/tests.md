@@ -4,7 +4,7 @@
 
 ## Snapshot
 
-- `npm test` (nyc + mocha): **1,268 passing, 0 pending**.
+- `npm test` (nyc + mocha): **1,337 passing, 0 pending**.
 - **100% statement/branch/function/line coverage on every implementation
   file** — `edge_values.js` is fixture data (its function values are never
   meant to run) and is excluded from instrumentation via the `nyc` config in
@@ -17,26 +17,24 @@
 ## The edge-values sweep pattern
 
 The house style is the strongest part of the suite: most standalone helpers
-have a `describe('should handle edge values')` that iterates all ~50
+have a `describe('should handle edge values')` that iterates all ~60
 `edge_values` and `switch`es on labels, with the `default` branch taking a
 position on every value — so **adding a new edge value to the shared list
 automatically confronts every participating helper with it**. Plus a uniform
-`it('should accept no args')` case per function.
+`it('should accept no args')` case per function. `make.test.js` sweeps the
+same list across its scalar types in a `bool`/`int`/`float`/`str` matrix.
 
 Deviations from the house style:
 
 - `is_fn_ctor` has no edge-values sweep (hand-picked cases only). README now
   states this exception explicitly.
-- `make.test.js` doesn't sweep `edge_values` per built-in type (it has a
-  smaller hand-rolled `edge cases` section for NaN/±Infinity). A
-  `edge_values × {bool,int,float,str,array,obj}` matrix would pin `make`'s
-  scalar behavior the same way the `safe_*` files are pinned.
+- `make`'s composite types (`array`, `obj`, `union`, …) rely on
+  expression- and scenario-focused tests instead of edge sweeps.
 
 ## Holes in make.test.js
 
 - The `obj` section now covers transform totality, nullish prop expressions,
-  array-as-props, and prop dropping; scalar types still lack a full
-  `edge_values` matrix (see the improvement plan).
+  array-as-props, and prop dropping.
 - **Policy coverage**: array-as-props in `obj`, `min > max`, and built-in
   shadowing are all decided and pinned by regressions; the enum transform
   regression pins the as-is `default` policy.
@@ -44,5 +42,6 @@ Deviations from the house style:
 ## Verdict
 
 Coverage numbers are genuinely earned — the sweep pattern catches whole
-classes of regressions by construction. Remaining gaps are mostly explicit
-policy decisions, placeholder cleanup, and broader behavioral coverage.
+classes of regressions by construction, and every policy decision is pinned
+by an explicit regression. The remaining gaps are optional breadth: an
+`is_fn_ctor` sweep and edge sweeps for composite types.

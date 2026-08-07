@@ -1,4 +1,5 @@
 const assert = require('assert');
+const edge_values = require('./edge_values');
 const is_num = require('./is_num');
 const is_str = require('./is_str');
 const make = require('./make');
@@ -416,6 +417,124 @@ describe('make', function () {
             assert.deepStrictEqual(make(-Infinity, {type: 'int', nullable: true}), Number.MIN_SAFE_INTEGER);
             assert.deepStrictEqual(make(-Infinity, {type: 'float', nullable: true}), -Number.MAX_VALUE, '⚠️ gotcha');
             assert.deepStrictEqual(make(-Infinity, {type: 'str', nullable: true}), '');
+        });
+    });
+    describe('should handle edge values', function () {
+        edge_values.forEach(function (item) {
+            it(item.label, function () {
+                const actual = {
+                    bool: make(item.value, 'bool'),
+                    int: make(item.value, 'int'),
+                    float: make(item.value, 'float'),
+                    str: make(item.value, 'str'),
+                };
+                switch (item.label) {
+                case "''":
+                case 'null':
+                case 'undefined':
+                case 'NaN':
+                    assert.deepStrictEqual(actual, {bool: false, int: 0, float: 0, str: ''});
+                    break;
+                case "'null'":
+                    assert.deepStrictEqual(actual, {bool: true, int: 0, float: 0, str: 'null'});
+                    break;
+                case "'undefined'":
+                    assert.deepStrictEqual(actual, {bool: true, int: 0, float: 0, str: 'undefined'});
+                    break;
+                case "'true'":
+                    assert.deepStrictEqual(actual, {bool: true, int: 0, float: 0, str: 'true'});
+                    break;
+                case "'false'":
+                    assert.deepStrictEqual(actual, {bool: true, int: 0, float: 0, str: 'false'});
+                    break;
+                case "'123'":
+                    assert.deepStrictEqual(actual, {bool: true, int: 123, float: 123, str: '123'});
+                    break;
+                case "'15.99'":
+                    assert.deepStrictEqual(actual, {bool: true, int: 15, float: 15.99, str: '15.99'});
+                    break;
+                case "' 42 '":
+                    assert.deepStrictEqual(actual, {bool: true, int: 42, float: 42, str: ' 42 '});
+                    break;
+                case "'1e3'":
+                    assert.deepStrictEqual(actual, {bool: true, int: 1000, float: 1000, str: '1e3'});
+                    break;
+                case "'0x1F'":
+                    assert.deepStrictEqual(actual, {bool: true, int: 31, float: 31, str: '0x1F'});
+                    break;
+                case "'Infinity'":
+                    assert.deepStrictEqual(actual, {bool: true, int: Number.MAX_SAFE_INTEGER, float: Number.MAX_VALUE, str: 'Infinity'});
+                    break;
+                case "'12px'":
+                    assert.deepStrictEqual(actual, {bool: true, int: 0, float: 0, str: '12px'});
+                    break;
+                case 'true':
+                    assert.deepStrictEqual(actual, {bool: true, int: 1, float: 1, str: 'true'});
+                    break;
+                case 'false':
+                    assert.deepStrictEqual(actual, {bool: false, int: 0, float: 0, str: 'false'});
+                    break;
+                case '0.49':
+                    assert.deepStrictEqual(actual, {bool: true, int: 0, float: 0.49, str: '0.49'});
+                    break;
+                case '0.50':
+                    assert.deepStrictEqual(actual, {bool: true, int: 0, float: 0.5, str: '0.5'});
+                    break;
+                case '0.51':
+                    assert.deepStrictEqual(actual, {bool: true, int: 0, float: 0.51, str: '0.51'});
+                    break;
+                case '-0.49':
+                    assert.deepStrictEqual(actual, {bool: true, int: 0, float: -0.49, str: '-0.49'});
+                    break;
+                case '-0.50':
+                    assert.deepStrictEqual(actual, {bool: true, int: 0, float: -0.5, str: '-0.5'});
+                    break;
+                case '-0.51':
+                    assert.deepStrictEqual(actual, {bool: true, int: 0, float: -0.51, str: '-0.51'});
+                    break;
+                case '0n':
+                case '0':
+                case '-0':
+                    assert.deepStrictEqual(actual, {bool: false, int: 0, float: 0, str: '0'});
+                    break;
+                case '10n**100n':
+                    assert.deepStrictEqual(actual, {bool: true, int: Number.MAX_SAFE_INTEGER, float: 1e100, str: (10n ** 100n).toString()});
+                    break;
+                case '-(10n**100n)':
+                    assert.deepStrictEqual(actual, {bool: true, int: Number.MIN_SAFE_INTEGER, float: -1e100, str: (-(10n ** 100n)).toString()});
+                    break;
+                case '1e100':
+                    assert.deepStrictEqual(actual, {bool: true, int: Number.MAX_SAFE_INTEGER, float: 1e100, str: '1e+100'});
+                    break;
+                case '1e-100':
+                    assert.deepStrictEqual(actual, {bool: true, int: 0, float: 1e-100, str: '1e-100'});
+                    break;
+                case 'Infinity':
+                case 'Number.POSITIVE_INFINITY':
+                    assert.deepStrictEqual(actual, {bool: true, int: Number.MAX_SAFE_INTEGER, float: Number.MAX_VALUE, str: ''});
+                    break;
+                case '-Infinity':
+                case 'Number.NEGATIVE_INFINITY':
+                    assert.deepStrictEqual(actual, {bool: true, int: Number.MIN_SAFE_INTEGER, float: -Number.MAX_VALUE, str: ''});
+                    break;
+                case 'Number.MIN_VALUE':
+                    assert.deepStrictEqual(actual, {bool: true, int: 0, float: Number.MIN_VALUE, str: '5e-324'});
+                    break;
+                case 'Number.MAX_VALUE':
+                    assert.deepStrictEqual(actual, {bool: true, int: Number.MAX_SAFE_INTEGER, float: Number.MAX_VALUE, str: '1.7976931348623157e+308'});
+                    break;
+                case 'Number.MIN_SAFE_INTEGER':
+                    assert.deepStrictEqual(actual, {bool: true, int: Number.MIN_SAFE_INTEGER, float: Number.MIN_SAFE_INTEGER, str: '-9007199254740991'});
+                    break;
+                case 'Number.MAX_SAFE_INTEGER':
+                    assert.deepStrictEqual(actual, {bool: true, int: Number.MAX_SAFE_INTEGER, float: Number.MAX_SAFE_INTEGER, str: '9007199254740991'});
+                    break;
+                default:
+                    // objects, arrays, functions, and symbols: truthy for bool, rejected to defaults everywhere else
+                    assert.deepStrictEqual(actual, {bool: true, int: 0, float: 0, str: ''});
+                    break;
+                }
+            });
         });
     });
     describe('custom types', function () {
