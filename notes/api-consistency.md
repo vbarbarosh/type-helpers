@@ -7,7 +7,8 @@
 - Naming: uniform `snake_case`, uniform prefixes (`is_*` → boolean,
   `safe_*` → total coercion with fallback), one function per file, filename
   = function name = export.
-- Signatures: every `is_*` takes a single value (except `is_num_gt(input, min)`);
+- Signatures: every `is_*` takes a single value (except `is_num_gt`/`is_int_gt`,
+  which take `(input, min)`);
   every `safe_*` is `(input, empty_value, ...)` with `empty_value` returned
   **verbatim** (no coercion) — documented as intentional so `null` makes
   invalid input detectable (`src/safe_int.js:1-3`, README ⚠️ note).

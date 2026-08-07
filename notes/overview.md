@@ -8,8 +8,8 @@ Companion notes: [api-consistency.md](api-consistency.md),
 
 ## What it is
 
-A zero-runtime-dependency CommonJS library (~660 lines of implementation,
-~1,700 lines of tests) for turning untrusted input into well-typed values.
+A zero-runtime-dependency CommonJS library (~700 lines of implementation,
+~1,750 lines of tests) for turning untrusted input into well-typed values.
 Three layers, each usable on its own:
 
 1. **`edge_values.js`** — a curated list of ~50 tricky JS values (`-0`, `NaN`,
@@ -17,7 +17,7 @@ Three layers, each usable on its own:
    designed for broad test sweeps. Most standalone helpers use it; `make` and
    `is_fn_ctor` use targeted tests. It is both a fixture and a shipped,
    documented export.
-2. **Predicates and coercers** — 13 `is_*` predicates (strict, boolean-only)
+2. **Predicates and coercers** — 14 `is_*` predicates (strict, boolean-only)
    and 5 `safe_*` coercers (`safe_bool/int/float/str/obj`), each a single-file
    module with a colocated `*.test.js`.
 3. **`make(input, expr, types)`** — a small recursive interpreter over a
@@ -59,7 +59,7 @@ A notable structural detail: the spec language is self-hosting — the
 |---|---|
 | `make.js` | spec interpreter; the package main |
 | `edge_values.js` | shipped test-fixture list of hostile values |
-| `is_array/bool/str/sym/obj/num/num_gt/empty` | strict predicates |
+| `is_array/bool/str/sym/obj/num/num_gt/int_gt/empty` | strict predicates |
 | `is_fn`, `is_fn_async`, `is_fn_gen`, `is_fn_gen_async`, `is_fn_ctor` | function-kind predicates |
 | `safe_bool/int/float/str/obj` | total coercers with `empty_value` fallback |
 

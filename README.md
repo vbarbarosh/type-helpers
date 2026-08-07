@@ -555,7 +555,7 @@ Type predicates: each takes a single value and returns a `boolean`.
 | [`is_fn_ctor`](src/is_fn_ctor.js)              | functions which could be called with `new`                      |
 | [`is_fn_gen`](src/is_fn_gen.js)                | `function*` only                                                |
 | [`is_fn_gen_async`](src/is_fn_gen_async.js)    | `async function*` only                                          |
-| [`is_int_gt`](src/is_int_gt.js)                | integers greater than `min`: `is_int_gt(input, min)`            |
+| [`is_int_gt`](src/is_int_gt.js)                | number-typed integers greater than `min` (`1e100` counts, bigints don't): `is_int_gt(input, min)` |
 | [`is_num`](src/is_num.js)                      | finite numbers (`NaN` and `Infinity` excluded)                  |
 | [`is_num_gt`](src/is_num_gt.js)                | finite numbers greater than `min`: `is_num_gt(input, min)`      |
 | [`is_obj`](src/is_obj.js)                      | objects, excluding `null` and arrays                            |
