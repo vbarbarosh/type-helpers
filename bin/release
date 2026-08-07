@@ -14,13 +14,13 @@ case "${1-}"  in
 major|minor|patch)
     ;;
 *)
-    echo usage: release 'major|minor|patch' 2>&1
+    echo usage: release 'major|minor|patch' >&2
     exit 1
     ;;
 esac
 
 if test -n "`git status -s`"; then
-    echo error: there is changes 2>&1
+    echo error: there are changes >&2
     exit 1
 fi
 
