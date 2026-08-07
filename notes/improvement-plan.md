@@ -6,16 +6,15 @@ are made and pinned; what remains is optional test breadth and packaging.*
 
 ## Phase 1 — test debt
 
-1. Expand the `obj` section with prop dropping coverage.
-2. Add an `edge_values` matrix for `make` scalar types if the additional test
+1. Add an `edge_values` matrix for `make` scalar types if the additional test
    volume is worthwhile.
-3. Either add an `edge_values` sweep for `is_fn_ctor` or retain its targeted
+2. Either add an `edge_values` sweep for `is_fn_ctor` or retain its targeted
    constructor tests as the documented exception.
 
 ## Phase 2 — packaging
 
-4. Add TypeScript declarations for `make` and deep-required helpers.
-5. Remove the empty `dist/` directory.
+3. Add TypeScript declarations for `make` and deep-required helpers.
+4. Remove the empty `dist/` directory.
 
 ## Explicitly deferred features
 

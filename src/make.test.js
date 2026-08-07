@@ -217,6 +217,12 @@ describe('make', function () {
             const expr = {type: 'obj', props: {name: 'str'}, transform: () => null};
             assert.deepStrictEqual(make({}, expr), {name: ''});
         });
+        it('should drop input properties not listed in props', function () {
+            const expr = {type: 'obj', props: {name: 'str', width: 'int'}};
+            assert.deepStrictEqual(make({name: 'x', junk: 1, admin: true}, expr), {name: 'x', width: 0});
+            // output keys are the spec's keys, in spec order, regardless of input
+            assert.deepStrictEqual(Object.keys(make({width: 5, name: 'x', junk: 1}, expr)), ['name', 'width']);
+        });
         it('should read props off any object-typed input, arrays included', function () {
             assert.deepStrictEqual(make(['a', 'b'], {0: 'str', length: 'int'}), {0: 'a', length: 2});
             assert.deepStrictEqual(make(['a', 'b'], {name: 'str', count: 'int'}), {name: '', count: 0});
