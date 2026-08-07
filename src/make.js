@@ -33,12 +33,18 @@ const standard_types = {
     int: function (input, params) {
         const min = safe_int(params.min, Number.MIN_SAFE_INTEGER);
         const max = safe_int(params.max, Number.MAX_SAFE_INTEGER);
+        if (min > max) {
+            throw new Error(`[type=int] min should not exceed max: min=${min}, max=${max}`);
+        }
         return safe_int(input, null, min, max) ?? Math.min(max, Math.max(min, safe_int(params.default)));
     },
     // {type: 'float', min: 0, max: 100, default: 0, nullable: false, before: input => input, after: out => out}
     float: function (input, params) {
         const min = safe_float(params.min, -Number.MAX_VALUE);
         const max = safe_float(params.max, Number.MAX_VALUE);
+        if (min > max) {
+            throw new Error(`[type=float] min should not exceed max: min=${min}, max=${max}`);
+        }
         const default_value = Math.min(max, Math.max(min, safe_float(params.default)));
         return safe_float(input, default_value, min, max);
     },

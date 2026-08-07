@@ -130,10 +130,16 @@ describe('make', function () {
         it('should cast the default value to a valid range', function () {
             assert.deepStrictEqual(make(null, {type: 'int', default: ''}), 0);
         });
+        it('should throw "[type=int] min should not exceed max"', function () {
+            assert.throws(() => make(50, {type: 'int', min: 100, max: 0}), new Error('[type=int] min should not exceed max: min=100, max=0'));
+        });
     });
     describe('built-in types • float', function () {
         it('should cast the default value to a valid range', function () {
             assert.deepStrictEqual(make(null, {type: 'float', default: ''}), 0);
+        });
+        it('should throw "[type=float] min should not exceed max"', function () {
+            assert.throws(() => make(0.5, {type: 'float', min: 1.5, max: 0.5}), new Error('[type=float] min should not exceed max: min=1.5, max=0.5'));
         });
     });
     describe('built-in types • str', function () {

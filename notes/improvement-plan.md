@@ -10,9 +10,7 @@ history and regression tests preserve their rationale.*
    them to an empty props source.
 2. **Union without a valid default.** Document the existing throw as the
    exception to the library's total-normalizer model in README.
-3. **Degenerate numeric ranges.** Decide whether `min > max` should keep
-   resolving to `min` or throw a schema error, then pin the policy.
-4. **Built-in registry precedence.** Decide whether custom types may shadow
+3. **Built-in registry precedence.** Decide whether custom types may shadow
    built-ins. Current behavior gives built-ins priority; add an explicit test
    if retained.
 

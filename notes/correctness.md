@@ -35,8 +35,9 @@ and README carries the same caveat in its union section.
   `after`.
 - `Infinity` becomes `bool: true`, `float: Number.MAX_VALUE`,
   `int: Number.MAX_SAFE_INTEGER`, and `str: ''`.
-- Degenerate ranges resolve silently: when `min > max`, the current clamp
-  returns `min`; no schema sanity check is performed.
+- Degenerate ranges are schema errors: `min > max` on `int`/`float` throws
+  `[type=int] min should not exceed max`. The standalone `safe_int`/`safe_float`
+  keep resolving silently (`min` wins) — they are total by design.
 - An enum `default` is returned as-is even when it is not in `options`.
 - Hex, exponent, and whitespace numeric strings coerce; partially numeric
   strings such as `'12px'` are rejected.
