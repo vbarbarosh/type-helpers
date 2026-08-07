@@ -6,6 +6,9 @@ describe('is_fn_async', function () {
     it('should accept no args', function () {
         assert.strictEqual(is_fn_async(), false);
     });
+    it('should reject a non-function with an async function prototype', function () {
+        assert.strictEqual(is_fn_async(Object.create(Object.getPrototypeOf(async function () {}))), false);
+    });
     describe('should handle edge values', function () {
         edge_values.forEach(function (item) {
             it(item.label, function () {

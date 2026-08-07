@@ -1,6 +1,6 @@
 function is_fn_async(input)
 {
-    if (input === null || input === undefined) {
+    if (typeof input !== 'function') {
         return false;
     }
     return Object.getPrototypeOf(input) === Object.getPrototypeOf(x);

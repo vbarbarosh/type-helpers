@@ -1,9 +1,9 @@
 function is_fn_gen(input)
 {
-    if (typeof input === 'function') {
-        return input.constructor === x.constructor;
+    if (typeof input !== 'function') {
+        return false;
     }
-    return false;
+    return Object.getPrototypeOf(input) === Object.getPrototypeOf(x);
 }
 
 /* istanbul ignore next */

@@ -20,6 +20,10 @@
   `safe_float`, all pinned by tests.
 - Built-in/custom type registries, union options, and enum transform maps use
   own-property lookup; inherited names are not treated as schema entries.
+- Function-kind detection: `is_fn_gen`, `is_fn_async`, and `is_fn_gen_async`
+  share one mechanism — a `typeof input === 'function'` guard plus prototype
+  identity against a local probe function. `Object.setPrototypeOf` can still
+  spoof them; non-callable values cannot.
 
 ## Inconsistencies worth knowing about
 
@@ -39,21 +43,13 @@
    → `{"0":"a","length":2}` (verified). Same for `Map`/`Set`/boxed
    primitives (own-prop lookup yields undefined → defaults, harmless).
 
-3. **Function-kind detection uses two different mechanisms.**
-   `is_fn_gen` compares `input.constructor` (spoofable by assigning
-   `.constructor`; guarded by `typeof input === 'function'`), while
-   `is_fn_async`/`is_fn_gen_async` compare `Object.getPrototypeOf(input)`
-   (spoofable by `Object.setPrototypeOf`; guarded by a null/undefined check
-   and rely on autoboxing for primitives). Both work for honest values;
-   picking one mechanism would be more uniform.
-
-4. **`is_fn_ctor` is the only helper without an `edge_values` sweep.**
+3. **`is_fn_ctor` is the only helper without an `edge_values` sweep.**
    Its tests are hand-picked true/false lists (`src/is_fn_ctor.js` test
    block). README documents this targeted-test exception. It also special-cases
-   `Symbol` because `Reflect.construct(String, [], Symbol)` succeeds although
-   `new Symbol()` throws.
+   `Symbol` and `BigInt` because `Reflect.construct` accepts them as
+   `newTarget` although `new Symbol()`/`new BigInt()` throw.
 
-5. **`enum` default is unvalidated; `union` default is validated.**
+4. **`enum` default is unvalidated; `union` default is validated.**
    `{type:'enum', options:['a'], default:'zzz'}` returns `'zzz'` even though
    it is not an option. A regression pins this policy with a sentinel default
    outside `options`. `union` by contrast resolves
@@ -61,13 +57,13 @@
    different policies for the same concept.
    (Still idempotent — the out-of-options default keeps mapping to itself.)
 
-6. **Registry cannot shadow built-ins, silently.** `standard_types` is
+5. **Registry cannot shadow built-ins, silently.** `standard_types` is
    checked before `types`, so
    `make('5', 'int', {int: myFn})` ignores the custom entry (verified:
    returns `5`). Reasonable precedence, but no warning; a registry author
    gets no signal their `int`/`str`/`obj` entry is dead.
 
-7. **bigint round-trip is lossy by design.** `safe_str(10n)` → `'10'` (no
+6. **bigint round-trip is lossy by design.** `safe_str(10n)` → `'10'` (no
    `n` suffix; flagged ⚠️ in `src/safe_str.js`), `safe_int/float` convert
    via `Number()` (precision loss beyond 2^53, clamped) — all pinned in
    tests, just don't expect reversibility.

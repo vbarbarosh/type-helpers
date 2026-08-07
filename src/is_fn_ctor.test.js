@@ -22,8 +22,10 @@ describe('is_fn_ctor', function () {
     it('false', function () {
         assert.strictEqual(is_fn_ctor(() => 0), false);
         assert.strictEqual(is_fn_ctor(Symbol), false);
+        assert.strictEqual(is_fn_ctor(BigInt), false);
 
         assert.strictEqual(typeof (() => 0), 'function');
         assert.strictEqual(typeof Symbol, 'function');
+        assert.strictEqual(typeof BigInt, 'function');
     });
 });
