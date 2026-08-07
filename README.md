@@ -219,13 +219,20 @@ assert.strictEqual(make(null, {type: 'bool', default: true}), true);
 ```
 
 Numbers and numeric strings are truncated toward zero and clamped into
-`[min, max]`. Everything else makes `default` (clamped as well).
+`[min, max]`; booleans and bigints convert the same way (`true` → `1`,
+`10n` → `10`). When omitted, `min`/`max` default to the safe-integer range,
+so `±Infinity` clamps instead of making `default`. Everything else makes
+`default` (clamped as well). ⚠️ Note that `''` and whitespace-only strings
+are numeric — they coerce to `0`.
 
 ```js
 assert.strictEqual(make('15.999', 'int'), 15);
 assert.strictEqual(make(150, {type: 'int', min: 0, max: 100}), 100);
 assert.strictEqual(make('abc', {type: 'int', min: 10, max: 100}), 10);
 assert.strictEqual(make(-0, 'int'), 0);
+assert.strictEqual(make(true, {type: 'int', default: 99}), 1);
+assert.strictEqual(make('', {type: 'int', default: 99}), 0);
+assert.strictEqual(make(Infinity, 'int'), Number.MAX_SAFE_INTEGER);
 ```
 
 ### float
@@ -234,11 +241,13 @@ assert.strictEqual(make(-0, 'int'), 0);
 {type: 'float', min: 0, max: 100, default: 0, nullable: false, before: input => input, after: out => out}
 ```
 
-Same as `int`, but without truncation.
+Same as `int`, but without truncation; omitted `min`/`max` default to
+`±Number.MAX_VALUE`, so `Infinity` becomes `Number.MAX_VALUE`.
 
 ```js
 assert.strictEqual(make('15.55', 'float'), 15.55);
 assert.strictEqual(make('1e3', {type: 'float', max: 100}), 100);
+assert.strictEqual(make(Infinity, 'float'), Number.MAX_VALUE);
 ```
 
 ### str
@@ -247,14 +256,16 @@ assert.strictEqual(make('1e3', {type: 'float', max: 100}), 100);
 {type: 'str', default: 'foo', nullable: false, before: input => input, after: out => out}
 ```
 
-Strings are returned as is; numbers, booleans, and bigints are stringified;
-everything else makes `default` — objects and arrays never leak into strings
+Strings are returned as is; finite numbers, booleans, and bigints are
+stringified (`-0` → `'0'`); everything else — including `NaN` and
+`±Infinity` — makes `default`. Objects and arrays never leak into strings
 via implicit coercion.
 
 ```js
 assert.strictEqual(make(15.55, 'str'), '15.55');
 assert.strictEqual(make(true, 'str'), 'true');
 assert.strictEqual(make(['x'], 'str'), '');
+assert.strictEqual(make(Infinity, 'str'), '');
 ```
 
 ### enum
