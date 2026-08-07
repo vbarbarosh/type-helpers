@@ -247,6 +247,10 @@ function make_impl(input, expr, types, alias_path)
     // Standard types
     const standard_type = get_own(standard_types, expr.type);
     if (standard_type) {
+        // A registry entry named like a built-in can never be reached — refuse it loudly.
+        if (has_own(types, expr.type)) {
+            throw new Error(`Custom type shadows built-in: ${expr.type}`);
+        }
         return convert(input => standard_type(input, expr, types));
     }
 

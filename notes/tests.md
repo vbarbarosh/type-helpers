@@ -37,10 +37,10 @@ Deviations from the house style:
 - **obj section gaps**: `obj` has dedicated transform-totality and
   nullish-prop-expression regressions, but prop dropping and array-as-props
   remain uncovered in that section.
-- **Remaining policy coverage**: array-as-props-source in `obj` and built-in
-  registry precedence still need explicit decisions/tests. The enum transform
-  regression pins the current policy that an out-of-options `default` is
-  returned as-is; `min > max` now throws and is pinned by regressions.
+- **Remaining policy coverage**: array-as-props-source in `obj` still needs an
+  explicit decision/test. The enum transform regression pins the current
+  policy that an out-of-options `default` is returned as-is; `min > max` and
+  built-in shadowing now throw and are pinned by regressions.
 
 ## Verdict
 

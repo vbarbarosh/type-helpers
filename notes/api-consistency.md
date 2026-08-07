@@ -25,6 +25,9 @@
   share one mechanism — a `typeof input === 'function'` guard plus prototype
   identity against a local probe function. `Object.setPrototypeOf` can still
   spoof them; non-callable values cannot.
+- Built-ins take precedence over the registry, loudly: a registry entry named
+  like a built-in can never be reached, so `make` throws
+  `Custom type shadows built-in: <name>` instead of leaving a dead entry.
 
 ## Inconsistencies worth knowing about
 
@@ -58,13 +61,7 @@
    different policies for the same concept.
    (Still idempotent — the out-of-options default keeps mapping to itself.)
 
-5. **Registry cannot shadow built-ins, silently.** `standard_types` is
-   checked before `types`, so
-   `make('5', 'int', {int: myFn})` ignores the custom entry (verified:
-   returns `5`). Reasonable precedence, but no warning; a registry author
-   gets no signal their `int`/`str`/`obj` entry is dead.
-
-6. **bigint round-trip is lossy by design.** `safe_str(10n)` → `'10'` (no
+5. **bigint round-trip is lossy by design.** `safe_str(10n)` → `'10'` (no
    `n` suffix; flagged ⚠️ in `src/safe_str.js`), `safe_int/float` convert
    via `Number()` (precision loss beyond 2^53, clamped) — all pinned in
    tests, just don't expect reversibility.

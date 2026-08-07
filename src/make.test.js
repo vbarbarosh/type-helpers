@@ -41,6 +41,10 @@ describe('make', function () {
             assert.throws(() => make('', 'strx'), new Error('Invalid type: strx'));
             assert.throws(() => make('', 'strx', {apple: 'str'}), new Error('Invalid type: strx'));
         });
+        it('should throw "Custom type shadows built-in" for registry entries named like built-ins', function () {
+            assert.throws(() => make('5', 'int', {int: v => v}), new Error('Custom type shadows built-in: int'));
+            assert.strictEqual(make('5', 'int', {int5: v => v}), 5);
+        });
         it('should resolve only own properties as type names', function () {
             assert.throws(() => make('', 'constructor'), new Error('Invalid type: constructor'));
             assert.strictEqual(make('foo', 'constructor', {constructor: v => `[${v}]`}), '[foo]');

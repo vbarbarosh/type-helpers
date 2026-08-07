@@ -430,7 +430,9 @@ assert.deepStrictEqual(make({kind: 'submit'}, 'widget', types), {kind: 'submit',
 
 The third argument of `make` is a registry of user-defined types. Each entry
 is either a full expression, a plain object (a set of props for
-`{type: 'obj'}`), or a function:
+`{type: 'obj'}`), or a function. Registry names must not collide with
+built-in type names — built-ins always win, so a registry entry named like
+one throws (`Custom type shadows built-in: int`):
 
 ```js
 const types = {
