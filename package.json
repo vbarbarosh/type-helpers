@@ -16,6 +16,12 @@
     "scripts": {
         "test": "nyc mocha src/**/*.test.js"
     },
+    "nyc": {
+        "exclude": [
+            "**/*.test.js",
+            "src/edge_values.js"
+        ]
+    },
     "keywords": [
         "js",
         "node",

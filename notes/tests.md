@@ -4,11 +4,13 @@
 
 ## Snapshot
 
-- `npm test` (nyc + mocha): **1,276 passing, 0 pending**.
-- **100% statement/branch/function/line coverage on every file** — rare and
-  real; there is no istanbul-ignored code beyond three one-line fixture
-  functions (`/* istanbul ignore next */` on the `x()` probes in
-  `is_fn_async`/`is_fn_gen`/`is_fn_gen_async`).
+- `npm test` (nyc + mocha): **1,268 passing, 0 pending**.
+- **100% statement/branch/function/line coverage on every implementation
+  file** — `edge_values.js` is fixture data (its function values are never
+  meant to run) and is excluded from instrumentation via the `nyc` config in
+  package.json; its own test asserts list integrity (unique labels, `value`
+  present). The only istanbul-ignored code is the three one-line `x()` probes
+  in `is_fn_async`/`is_fn_gen`/`is_fn_gen_async`.
 - Tests are colocated (`src/foo.test.js` next to `src/foo.js`) and excluded
   from the npm tarball via `files: ["!src/*.test.js"]`.
 

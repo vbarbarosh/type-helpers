@@ -1,37 +1,15 @@
+const assert = require('assert');
 const edge_values = require('./edge_values');
-const is_fn = require('./is_fn');
-const is_fn_ctor = require('./is_fn_ctor');
-const is_fn_gen = require('./is_fn_gen');
-const is_fn_gen_async = require('./is_fn_gen_async');
 
 describe('edge_values', function () {
-    describe('mute nyc about uncalled functions', function () {
+    // Sweeps switch on labels; a reused label would silently inherit another
+    // value's expectations instead of being confronted by the default branch.
+    it('every item is {label, value}, with a unique non-empty string label', function () {
+        const labels = edge_values.map(v => v.label);
+        assert.deepStrictEqual(labels.filter(v => typeof v === 'string' && v.length > 0), labels);
+        assert.strictEqual(new Set(labels).size, labels.length);
         edge_values.forEach(function (item) {
-            if (is_fn_ctor(item.value)) {
-                it(item.label, async function () {
-                    new item.value();
-                });
-            }
-            else if (is_fn_gen(item.value)) {
-                it(item.label, async function () {
-                    Array.from(item.value());
-                });
-            }
-            else if (is_fn_gen_async(item.value)) {
-                it(item.label, async function () {
-                    // TypeError: Array.fromAsync is not a function
-                    // Node.js: 22+
-                    // await Array.fromAsync(item.value());
-                    for await (const tmp of item.value()) {
-                        // ignore
-                    }
-                });
-            }
-            else if (is_fn(item.value)) {
-                it(item.label, async function () {
-                    await item.value();
-                });
-            }
+            assert.strictEqual(Object.hasOwn(item, 'value'), true, item.label);
         });
     });
 });
