@@ -18,26 +18,22 @@ history and regression tests preserve their rationale.*
 
 ## Phase 2 — test debt
 
-5. Fill the empty `built-in types • any` section with pass-through and
-   default-on-undefined cases.
-6. Expand the `obj` section with prop dropping, `optional`, and the array-input
+5. Expand the `obj` section with prop dropping, `optional`, and the array-input
    decision from Phase 1.
-7. Add an `edge_values` matrix for `make` scalar types if the additional test
+6. Add an `edge_values` matrix for `make` scalar types if the additional test
    volume is worthwhile.
-8. Either add an `edge_values` sweep for `is_fn_ctor` or retain its targeted
+7. Either add an `edge_values` sweep for `is_fn_ctor` or retain its targeted
    constructor tests as the documented exception.
-9. Implement or delete the three `xit` placeholders and remove the two
-   commented-out `from` tests for an unimplemented rename feature.
 
 ## Phase 3 — docs cleanup
 
-10. Document `obj.transform`.
-11. Document union options that reference registry type names.
-12. Document enum default behavior and the union-without-default exception.
+8. Document `obj.transform`.
+9. Document union options that reference registry type names.
+10. Document enum default behavior and the union-without-default exception.
 ## Phase 4 — packaging
 
-13. Add TypeScript declarations for `make` and deep-required helpers.
-14. Remove the empty `dist/` directory.
+11. Add TypeScript declarations for `make` and deep-required helpers.
+12. Remove the empty `dist/` directory.
 
 ## Explicitly deferred features
 

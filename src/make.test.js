@@ -94,6 +94,18 @@ describe('make', function () {
         });
     });
     describe('built-in types • any', function () {
+        it('any • should return input untouched, including null and NaN', function () {
+            assert.strictEqual(make('ggg', 'any'), 'ggg');
+            assert.strictEqual(make(null, 'any'), null);
+            assert.strictEqual(make(NaN, {type: 'any', default: 5}), NaN);
+            const input = {foo: 1};
+            assert.strictEqual(make(input, 'any'), input);
+        });
+        it('any • should return default only for undefined input', function () {
+            assert.strictEqual(make(undefined, {type: 'any', default: 5}), 5);
+            assert.strictEqual(make(undefined, 'any'), undefined);
+            assert.strictEqual(make(null, {type: 'any', default: 5}), null);
+        });
     });
     describe('built-in types • null', function () {
         it('null • always return null discarding any input provided', function () {
@@ -508,11 +520,27 @@ describe('make', function () {
             };
             assert.deepStrictEqual(actual, expected1);
         });
-        xit('edge case: nullable properties (present but null)', function () {
-            // ...
+        it('edge case: nullable properties (present but null)', function () {
+            const types = {
+                profile: {
+                    name: 'str',
+                    age: {type: 'int', nullable: true},
+                },
+            };
+            assert.deepStrictEqual(make({name: 'x', age: null}, 'profile', types), {name: 'x', age: null});
+            assert.deepStrictEqual(make({name: 'x', age: '35'}, 'profile', types), {name: 'x', age: 35});
         });
-        xit('edge case: optional properties (might be absent)', function () {
-            // ...
+        it('edge case: optional properties (might be absent)', function () {
+            const types = {
+                error: {
+                    message: 'str',
+                    code: {type: 'int', optional: true},
+                },
+            };
+            assert.deepStrictEqual(make({message: 'x'}, 'error', types), {message: 'x'});
+            assert.deepStrictEqual(make({message: 'x', code: '5'}, 'error', types), {message: 'x', code: 5});
+            // optional skips only absent (undefined) input; a present null still converts
+            assert.deepStrictEqual(make({message: 'x', code: null}, 'error', types), {message: 'x', code: 0});
         });
         it('objects1', function () {
             const types = {
@@ -585,32 +613,10 @@ describe('make', function () {
             const actual = make({pub_id: 'banner1'}, 'Custom', types);
             assert.deepStrictEqual(actual, {__delegated__: true, input: {pub_id: 'banner1'}});
         });
-        // it('when one property is taken from another #1', function () {
-        //     // - convert obsolete property to new property
-        //     // - converting obsolete format to new format
-        //     const types = {
-        //         Banner: {
-        //             uid: {read: true, from: 'pub_id'},
-        //         },
-        //     };
-        //     const actual = make({pub_id: 'banner1'}, 'Banner', types);
-        //     assert.deepStrictEqual(actual, {type: 'banner', uid: 'banner1'});
-        // });
-        // it('when one property is taken from another #2', function () {
-        //     // - convert obsolete property to new property
-        //     // - converting obsolete format to new format
-        //     const types = {
-        //         Banner: {
-        //             uid: {type: 'str', from: 'pub_id'}, // from pub_id
-        //         },
-        //     };
-        //     const actual = make({pub_id: 'banner1'}, 'Banner', types);
-        //     assert.deepStrictEqual(actual, {type: 'banner', uid: 'banner1'});
-        // });
-        xit('objects.dependable.hooks #1', function () {
+        it('objects.dependable.hooks #1', function () {
             const types = {
                 tmp: function (input) {
-                    const out = make(input, 'anon', {
+                    const out = make(input, {
                         fps: {type: 'int', min: 1, max: 60},
                         fps_limit: {type: 'int', min: 1, max: 60},
                     });
@@ -618,13 +624,8 @@ describe('make', function () {
                     return out;
                 },
             };
-            const input = {fps: 30, fps_limit: 45};
-            const expected = {
-                fps: 30,
-                fps_limit: 45,
-            };
-            const actual = make(input, 'tmp', types);
-            assert.deepStrictEqual(actual, expected);
+            assert.deepStrictEqual(make({fps: 30, fps_limit: 45}, 'tmp', types), {fps: 30, fps_limit: 45});
+            assert.deepStrictEqual(make({fps: 50, fps_limit: 45}, 'tmp', types), {fps: 45, fps_limit: 45});
         });
         it('should return classes', function () {
             // - convert obsolete property to new property
@@ -873,11 +874,6 @@ describe('make', function () {
         });
         it('array of exact 3 members (using tuples)', function () {
             const types = {
-                tuple: function (value, expr, types) {
-                    const items = make({type: 'array', of: 'any'}, expr.items, types);
-                    const values = make({type: 'array', of: 'any'}, value, types);
-                    return items.map((v,i) => make(v, values[i], types));
-                },
                 in: {type: 'enum', options: ['none', 'in1', 'in2', 'in3', 'in4']},
                 stay: {type: 'enum', options: ['none', 'stay1', 'stay2', 'stay3']},
                 out: {type: 'enum', options: ['none', 'out1', 'out2', 'out3']},

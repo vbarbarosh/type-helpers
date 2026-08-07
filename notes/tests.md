@@ -4,7 +4,7 @@
 
 ## Snapshot
 
-- `npm test` (nyc + mocha): **1,199 passing, 3 pending**.
+- `npm test` (nyc + mocha): **1,276 passing, 0 pending**.
 - **100% statement/branch/function/line coverage on every file** — rare and
   real; there is no istanbul-ignored code beyond three one-line fixture
   functions (`/* istanbul ignore next */` on the `x()` probes in
@@ -32,15 +32,9 @@ Deviations from the house style:
 
 ## Holes in make.test.js
 
-- **Empty placeholder describe**: `built-in types • any` still contains zero
-  tests. `obj` now has a dedicated transform-totality regression, but prop
-  dropping, `optional`, array-as-props, and the undocumented `finish` comment
+- **obj section gaps**: `obj` has a dedicated transform-totality regression,
+  but prop dropping, array-as-props, and the undocumented `finish` comment
   remain uncovered in that section.
-- **3 pending (`xit`) tests**: nullable-properties, optional-properties
-  edge cases and `objects.dependable.hooks` (`src/make.test.js:486-489,585`)
-  — plus two fully commented-out tests for a `from: 'pub_id'` property-rename
-  feature that was never built (`src/make.test.js:563-584`). Dead intent;
-  either implement or delete.
 - **Remaining policy coverage**: array-as-props-source in `obj`, degenerate
   `min > max` ranges, and built-in registry precedence still need explicit
   decisions/tests. The enum transform regression now pins the current policy

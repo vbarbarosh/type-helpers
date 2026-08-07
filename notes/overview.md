@@ -65,7 +65,7 @@ A notable structural detail: the spec language is self-hosting — the
 
 ## Health snapshot
 
-- Tests: 1,199 passing, 3 pending; **100% statement/branch/function/line
+- Tests: 1,276 passing, 0 pending; **100% statement/branch/function/line
   coverage** on every file (nyc).
 - CI: GitHub Actions matrix on Node 18/20/22/24; `engines: node >= 18`.
 - Release: `bin/release major|minor|patch` — tests, version bump, tag, push,

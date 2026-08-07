@@ -1,7 +1,7 @@
 # Correctness & edge cases
 
-*Current snapshot as of 2026-07-10; see [overview.md](overview.md). The suite
-has 1,199 passing tests and 3 pending, with 100% reported coverage.*
+*Current snapshot as of 2026-08-07; see [overview.md](overview.md). The suite
+has 1,276 passing tests and 0 pending, with 100% reported coverage.*
 
 The library's rule ([shape.md](shape.md)) is: data normally does not error;
 schema-author mistakes do. One behavior decision and one documentation caveat
