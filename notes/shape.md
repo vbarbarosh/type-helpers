@@ -20,7 +20,11 @@ Two structural properties follow from this (both verified, see below):
 1. **Outputs are fixed points** — `make(make(x, e), e) === make(x, e)`. The
    output domain is a canonical subset of JSON-ish values, and the function is
    safe to apply at every trust boundary without compounding damage.
-2. Since `before`/`after` are the only places that can break idempotence, the
+2. The places that can break idempotence are `before`/`after`, function types,
+   and `transform` — including enum's declarative object form, when a
+   transform key is itself an option
+   (`{options: ['a', 'b'], transform: {a: 'b', b: 'a'}}` maps
+   `'a'` → `'b'` → `'a'` → …). Keep transform keys outside `options` and the
    declarative core is a genuine canonicalizer.
 
 Mechanically it's a small recursive interpreter over an expression DSL with an

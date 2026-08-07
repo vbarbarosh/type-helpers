@@ -32,8 +32,9 @@ Three layers, each usable on its own:
 [shape.md](shape.md) (written by the author, 2026-06-11) states it precisely:
 `make` is a **total normalizer**, not a validator. Every input maps to a
 valid output; errors are generally for schema authors. A union without a valid
-default is the input-dependent exception. Outputs are fixed points:
-`make(make(x, e), e) === make(x, e)`.
+default is the input-dependent exception. Outputs are fixed points —
+`make(make(x, e), e) === make(x, e)` — modulo hooks; see
+[shape.md](shape.md) for the enum-transform caveat.
 This puts it in a different category from zod/yup/io-ts. One sharpening of
 that claim is in [correctness.md](correctness.md) §2 (union without
 `default` throws on data).

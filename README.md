@@ -531,7 +531,7 @@ Type predicates: each takes a single value and returns a `boolean`.
 |------------------------------------------------|------------------------------------------------------------------|
 | [`is_array`](src/is_array.js)                  | arrays                                                          |
 | [`is_bool`](src/is_bool.js)                    | `true` and `false` only                                         |
-| [`is_empty`](src/is_empty.js)                  | `null`, `undefined`, falsy values, `[]`, `{}` without own keys  |
+| [`is_empty`](src/is_empty.js)                  | `null`, `undefined`, falsy values, `[]`, objects without own enumerable string keys — ⚠️ non-empty `Map`/`Set` count as empty |
 | [`is_fn`](src/is_fn.js)                        | functions of any kind (incl. classes and arrows)                |
 | [`is_fn_async`](src/is_fn_async.js)            | `async function` only                                           |
 | [`is_fn_ctor`](src/is_fn_ctor.js)              | functions which could be called with `new`                      |
