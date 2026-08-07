@@ -121,10 +121,8 @@ const standard_types = {
         }
         return out;
     },
-    // {type: 'obj', props: {...}, transform: v => v, finish: v => v, nullable: false, before: input => input, after: out => out}
+    // {type: 'obj', props: {...}, transform: v => v, nullable: false, before: input => input, after: out => out}
     obj: function (input, params, types) {
-        // {type: 'obj', transform: ..., finish: ..., props: {...}}
-        // adjust, complete, finish, realize, apply_limits, balance
         const value_obj = safe_obj(params.transform ? params.transform(input) : input);
         return Object.fromEntries(Object.entries(params.props||{}).map(function ([k, v]) {
             if (v.optional && value_obj[k] === undefined) {

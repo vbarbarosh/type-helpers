@@ -23,8 +23,8 @@ and return property defaults.
 `Union type option not found`. A union with no valid `default` is therefore
 total only for inputs whose discriminator matches an option.
 
-The behavior is already pinned, and [shape.md](shape.md) states the exception.
-README still needs the same caveat.
+The behavior is already pinned, [shape.md](shape.md) states the exception,
+and README carries the same caveat in its union section.
 
 ## Sharp but intentional
 

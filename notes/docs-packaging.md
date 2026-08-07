@@ -8,13 +8,9 @@ The README is thorough and its examples match current behavior, including
 nullable hook precedence, the `type: [...]` escape hatch, edge-value test
 coverage, and `empty_value` behavior.
 
-Remaining documentation gaps:
-
-- The built-in `obj` section does not document `transform`.
-- A union option may reference a registry type name, but README examples show
-  only inline object shapes.
-- A union without a valid `default` throws on an unmatched discriminator.
-- Enum defaults are returned as-is even when outside `options`.
+No known documentation gaps remain: `obj.transform`, registry-name union
+options, the union-without-default throw, and as-is enum defaults are all
+covered by README.
 
 ## package.json / publishing
 

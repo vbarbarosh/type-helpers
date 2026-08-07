@@ -25,15 +25,10 @@ history and regression tests preserve their rationale.*
 7. Either add an `edge_values` sweep for `is_fn_ctor` or retain its targeted
    constructor tests as the documented exception.
 
-## Phase 3 — docs cleanup
+## Phase 3 — packaging
 
-8. Document `obj.transform`.
-9. Document union options that reference registry type names.
-10. Document enum default behavior and the union-without-default exception.
-## Phase 4 — packaging
-
-11. Add TypeScript declarations for `make` and deep-required helpers.
-12. Remove the empty `dist/` directory.
+8. Add TypeScript declarations for `make` and deep-required helpers.
+9. Remove the empty `dist/` directory.
 
 ## Explicitly deferred features
 

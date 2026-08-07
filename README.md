@@ -275,7 +275,8 @@ assert.strictEqual(make(Infinity, 'str'), '');
 ```
 
 Returns input when it is one of `options`; otherwise returns `default`
-(or the first option when no `default` was given). The optional `transform`
+(or the first option when no `default` was given) — ⚠️ `default` is returned
+as-is, without being checked against `options`. The optional `transform`
 (a function or a `{from: to}` object) is applied to input before the lookup —
 handy for migrating renamed values.
 
@@ -340,13 +341,16 @@ assert.deepStrictEqual(make('foo', expr), []);
 ### obj
 
 ```js
-{type: 'obj', props: {...}, nullable: false, before: input => input, after: out => out}
+{type: 'obj', props: {...}, transform: input => input, nullable: false, before: input => input, after: out => out}
 ```
 
 An object with a predefined set of properties. Missing or invalid input
 properties are made into defaults; input properties not listed in `props`
 are dropped. A property marked with `optional: true` is omitted from the
-output when the input doesn't have it.
+output when the input doesn't have it. The optional `transform(input)`
+reshapes the props source before properties are read — handy for deriving
+new properties from old ones; its result passes through `safe_obj`, so
+returning a non-object just means an empty props source.
 
 ```js
 const rect = {
@@ -365,6 +369,17 @@ const error = {
 
 assert.deepStrictEqual(make({message: 'ggg'}, error), {message: 'ggg'});
 assert.deepStrictEqual(make({message: 'ggg', stack: ['x']}, error), {message: 'ggg', stack: ['x']});
+
+const user = {
+    type: 'obj',
+    transform: v => ({...v, name: [v?.first, v?.last].filter(Boolean).join(' ')}),
+    props: {
+        name: 'str',
+    },
+};
+
+assert.deepStrictEqual(make({first: 'Jack', last: 'White'}, user), {name: 'Jack White'});
+assert.deepStrictEqual(make(null, user), {name: ''});
 ```
 
 ### union
@@ -376,8 +391,11 @@ assert.deepStrictEqual(make({message: 'ggg', stack: ['x']}, error), {message: 'g
 An object whose shape is determined by the value of one of its properties
 (a [discriminated union](https://zod.dev/?id=discriminated-unions)). The
 discriminator property is named by `prop` (default: `type`), and is always
-present in the output. When input doesn't match any option, the `default`
-option is used; when there is no valid `default` either, an error is thrown.
+present in the output as the matched option key. Each option's value is any
+expression, including the name of a registry type. When input doesn't match
+any option, the `default` option is used; when there is no valid `default`
+either, an error is thrown — ⚠️ the one case where input data, not just a bad
+schema, can throw; give the union a valid `default` to keep `make` total.
 
 ```js
 const types = {
