@@ -189,6 +189,10 @@ describe('make', function () {
             const expr = {type: 'union', prop: 'kind', options: {a: {v: 'str'}}};
             assert.throws(() => make({kind: 'x'}, expr), new Error(`Union type option not found: prop=kind, value=x, default=undefined`));
         });
+        it('should throw "Union type option not found" even when the discriminator cannot be coerced to a string', function () {
+            const expr = {type: 'union', prop: 'kind', options: {a: {v: 'str'}}};
+            assert.throws(() => make({kind: Object.create(null)}, expr), new Error(`Union type option not found: prop=kind, value=object, default=undefined`));
+        });
         it('should write the discriminator to the same property it was read from, even when [prop] is falsy', function () {
             const expr = {type: 'union', prop: '', options: {a: {v: 'str'}}};
             assert.deepStrictEqual(make({'': 'a', v: 'ggg'}, expr), {'': 'a', v: 'ggg'});
@@ -236,6 +240,12 @@ describe('make', function () {
                 ['__proto__', {admin: true}],
             ]);
             assert.deepStrictEqual(actual, expected);
+        });
+        it('should emit the matched option key, never the raw discriminator value', function () {
+            const expr = {type: 'union', prop: 'kind', options: {text: {value: 'str'}}};
+            assert.deepStrictEqual(make({kind: ['text'], value: 'x'}, expr), {kind: 'text', value: 'x'});
+            assert.deepStrictEqual(make({kind: new String('text'), value: 'x'}, expr), {kind: 'text', value: 'x'});
+            assert.deepStrictEqual(make({kind: {toString: () => 'text'}, value: 'x'}, expr), {kind: 'text', value: 'x'});
         });
         it('should write a __proto__ discriminator as an own property', function () {
             const input = JSON.parse('{"__proto__":"safe","name":"admin"}');

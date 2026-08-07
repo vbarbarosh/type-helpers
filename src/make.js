@@ -139,14 +139,15 @@ const standard_types = {
         // Here is a construction for objects. This thing called "Discriminated unions" in zod language
         // [options] could be replaced by [match] as in PHP or Rust
         const prop = params.prop ?? 'type';
-        let type = input?.[prop];
-        let expr2 = get_own(params.options, type);
+        // The output discriminator is always the matched option key, so raw input values never leak into the result.
+        let type = own_key(params.options, input?.[prop]);
+        let expr2 = type === undefined ? undefined : params.options[type];
         if (!expr2) {
-            type = params.default;
-            expr2 = get_own(params.options, type);
+            type = own_key(params.options, params.default);
+            expr2 = type === undefined ? undefined : params.options[type];
         }
         if (!expr2) {
-            throw new Error(`Union type option not found: prop=${prop}, value=${input?.[prop]}, default=${params.default}`);
+            throw new Error(`Union type option not found: prop=${prop}, value=${safe_str(input?.[prop], typeof input?.[prop])}, default=${safe_str(params.default, typeof params.default)}`);
         }
         return {[prop]: type, ...make(input, expr2, types)};
     },
@@ -164,6 +165,19 @@ function has_own(input, key)
     }
     catch (error) {
         return false;
+    }
+}
+
+// Coerce [key] into a property-key string and return it when it is an own
+// property of [input]. Keys whose string coercion throws match nothing.
+function own_key(input, key)
+{
+    try {
+        const tmp = `${key}`;
+        return (!!input && Object.hasOwn(input, tmp)) ? tmp : undefined;
+    }
+    catch (error) {
+        return undefined;
     }
 }
 
