@@ -22,6 +22,21 @@ describe('make', function () {
             const types = {a: {type: 'b'}, b: {type: 'a'}};
             assert.throws(() => make('', 'a', types), new Error('Circular type alias: a -> b -> a'));
         });
+        it('should support recursive types bounded by input', function () {
+            const types = {node: {label: 'str', children: {type: 'array', of: 'node'}}};
+            const actual = make({label: 'a', children: [{label: 'b'}, 'junk']}, 'node', types);
+            assert.deepStrictEqual(actual, {label: 'a', children: [
+                {label: 'b', children: []},
+                {label: '', children: []},
+            ]});
+        });
+        it('should throw "Type recursion too deep" when a type expands itself through defaults', function () {
+            const expected = new Error('Type recursion too deep: circular type or overly deep input');
+            assert.throws(() => make(null, 'a', {a: {b: 'a'}}), expected);
+            assert.throws(() => make(null, 'node', {node: {children: {type: 'array', of: 'node', min: 1}}}), expected);
+            // The depth counter unwinds with the throw, so the next call starts clean.
+            assert.strictEqual(make('x', 'str'), 'x');
+        });
         it('should throw "Invalid type" for unknown type names', function () {
             assert.throws(() => make('', 'strx'), new Error('Invalid type: strx'));
             assert.throws(() => make('', 'strx', {apple: 'str'}), new Error('Invalid type: strx'));

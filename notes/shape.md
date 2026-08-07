@@ -49,8 +49,9 @@ without parametric polymorphism:
 - **Recursion**: registry names can reference themselves —
   `node: {label: 'str', children: {type: 'array', of: 'node'}}` works, depth
   bounded by the input. Caveat: recursion must be well-founded through
-  defaults. `of: 'node', min: 1` diverges on `null` input (RangeError), because
-  the default of the type mentions the type itself.
+  defaults. `of: 'node', min: 1` cannot terminate on `null` input, because
+  the default of the type mentions the type itself; the depth cap in `make`
+  turns this into `Type recursion too deep` instead of a stack overflow.
 - **Bounded reuse**: aliases with topmost-wins override
   (`int_0_10: {type: 'int_0_100', max: 10}`) — single inheritance of
   parameters, flat, no diamond problems.
@@ -124,7 +125,7 @@ const types = {node: {label: 'str', children: {type: 'array', of: 'node'}}};
 make({label: 'a', children: [{label: 'b'}, 'junk']}, 'node', types);
 // -> {label: 'a', children: [{label: 'b', children: []}, {label: '', children: []}]}
 
-// 2. Non-well-founded recursion diverges (RangeError: stack size exceeded)
+// 2. Non-well-founded recursion is cut off (Error: Type recursion too deep)
 const bad = {node: {label: 'str', children: {type: 'array', of: 'node', min: 1}}};
 make(null, 'node', bad); // 💥
 

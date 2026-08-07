@@ -181,12 +181,28 @@ function own_key(input, key)
     }
 }
 
+// A type that expands itself through defaults ({a: {b: 'a'}}, or an array of
+// itself with min > 0) recurses forever; the alias-path guard only covers
+// name -> name alias chains. Every logical expansion level passes through
+// make(), so depth is capped here.
+const max_depth = 1024;
+let depth = 0;
+
 /**
  * Make values from spec. Kind of class/type factory.
  */
 function make(input, expr, types)
 {
-    return make_impl(input, expr, types, []);
+    if (depth >= max_depth) {
+        throw new Error('Type recursion too deep: circular type or overly deep input');
+    }
+    depth++;
+    try {
+        return make_impl(input, expr, types, []);
+    }
+    finally {
+        depth--;
+    }
 }
 
 function make_impl(input, expr, types, alias_path)
