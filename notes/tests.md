@@ -34,13 +34,12 @@ Deviations from the house style:
 
 ## Holes in make.test.js
 
-- **obj section gaps**: `obj` has dedicated transform-totality and
-  nullish-prop-expression regressions, but prop dropping and array-as-props
-  remain uncovered in that section.
-- **Remaining policy coverage**: array-as-props-source in `obj` still needs an
-  explicit decision/test. The enum transform regression pins the current
-  policy that an out-of-options `default` is returned as-is; `min > max` and
-  built-in shadowing now throw and are pinned by regressions.
+- **obj section gaps**: `obj` has dedicated transform-totality,
+  nullish-prop-expression, and array-as-props regressions, but prop dropping
+  remains uncovered in that section.
+- **Policy coverage**: array-as-props in `obj`, `min > max`, and built-in
+  shadowing are all decided and pinned by regressions; the enum transform
+  regression pins the as-is `default` policy.
 
 ## Verdict
 

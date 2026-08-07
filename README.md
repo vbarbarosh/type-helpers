@@ -347,7 +347,10 @@ assert.deepStrictEqual(make('foo', expr), []);
 An object with a predefined set of properties. Missing or invalid input
 properties are made into defaults; input properties not listed in `props`
 are dropped. A property marked with `optional: true` is omitted from the
-output when the input doesn't have it. The optional `transform(input)`
+output when the input doesn't have it. Props are read off `safe_obj(input)`,
+so any object — arrays included — is a valid props source (`['a', 'b']`
+satisfies `{0: 'str', length: 'int'}`); primitive input means all defaults.
+The optional `transform(input)`
 reshapes the props source before properties are read — handy for deriving
 new properties from old ones; its result passes through `safe_obj`, so
 returning a non-object just means an empty props source.

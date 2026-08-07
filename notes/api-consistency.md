@@ -44,8 +44,9 @@
    `typeof input === 'object' && input !== null`). This leaks into `make`:
    the `obj` type builds props off `safe_obj(input)`, so an **array input is
    treated as a props source** — `make(['a','b'], {0:'str', length:'int'})`
-   → `{"0":"a","length":2}` (verified). Same for `Map`/`Set`/boxed
-   primitives (own-prop lookup yields undefined → defaults, harmless).
+   → `{"0":"a","length":2}` (verified, pinned by an obj regression). Same for
+   `Map`/`Set`/boxed primitives (own-prop lookup yields undefined → defaults,
+   harmless).
 
 3. **`is_fn_ctor` is the only helper without an `edge_values` sweep.**
    Its tests are hand-picked true/false lists (`src/is_fn_ctor.js` test

@@ -4,8 +4,8 @@
 has 1,268 passing tests and 0 pending, with 100% reported coverage.*
 
 The library's rule ([shape.md](shape.md)) is: data normally does not error;
-schema-author mistakes do. One behavior decision and one documentation caveat
-remain.
+schema-author mistakes do. The two former open items below are decided and
+documented.
 
 ## 1. `obj` treats array input as a props source
 
@@ -14,8 +14,9 @@ Because `safe_obj` accepts arrays (see [api-consistency.md](api-consistency.md)
 `{"0":"a","length":2}`. This can be useful for index-keyed specs, but
 reading `length` as an object prop is surprising.
 
-Decide whether to preserve and pin this behavior or make `obj` reject arrays
-and return property defaults.
+Decision: preserved and pinned. Arrays remain valid props sources (index and
+`length` reads are regression-tested), README documents it, and Map/Set
+entries are not own props, so collection data yields defaults — also pinned.
 
 ## 2. `union` without `default` is data-dependent
 

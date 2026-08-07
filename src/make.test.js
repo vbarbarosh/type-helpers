@@ -217,6 +217,12 @@ describe('make', function () {
             const expr = {type: 'obj', props: {name: 'str'}, transform: () => null};
             assert.deepStrictEqual(make({}, expr), {name: ''});
         });
+        it('should read props off any object-typed input, arrays included', function () {
+            assert.deepStrictEqual(make(['a', 'b'], {0: 'str', length: 'int'}), {0: 'a', length: 2});
+            assert.deepStrictEqual(make(['a', 'b'], {name: 'str', count: 'int'}), {name: '', count: 0});
+            // Map/Set entries are not own props - collection data never leaks in
+            assert.deepStrictEqual(make(new Map([['name', 'x']]), {name: 'str'}), {name: ''});
+        });
         it('should throw "Empty expressions are not allowed" for a nullish prop expression', function () {
             assert.throws(() => make({}, {x: null}), new Error('Empty expressions are not allowed'));
             assert.throws(() => make({}, {type: 'obj', props: {x: undefined}}), new Error('Empty expressions are not allowed'));
