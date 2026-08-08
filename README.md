@@ -14,7 +14,7 @@ objects.
 
 ## 🎬 Demo
 
-https://github.com/user-attachments/assets/aba0ad7e-bc5e-4690-a34c-a5472590272f
+<video src="https://github.com/user-attachments/assets/aba0ad7e-bc5e-4690-a34c-a5472590272f" controls playsinline style="max-width:100%"></video>
 
 ## 💾 Installation
 
