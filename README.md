@@ -12,6 +12,10 @@ objects.
 <img src="img/cover.png" alt="@vbarbarosh/type-helpers — garbage in, well-typed values out">
 </p>
 
+## 🎬 Demo
+
+https://github.com/user-attachments/assets/aba0ad7e-bc5e-4690-a34c-a5472590272f
+
 ## 💾 Installation
 
 ```
