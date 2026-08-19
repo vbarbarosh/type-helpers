@@ -41,6 +41,20 @@ const edge_values = [
           - '12px'*1 -> NaN
           - parseInt('12px') -> 12
     `},
+    {label: "'\\ud800'", value: '\ud800', description: `
+        Lone high surrogate; invalid UTF-16 which cannot encode to UTF-8:
+          - '\\ud800'.isWellFormed() -> false
+          - encodeURIComponent('\\ud800') -> URIError
+          - new TextEncoder().encode('\\ud800') -> EF BF BD (U+FFFD)
+          - '😀'.slice(0, 1) -> lone high surrogate; the common source
+    `},
+    {label: "'\\udfff'", value: '\udfff'},
+    {label: "'\\udc00\\ud800'", value: '\udc00\ud800', description: `
+        Surrogate pair in reverse order; both halves stay lone surrogates.
+    `},
+    {label: "'a\\ud800b'", value: 'a\ud800b', description: `
+        Lone surrogate between normal characters; trim() and slice() keep it.
+    `},
     {label: 'null', value: null},
     {label: 'undefined', value: undefined},
     {label: 'true', value: true},

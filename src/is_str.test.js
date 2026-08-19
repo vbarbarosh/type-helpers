@@ -22,6 +22,10 @@ describe('is_str', function () {
                 case "'0x1F'":
                 case "'Infinity'":
                 case "'12px'":
+                case "'\\ud800'":
+                case "'\\udfff'":
+                case "'\\udc00\\ud800'":
+                case "'a\\ud800b'":
                     assert.strictEqual(is_str(item.value), true);
                     break;
                 default:
