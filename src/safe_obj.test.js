@@ -1,6 +1,7 @@
 const assert = require('assert');
 const edge_values = require('./edge_values');
 const safe_obj = require('./safe_obj');
+const {describe, it} = require('node:test');
 
 const empty_value = Symbol('empty_value for safe_obj');
 

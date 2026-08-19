@@ -1,5 +1,6 @@
 const assert = require('assert');
 const edge_values = require('./edge_values');
+const {describe, it} = require('node:test');
 
 describe('edge_values', function () {
     // Sweeps switch on labels; a reused label would silently inherit another

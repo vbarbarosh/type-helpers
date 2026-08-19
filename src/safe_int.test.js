@@ -1,6 +1,7 @@
 const assert = require('assert');
 const edge_values = require('./edge_values');
 const safe_int = require('./safe_int');
+const {describe, it} = require('node:test');
 
 // https://exploringjs.com/impatient-js/ch_numbers.html#converting-to-number
 //     https://exploringjs.com/js/book/ch_numbers.html#converting-to-number

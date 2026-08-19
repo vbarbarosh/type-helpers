@@ -1,6 +1,7 @@
 const assert = require('assert');
 const edge_values = require('./edge_values');
 const is_sym = require('./is_sym');
+const {describe, it} = require('node:test');
 
 describe('is_sym', function () {
     it('should accept no args', function () {

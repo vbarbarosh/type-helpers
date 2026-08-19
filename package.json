@@ -14,13 +14,7 @@
         "node": ">=18"
     },
     "scripts": {
-        "test": "nyc mocha src/**/*.test.js"
-    },
-    "nyc": {
-        "exclude": [
-            "**/*.test.js",
-            "src/edge_values.js"
-        ]
+        "test": "node --test --experimental-test-coverage --test-coverage-exclude='src/*.test.js' --test-coverage-exclude=src/edge_values.js 'src/*.test.js'"
     },
     "keywords": [
         "js",
@@ -35,8 +29,6 @@
         "url": "https://github.com/vbarbarosh/type-helpers/issues"
     },
     "devDependencies": {
-        "@vbarbarosh/node-helpers": "3.71.0",
-        "mocha": "^11.7.6",
-        "nyc": "^17.1.0"
+        "@vbarbarosh/node-helpers": "3.71.0"
     }
 }

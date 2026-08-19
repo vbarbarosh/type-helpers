@@ -1,6 +1,7 @@
 const assert = require('assert');
 const edge_values = require('./edge_values');
 const is_str = require('./is_str');
+const {describe, it} = require('node:test');
 
 describe('is_str', function () {
     it('should accept no args', function () {

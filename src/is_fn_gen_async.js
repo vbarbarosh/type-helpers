@@ -6,7 +6,7 @@ function is_fn_gen_async(input)
     return Object.getPrototypeOf(input) === Object.getPrototypeOf(x);
 }
 
-/* istanbul ignore next */
+/* node:coverage ignore next 3 */
 async function* x()
 {
 }

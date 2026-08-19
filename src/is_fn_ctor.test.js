@@ -1,5 +1,6 @@
 const assert = require('assert');
 const is_fn_ctor = require('./is_fn_ctor');
+const {describe, it} = require('node:test');
 
 describe('is_fn_ctor', function () {
     it('true', function () {

@@ -1,6 +1,7 @@
 const assert = require('assert');
 const edge_values = require('./edge_values');
 const is_fn_gen = require('./is_fn_gen');
+const {describe, it} = require('node:test');
 
 describe('is_fn_gen', function () {
     it('should accept no args', function () {

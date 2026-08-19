@@ -4,6 +4,7 @@ const is_num = require('./is_num');
 const is_str = require('./is_str');
 const make = require('./make');
 const safe_str = require('./safe_str');
+const {describe, it} = require('node:test');
 
 const SP = Symbol();
 
