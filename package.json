@@ -29,6 +29,6 @@
         "url": "https://github.com/vbarbarosh/type-helpers/issues"
     },
     "devDependencies": {
-        "@vbarbarosh/node-helpers": "3.71.0"
+        "@vbarbarosh/node-helpers": "3.78.0"
     }
 }
