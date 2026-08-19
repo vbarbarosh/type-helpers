@@ -22,6 +22,12 @@ describe('is_str', function () {
                 case "'0x1F'":
                 case "'Infinity'":
                 case "'12px'":
+                case "'0'":
+                case "' '":
+                case "'NaN'":
+                case "'1_000'":
+                case "'\\ufeff'":
+                case "'a\\0b'":
                 case "'\\ud800'":
                 case "'\\udfff'":
                 case "'\\udc00\\ud800'":

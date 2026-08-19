@@ -23,6 +23,9 @@ describe('safe_float', function () {
                     assert.strictEqual(safe_float(item.value, empty_value), empty_value);
                     break;
                 case "''":
+                case "'0'":
+                case "' '":
+                case "'\\ufeff'":
                 case 'false':
                 case '0':
                 case '-0':
@@ -35,6 +38,7 @@ describe('safe_float', function () {
                 case '-0.49':
                 case '-0.50':
                 case '-0.51':
+                case '0.1 + 0.2':
                 case '1e100':
                 case '1e-100':
                 case 'Number.MIN_VALUE':

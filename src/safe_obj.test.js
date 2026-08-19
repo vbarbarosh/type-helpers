@@ -22,8 +22,11 @@ describe('safe_obj', function () {
                 case '[]':
                 case "['5']":
                 case '[1, 2]':
+                case '[,,]':
                 case 'Math':
                 case 'Object.create(null)':
+                case '{valueOf: () => 5}':
+                case '{valueOf: throw, toString: throw}':
                 case 'new Number(5)':
                 case "new String('5')":
                 case 'new Boolean(false)':
@@ -31,6 +34,7 @@ describe('safe_obj', function () {
                 case 'new Date(NaN)':
                 case 'new Map([[1, 2]])':
                 case 'new Set([1])':
+                case 'new Uint8Array([1, 2])':
                 case 'Promise.resolve()':
                     assert.strictEqual(safe_obj(item.value, empty_value), item.value);
                     break;

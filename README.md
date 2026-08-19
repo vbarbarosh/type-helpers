@@ -492,7 +492,7 @@ For a real-world example — a factory for table column definitions — see
 JavaScript has a long tail of values that break naive conversions: `-0`,
 `NaN`, `Infinity`, `10n**100n`, `'0x1F'`, `'12px'`, `new Boolean(false)`,
 `Object.create(null)`, an unawaited `Promise`, … —
-[`edge_values`](src/edge_values.js) is a list of ~60 of them, designed to be
+[`edge_values`](src/edge_values.js) is a list of ~80 of them, designed to be
 swept through every function you write:
 
 ```js

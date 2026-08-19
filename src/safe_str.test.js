@@ -29,6 +29,12 @@ describe('safe_str', function () {
                 case "'0x1F'":
                 case "'Infinity'":
                 case "'12px'":
+                case "'0'":
+                case "' '":
+                case "'NaN'":
+                case "'1_000'":
+                case "'\\ufeff'":
+                case "'a\\0b'":
                 case "'\\ud800'":
                 case "'\\udfff'":
                 case "'\\udc00\\ud800'":
@@ -43,6 +49,7 @@ describe('safe_str', function () {
                 case '-0.49':
                 case '-0.50':
                 case '-0.51':
+                case '0.1 + 0.2':
                 case '0n':
                 case '10n**100n':
                 case '1e100':

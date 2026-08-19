@@ -13,6 +13,7 @@ describe('is_num_gt', function () {
                 case '0.49':
                 case '0.50':
                 case '0.51':
+                case '0.1 + 0.2':
                 case '1e100':
                 case '1e-100':
                 case 'Number.MIN_VALUE':

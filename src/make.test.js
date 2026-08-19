@@ -468,6 +468,12 @@ describe('make', function () {
                 case "'12px'":
                     assert.deepStrictEqual(actual, {bool: true, int: 0, float: 0, str: '12px'});
                     break;
+                case "'0'":
+                case "' '":
+                case "'NaN'":
+                case "'1_000'":
+                case "'\\ufeff'":
+                case "'a\\0b'":
                 case "'\\ud800'":
                 case "'\\udfff'":
                 case "'\\udc00\\ud800'":
@@ -497,6 +503,9 @@ describe('make', function () {
                     break;
                 case '-0.51':
                     assert.deepStrictEqual(actual, {bool: true, int: 0, float: -0.51, str: '-0.51'});
+                    break;
+                case '0.1 + 0.2':
+                    assert.deepStrictEqual(actual, {bool: true, int: 0, float: 0.1 + 0.2, str: '0.30000000000000004'});
                     break;
                 case '0n':
                 case '0':

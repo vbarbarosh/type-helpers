@@ -41,6 +41,34 @@ const edge_values = [
           - '12px'*1 -> NaN
           - parseInt('12px') -> 12
     `},
+    {label: "'0'", value: '0', description: `
+        Truthy string which converts to zero:
+          - !!'0' -> true
+          - '0'*1 -> 0
+    `},
+    {label: "' '", value: ' ', description: `
+        Whitespace-only string; truthy, but numeric conversions disagree:
+          - !!' ' -> true
+          - ' '*1 -> 0
+          - parseInt(' ') -> NaN
+    `},
+    {label: "'NaN'", value: 'NaN', description: `
+        The string which parses to NaN:
+          - Number('NaN') -> NaN
+    `},
+    {label: "'1_000'", value: '1_000', description: `
+        Numeric separator works only in literals:
+          - 1_000 -> 1000
+          - Number('1_000') -> NaN
+    `},
+    {label: "'\\ufeff'", value: '\ufeff', description: `
+        Byte order mark; invisible and truthy, but Number sees whitespace:
+          - Number('\\ufeff') -> 0
+          - '\\ufeff'.trim() -> ''
+    `},
+    {label: "'a\\0b'", value: 'a\0b', description: `
+        Embedded NUL character; valid UTF-16 with length 3, breaks C-string boundaries.
+    `},
     {label: "'\\ud800'", value: '\ud800', description: `
         Lone high surrogate; invalid UTF-16 which cannot encode to UTF-8:
           - '\\ud800'.isWellFormed() -> false
@@ -66,6 +94,11 @@ const edge_values = [
     {label: '-0.49', value: -0.49},
     {label: '-0.50', value: -0.50},
     {label: '-0.51', value: -0.51},
+    {label: '0.1 + 0.2', value: 0.1 + 0.2, description: `
+        Binary floats cannot store 0.3:
+          - 0.1 + 0.2 -> 0.30000000000000004
+          - 0.1 + 0.2 === 0.3 -> false
+    `},
     {label: '0n', value: 0n},
     {label: '10n**100n', value: 10n**100n},
     {label: '1e100', value: 1e100},
@@ -104,10 +137,24 @@ const edge_values = [
           - ['5']*1 -> 5
     `},
     {label: '[1, 2]', value: [1, 2]},
+    {label: '[,,]', value: [,,], description: `
+        Sparse array; length 2 with no elements:
+          - [,,].map(v => 1) -> [,,] (map skips holes)
+          - JSON.stringify([,,]) -> '[null,null]'
+    `},
     {label: 'Object.create(null)', value: Object.create(null), description: `
         An object without a prototype:
           - Object.create(null) + '' -> TypeError
           - Object.create(null).hasOwnProperty -> undefined
+    `},
+    {label: '{valueOf: () => 5}', value: {valueOf: () => 5}, description: `
+        An object which coerces to a number:
+          - ({valueOf: () => 5})*1 -> 5
+    `},
+    {label: '{valueOf: throw, toString: throw}', value: {valueOf() { throw new Error('valueOf'); }, toString() { throw new Error('toString'); }}, description: `
+        A poison object; any coercion throws:
+          - poison*1 -> Error
+          - poison + '' -> Error
     `},
     {label: 'new Number(5)', value: new Number(5)},
     {label: "new String('5')", value: new String('5')},
@@ -119,6 +166,11 @@ const edge_values = [
     {label: 'new Date(NaN)', value: new Date(NaN)},
     {label: 'new Map([[1, 2]])', value: new Map([[1, 2]])},
     {label: 'new Set([1])', value: new Set([1])},
+    {label: 'new Uint8Array([1, 2])', value: new Uint8Array([1, 2]), description: `
+        Array-like which is not an Array:
+          - Array.isArray(new Uint8Array([1, 2])) -> false
+          - JSON.stringify(new Uint8Array([1, 2])) -> '{"0":1,"1":2}'
+    `},
     {label: 'Promise.resolve()', value: Promise.resolve()},
     {label: 'function', value: function () {}},
     {label: 'function*', value: function* () {}},

@@ -16,6 +16,7 @@ describe('is_num', function () {
                 case '-0.49':
                 case '-0.50':
                 case '-0.51':
+                case '0.1 + 0.2':
                 case '1e100':
                 case '0':
                 case '-0':

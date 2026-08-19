@@ -22,6 +22,9 @@ describe('safe_int', function () {
             it(item.label, function () {
                 switch (item.label) {
                 case "''":
+                case "'0'":
+                case "' '":
+                case "'\\ufeff'":
                 case 'false':
                 case '0':
                 case '0n':
@@ -34,6 +37,7 @@ describe('safe_int', function () {
                 case '-0.49':
                 case '-0.50':
                 case '-0.51':
+                case '0.1 + 0.2':
                     assert.strictEqual(safe_int(item.value, empty_value), 0);
                     break;
                 case 'true':

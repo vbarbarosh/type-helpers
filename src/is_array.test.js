@@ -13,6 +13,7 @@ describe('is_array', function () {
                 case '[]':
                 case "['5']":
                 case '[1, 2]':
+                case '[,,]':
                     assert.strictEqual(is_array(item.value), true);
                     break;
                 default:
