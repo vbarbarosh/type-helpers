@@ -582,6 +582,8 @@ assert.strictEqual(is_num('15.55'), false);
 
 ## 🔗 Related
 
+- [Пять состояний, которых не бывает, а твой код их разрешает](https://www.youtube.com/watch?v=mXH8U400DwU)
+
 ### 📚 Reading
 
 * https://medium.com/hoppinger/type-driven-development-for-single-page-applications-bf8ee98d48e2
