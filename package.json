@@ -10,8 +10,9 @@
         "src",
         "!src/*.test.js"
     ],
+    "sideEffects": false,
     "engines": {
-        "node": ">=18"
+        "node": ">=22"
     },
     "scripts": {
         "test": "node --test --experimental-test-coverage --test-coverage-exclude='src/*.test.js' --test-coverage-exclude=src/edge_values.js 'src/*.test.js'"
@@ -28,7 +29,5 @@
     "bugs": {
         "url": "https://github.com/vbarbarosh/type-helpers/issues"
     },
-    "devDependencies": {
-        "@vbarbarosh/node-helpers": "3.78.0"
-    }
+    "homepage": "https://github.com/vbarbarosh/type-helpers#readme"
 }

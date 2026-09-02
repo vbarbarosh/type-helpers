@@ -1,6 +1,6 @@
 # API design & consistency
 
-*Part of the 2026-07-04 analysis; refreshed 2026-07-10.*
+*Part of the 2026-07-04 analysis; refreshed 2026-07-10 and 2026-09-02.*
 
 ## What is consistent (and deliberately so)
 
@@ -21,6 +21,15 @@
   `safe_float`, all pinned by tests.
 - Built-in/custom type registries, union options, and enum transform maps use
   own-property lookup; inherited names are not treated as schema entries.
+  Since 2026-09-02 the same holds for reads *from input*: `obj` props and
+  the `union` discriminator are own properties only.
+- Reserved modifiers (`nullable`, `before`, `after`, `optional`) mean the
+  same thing in every expression form — explicit, props-shorthand, and the
+  `type: [...]` escape hatch. A prop literally named like one needs the
+  explicit `{type: 'obj', props}` form, the same way a prop named `type`
+  needs the escape hatch.
+- Registry entries accept one more shape: a bare type name (`id: 'str'`).
+  Anything that is not a string, function, or object is a schema error.
 - Function-kind detection: `is_fn_gen`, `is_fn_async`, and `is_fn_gen_async`
   share one mechanism — a `typeof input === 'function'` guard plus prototype
   identity against a local probe function. `Object.setPrototypeOf` can still

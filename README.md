@@ -85,6 +85,7 @@ properties:
 | `nullable` | `boolean`               | If it evaluates to `true`, then the value could be `null`.                                                             |
 | `before`   | `function`              | A preprocessor for input data: `before(input)`.                                                                        |
 | `after`    | `function`              | A postprocessor for output data: `after(out)`.                                                                        |
+| `optional` | `boolean`               | Only meaningful for a property of `obj`: when `true`, the property is omitted from the output if the input lacks it.  |
 
 Depending on the type, an expression might have more properties. For example,
 `{type: 'int'}` expects `min`, `max`, and `default`, while `{type: 'enum'}`
@@ -92,7 +93,11 @@ expects an `options` array.
 
 As syntactic sugar, the expression could be a `string`, a `function`, or an
 `object` without the **reserved** property `type`. In that case, it is treated
-as `{type: expr}`.
+as `{type: expr}`. The other reserved properties keep their meaning in the
+object shorthand — `{nullable: true, w: 'int'}` is a nullable object with one
+prop, not an object with two — so a property literally named `nullable`,
+`before`, `after`, or `optional` needs the explicit
+`{type: 'obj', props: {...}}` form.
 
 | Type       | Example                                                                                              |
 |------------|------------------------------------------------------------------------------------------------------|
@@ -147,8 +152,8 @@ assert.deepStrictEqual(
     {type: '', width: 0});
 ```
 
-`nullable`, `before`, and `after` remain expression modifiers in this form;
-they are not emitted as properties of the resulting object.
+`nullable`, `before`, `after`, and `optional` remain expression modifiers in
+this form; they are not emitted as properties of the resulting object.
 
 ## 📦 Built-in types
 
@@ -261,9 +266,10 @@ assert.strictEqual(make(Infinity, 'float'), Number.MAX_VALUE);
 ```
 
 Strings are returned as is; finite numbers, booleans, and bigints are
-stringified (`-0` → `'0'`); everything else — including `NaN` and
-`±Infinity` — makes `default`. Objects and arrays never leak into strings
-via implicit coercion.
+stringified via `toString()` (`-0` → `'0'`, `1e21` → `'1e+21'`,
+`1e-7` → `'1e-7'`); everything else — including `NaN` and `±Infinity` —
+makes `default`. Objects and arrays never leak into strings via implicit
+coercion.
 
 ```js
 assert.strictEqual(make(15.55, 'str'), '15.55');
@@ -278,9 +284,11 @@ assert.strictEqual(make(Infinity, 'str'), '');
 {type: 'enum', options: [], default: 'foo', transform: v => v, nullable: false, before: input => input, after: out => out}
 ```
 
-Returns input when it is one of `options`; otherwise returns `default`
-(or the first option when no `default` was given) — ⚠️ `default` is returned
-as-is, without being checked against `options`. The optional `transform`
+Returns input when it is one of `options` (SameValueZero, like
+`Array.prototype.includes`: `NaN` can be an option, and `-0` matches `0` and
+is returned as `-0`); otherwise returns `default` (or the first option when
+no `default` was given) — ⚠️ `default` is returned as-is, without being
+checked against `options`. The optional `transform`
 (a function or a `{from: to}` object) is applied to input before the lookup —
 handy for migrating renamed values.
 
@@ -351,9 +359,13 @@ assert.deepStrictEqual(make('foo', expr), []);
 An object with a predefined set of properties. Missing or invalid input
 properties are made into defaults; input properties not listed in `props`
 are dropped. A property marked with `optional: true` is omitted from the
-output when the input doesn't have it. Props are read off `safe_obj(input)`,
-so any object — arrays included — is a valid props source (`['a', 'b']`
+output when the input doesn't have it. Props are read off `safe_obj(input)`
+as **own** properties only — `{}` never supplies `Object.prototype` members
+such as `constructor` or `toString`, whatever the prop type — so any
+object — arrays included — is a valid props source (`['a', 'b']`
 satisfies `{0: 'str', length: 'int'}`); primitive input means all defaults.
+⚠️ The "never throws on data" guarantee is for plain data: a live object
+whose getter or `Proxy` trap throws propagates that error.
 The optional `transform(input)`
 reshapes the props source before properties are read — handy for deriving
 new properties from old ones; its result passes through `safe_obj`, so
@@ -397,8 +409,9 @@ assert.deepStrictEqual(make(null, user), {name: ''});
 
 An object whose shape is determined by the value of one of its properties
 (a [discriminated union](https://zod.dev/?id=discriminated-unions)). The
-discriminator property is named by `prop` (default: `type`), and is always
-present in the output as the matched option key. Each option's value is any
+discriminator property is named by `prop` (default: `type`), is read as an
+own property of the input, and is always present in the output as the matched
+option key. `options` is required (a schema error otherwise). Each option's value is any
 expression, including the name of a registry type. When input doesn't match
 any option, the `default` option is used; when there is no valid `default`
 either, an error is thrown — ⚠️ the one case where input data, not just a bad
@@ -437,7 +450,8 @@ assert.deepStrictEqual(make({kind: 'submit'}, 'widget', types), {kind: 'submit',
 
 The third argument of `make` is a registry of user-defined types. Each entry
 is either a full expression, a plain object (a set of props for
-`{type: 'obj'}`), or a function. Registry names must not collide with
+`{type: 'obj'}`), a function, or the name of another type (`id: 'str'` is
+`id: {type: 'str'}`). Registry names must not collide with
 built-in type names — built-ins always win, so a registry entry named like
 one throws (`Custom type shadows built-in: int`):
 
@@ -463,7 +477,12 @@ assert.deepStrictEqual(make({top: 5}, 'position', types), {top: '5px', left: '0'
 ```
 
 Custom types can reference each other (see the `tabs`/`tab` example in
-[Motivation](#-motivation)), and a function type receives the full expression
+[Motivation](#-motivation)), including recursively —
+`node: {label: 'str', children: {type: 'array', of: 'node'}}` — as long as
+the recursion bottoms out through defaults. Expansion is capped at 1,024
+nested `make` calls (roughly 250 levels of such a `node` tree); deeper input
+or a type that expands itself forever throws `Type recursion too deep`.
+A function type receives the full expression
 as its second argument, so it can declare parameters of its own:
 
 ```js
@@ -559,9 +578,9 @@ Type predicates: each takes a single value and returns a `boolean`.
 |------------------------------------------------|------------------------------------------------------------------|
 | [`is_array`](src/is_array.js)                  | arrays                                                          |
 | [`is_bool`](src/is_bool.js)                    | `true` and `false` only                                         |
-| [`is_empty`](src/is_empty.js)                  | `null`, `undefined`, falsy values, `[]`, objects without own enumerable string keys — ⚠️ non-empty `Map`/`Set` count as empty |
+| [`is_empty`](src/is_empty.js)                  | `null`, `undefined`, falsy values, `[]`, and any object without own enumerable string keys — ⚠️ so a non-empty `Map`/`Set`, a `Date`, a `RegExp`, or a `Promise` all count as empty |
 | [`is_fn`](src/is_fn.js)                        | functions of any kind (incl. classes and arrows)                |
-| [`is_fn_async`](src/is_fn_async.js)            | `async function` only                                           |
+| [`is_fn_async`](src/is_fn_async.js)            | `async function` and `async` arrows only (not async generators)  |
 | [`is_fn_ctor`](src/is_fn_ctor.js)              | functions which could be called with `new`                      |
 | [`is_fn_gen`](src/is_fn_gen.js)                | `function*` only                                                |
 | [`is_fn_gen_async`](src/is_fn_gen_async.js)    | `async function*` only                                          |

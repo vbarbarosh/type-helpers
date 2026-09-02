@@ -86,7 +86,8 @@ const standard_types = {
         }, types);
         let out;
         if (is_array(input)) {
-            out = input.map(v => make(v, conf.of, types));
+            // Array.from visits holes (map skips them), so sparse input yields defaults, not holes
+            out = Array.from(input, v => make(v, conf.of, types));
         }
         else if (conf.min > 0) {
             out = [make(input, conf.of, types)];
@@ -102,7 +103,7 @@ const standard_types = {
     // {type: 'tuple', items: [], nullable: false, before: input => input, after: out => out}
     tuple: function (input, params, types) {
         if (!is_array(params.items) || params.items.length === 0) {
-            throw new Error('[type=tuple] should have at least one option');
+            throw new Error('[type=tuple] should have at least one item');
         }
         const values = is_array(input) ? input : [];
         return params.items.map((v,i) => make(values[i], v, types));
@@ -129,12 +130,18 @@ const standard_types = {
     },
     // {type: 'obj', props: {...}, transform: v => v, nullable: false, before: input => input, after: out => out}
     obj: function (input, params, types) {
+        if (params.transform && !is_fn(params.transform)) {
+            throw new Error('[type=obj] transform should be a function');
+        }
         const value_obj = safe_obj(params.transform ? params.transform(input) : input);
         return Object.fromEntries(Object.entries(params.props||{}).map(function ([k, v]) {
-            if (v?.optional && value_obj[k] === undefined) {
+            // Own properties only: `{}` must never supply Object.prototype members
+            // (constructor, toString, ...) to raw/any/function-typed props.
+            const value = get_own(value_obj, k);
+            if (v?.optional && value === undefined) {
                 return null;
             }
-            return [k, make(value_obj[k], v, types)];
+            return [k, make(value, v, types)];
         }).filter(v => v));
     },
     // {type: 'union', prop: 'kind', options: {...}, nullable: false, before: input => input, after: out => out}
@@ -142,16 +149,21 @@ const standard_types = {
         // https://zod.dev/?id=discriminated-unions
         // Here is a construction for objects. This thing called "Discriminated unions" in zod language
         // [options] could be replaced by [match] as in PHP or Rust
+        if (!params.options || typeof params.options !== 'object') {
+            throw new Error('[type=union] should have options defined');
+        }
         const prop = params.prop ?? 'type';
+        // Own property only, so `{}` never matches an option through Object.prototype
+        const value = get_own(input, prop);
         // The output discriminator is always the matched option key, so raw input values never leak into the result.
-        let type = own_key(params.options, input?.[prop]);
+        let type = own_key(params.options, value);
         let expr2 = type === undefined ? undefined : params.options[type];
         if (!expr2) {
             type = own_key(params.options, params.default);
             expr2 = type === undefined ? undefined : params.options[type];
         }
         if (!expr2) {
-            throw new Error(`Union type option not found: prop=${prop}, value=${safe_str(input?.[prop], typeof input?.[prop])}, default=${safe_str(params.default, typeof params.default)}`);
+            throw new Error(`Union type option not found: prop=${prop}, value=${safe_str(value, typeof value)}, default=${safe_str(params.default, typeof params.default)}`);
         }
         return {[prop]: type, ...make(input, expr2, types)};
     },
@@ -169,6 +181,18 @@ function has_own(input, key)
     }
     catch (error) {
         return false;
+    }
+}
+
+// Render a schema value for an error message; the rendering itself must not
+// throw (Symbol, Object.create(null), poison objects).
+function type_label(value)
+{
+    try {
+        return String(value);
+    }
+    catch (error) {
+        return typeof value;
     }
 }
 
@@ -229,12 +253,15 @@ function make_impl(input, expr, types, alias_path)
     }
 
     // 🩼 When `expr` is an object, it is the same as `{type: 'obj', props: ...}`, unless it has `type` property.
+    //    Reserved modifiers stay modifiers here (`optional` was already read by the enclosing obj);
+    //    a prop with one of these names needs the explicit {type: 'obj', props: {...}} form.
     if (!('type' in expr)) {
-        return make(input, {type: 'obj', props: expr}, types);
+        const {nullable, before, after, optional, ...props} = expr;
+        return make(input, {type: 'obj', props, nullable, before, after}, types);
     }
     // 🩼 A way to remove special meaning from `type` property is to wrap its value into array
     if (is_array(expr.type)) {
-        const {type, nullable, before, after, ...props} = expr;
+        const {type, nullable, before, after, optional, ...props} = expr;
         return make_impl(input, {
             type: 'obj',
             props: {type: type[0], ...props},
@@ -260,7 +287,7 @@ function make_impl(input, expr, types, alias_path)
         return convert(input => expr.type(input, expr, types));
     }
 
-    const custom_type = get_own(types, expr.type);
+    let custom_type = get_own(types, expr.type);
     if (custom_type) {
         if (is_fn(custom_type)) {
             return convert(input => custom_type(input, expr, types));
@@ -268,6 +295,13 @@ function make_impl(input, expr, types, alias_path)
         if (is_array(custom_type)) {
             // 💎 Could be a tuple
             throw new Error('Type defined as array');
+        }
+        if (is_str(custom_type)) {
+            // An alias by name: {id: 'str'} is {id: {type: 'str'}}
+            custom_type = {type: custom_type};
+        }
+        if (typeof custom_type !== 'object') {
+            throw new Error(`Invalid custom type: ${type_label(expr.type)}`);
         }
         if ('type' in custom_type) {
             if (alias_path.includes(expr.type)) {
@@ -285,7 +319,7 @@ function make_impl(input, expr, types, alias_path)
         return make(input, custom_type, types);
     }
 
-    throw new Error(`Invalid type: ${expr.type}`);
+    throw new Error(`Invalid type: ${type_label(expr.type)}`);
 
     function convert(fn) {
         const input2 = before(input);

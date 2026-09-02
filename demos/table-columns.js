@@ -1,14 +1,11 @@
-const cli = require('@vbarbarosh/node-helpers/src/cli');
-const format_date_human = require('@vbarbarosh/node-helpers/src/format_date_human');
-const ignore = require('@vbarbarosh/node-helpers/src/ignore');
 const is_fn = require('../src/is_fn');
 const make = require('../src/make');
 
 let next_uid = 1;
 
-cli(main);
+main();
 
-async function main()
+function main()
 {
     console.log(make_columns([
         {label: '', component: 'page-workspace-banner-sizes-star-td', class: 'c'},
@@ -69,3 +66,13 @@ function make_columns(input)
 // slot: column.slot || null,
 // component: column.component || null,
 // component_td: column.component_td || (column.component && column.component.endsWith('-td') ? column.component : null),
+
+function ignore()
+{
+}
+
+function format_date_human(d)
+{
+    const dd = v => `${v}`.padStart(2, '0');
+    return `${d.getFullYear()}/${dd(d.getMonth() + 1)}/${dd(d.getDate())} ${dd(d.getHours())}:${dd(d.getMinutes())}:${dd(d.getSeconds())}`;
+}

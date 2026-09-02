@@ -51,6 +51,34 @@ describe('make', function () {
             assert.throws(() => make('', 'constructor'), new Error('Invalid type: constructor'));
             assert.strictEqual(make('foo', 'constructor', {constructor: v => `[${v}]`}), '[foo]');
         });
+        it('should accept a string registry entry as an alias by name', function () {
+            assert.strictEqual(make(5, 'id', {id: 'str'}), '5');
+            assert.strictEqual(make('7', 'id', {id: 'uint', uint: {type: 'int', min: 0}}), 7);
+            assert.throws(() => make(5, 'id', {id: 'id'}), new Error('Circular type alias: id -> id'));
+        });
+        it('should throw "Invalid custom type" for registry entries which are not expressions', function () {
+            assert.throws(() => make(5, 'id', {id: 5}), new Error('Invalid custom type: id'));
+            assert.throws(() => make(5, 'id', {id: true}), new Error('Invalid custom type: id'));
+        });
+        it('should render unprintable type names in "Invalid type" instead of throwing a TypeError', function () {
+            assert.throws(() => make('', {type: Symbol('q')}), new Error('Invalid type: Symbol(q)'));
+            assert.throws(() => make('', {type: Object.create(null)}), new Error('Invalid type: object'));
+        });
+        it('should treat reserved modifiers as modifiers in the object shorthand', function () {
+            assert.strictEqual(make(null, {nullable: true, a: 'int'}), null);
+            assert.deepStrictEqual(make({}, {nullable: true, a: 'int'}), {a: 0});
+            assert.deepStrictEqual(make({a: 1}, {a: 'int', before: () => ({a: 7})}), {a: 7});
+            assert.deepStrictEqual(make({a: 1}, {a: 'int', after: out => ({...out, b: 1})}), {a: 1, b: 1});
+            // optional is honored by the enclosing obj and never becomes a prop
+            assert.deepStrictEqual(make({}, {x: {a: 'int', optional: true}}), {});
+            assert.deepStrictEqual(make({x: {}}, {x: {a: 'int', optional: true}}), {x: {a: 0}});
+            // a prop named like a modifier needs the explicit form
+            assert.deepStrictEqual(make({after: 2}, {type: 'obj', props: {after: 'int'}}), {after: 2});
+        });
+        it('should strip optional from props when type is escaped as an object property', function () {
+            assert.deepStrictEqual(make({}, {x: {type: ['str'], optional: true}}), {});
+            assert.deepStrictEqual(make({x: {type: 'q'}}, {x: {type: ['str'], optional: true}}), {x: {type: 'q'}});
+        });
         it('should accept function', function () {
             const actual = make('foo', v => `[${v}]`);
             assert.deepStrictEqual(actual, '[foo]');
@@ -190,6 +218,13 @@ describe('make', function () {
             assert.deepStrictEqual(make(null, {type: 'array', of: 'float', min: 1}), [0], 'array of float, min=1');
             assert.deepStrictEqual(make(null, {type: 'array', of: 'str', min: 1}), [''], 'array of str, min=1');
         });
+        it('should fill sparse-array holes with defaults, never reproduce them', function () {
+            const expr = {type: 'array', of: 'int'};
+            assert.deepStrictEqual(make([,,], expr), [0, 0]);
+            assert.deepStrictEqual(make([,1,], expr), [0, 1]);
+            assert.ok(0 in make([,,], expr));
+            assert.deepStrictEqual(make({a: [,,]}, {a: {type: 'array', of: 'str'}}), {a: ['', '']});
+        });
         it('array of bool, min=1', function () {
             assert.deepStrictEqual(make([0, -1, 'a'], {type: 'array', of: 'bool'}), [false, true, true], 'array of bool, min=1');
             assert.deepStrictEqual(make('a', {type: 'array', of: 'int'}), [], 'array of int');
@@ -198,8 +233,9 @@ describe('make', function () {
         });
     });
     describe('built-in types • tuple', function () {
-        it('should throw "[type=tuple] should have at least one option"', function () {
-            assert.throws(() => make(null, 'tuple'), new Error('[type=tuple] should have at least one option'));
+        it('should throw "[type=tuple] should have at least one item"', function () {
+            assert.throws(() => make(null, 'tuple'), new Error('[type=tuple] should have at least one item'));
+            assert.throws(() => make(null, {type: 'tuple', items: []}), new Error('[type=tuple] should have at least one item'));
         });
     });
     describe('built-in types • tags', function () {
@@ -231,14 +267,33 @@ describe('make', function () {
             // Map/Set entries are not own props - collection data never leaks in
             assert.deepStrictEqual(make(new Map([['name', 'x']]), {name: 'str'}), {name: ''});
         });
+        it('should read only own input properties, never Object.prototype members', function () {
+            assert.deepStrictEqual(make({}, {constructor: 'raw', toString: 'any'}), {constructor: undefined, toString: undefined});
+            assert.deepStrictEqual(make({}, {hasOwnProperty: v => typeof v}), {hasOwnProperty: 'undefined'});
+            assert.deepStrictEqual(make({}, {toString: {type: 'str', optional: true}}), {});
+            assert.deepStrictEqual(make(Object.create({name: 'inherited'}), {name: 'str'}), {name: ''});
+            assert.deepStrictEqual(make({name: 'own'}, {name: 'str'}), {name: 'own'});
+        });
+        it('should throw "[type=obj] transform should be a function"', function () {
+            assert.throws(() => make({}, {type: 'obj', props: {a: 'int'}, transform: 'zz'}), new Error('[type=obj] transform should be a function'));
+        });
         it('should throw "Empty expressions are not allowed" for a nullish prop expression', function () {
             assert.throws(() => make({}, {x: null}), new Error('Empty expressions are not allowed'));
             assert.throws(() => make({}, {type: 'obj', props: {x: undefined}}), new Error('Empty expressions are not allowed'));
         });
     });
     describe('built-in types • union', function () {
+        it('should throw "[type=union] should have options defined"', function () {
+            assert.throws(() => make(null, 'union'), new Error('[type=union] should have options defined'));
+            assert.throws(() => make(null, {type: 'union', options: 'a'}), new Error('[type=union] should have options defined'));
+        });
         it('should throw "Union type option not found"', function () {
-            assert.throws(() => make(null, 'union'), new Error(`Union type option not found: prop=type, value=undefined, default=undefined`));
+            assert.throws(() => make(null, {type: 'union', options: {}}), new Error(`Union type option not found: prop=type, value=undefined, default=undefined`));
+        });
+        it('should read the discriminator as an own property only', function () {
+            const expr = {type: 'union', prop: 'kind', default: 'safe', options: {safe: {name: 'str'}, admin: {name: 'str'}}};
+            assert.deepStrictEqual(make(Object.create({kind: 'admin'}), expr), {kind: 'safe', name: ''});
+            assert.deepStrictEqual(make({kind: 'admin'}, expr), {kind: 'admin', name: ''});
         });
         it('should include the input value in the error message', function () {
             const expr = {type: 'union', prop: 'kind', options: {a: {v: 'str'}}};
@@ -550,6 +605,28 @@ describe('make', function () {
                     assert.deepStrictEqual(actual, {bool: true, int: 0, float: 0, str: ''});
                     break;
                 }
+            });
+        });
+    });
+    describe('should handle edge values • composite types', function () {
+        // Composite types are never fed edge values elsewhere; here the claim is
+        // only the library-wide one: data does not throw, and outputs are fixed points.
+        const composites = {
+            'array of int': {type: 'array', of: 'int'},
+            'array of int, min=1': {type: 'array', of: 'int', min: 1},
+            'tuple': {type: 'tuple', items: ['int', 'str']},
+            'tags': {type: 'tags', options: ['foo', 'bar']},
+            'obj': {a: 'int', b: {type: 'str', optional: true}},
+            'union': {type: 'union', prop: 'kind', default: 'a', options: {a: {v: 'int'}, b: {v: 'str'}}},
+        };
+        Object.entries(composites).forEach(function ([name, expr]) {
+            describe(name, function () {
+                edge_values.forEach(function (item) {
+                    it(item.label, function () {
+                        const out = make(item.value, expr);
+                        assert.deepStrictEqual(make(out, expr), out);
+                    });
+                });
             });
         });
     });

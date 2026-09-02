@@ -37,9 +37,9 @@ git commit -m "release v$version"
 # Create a tag
 git tag v$version
 
+# Publish package on npm first: a failed publish leaves only a local tag behind
+npm publish
+
 # Submit changes to github
 git push
 git push --tags
-
-# Publish package on npm
-npm publish

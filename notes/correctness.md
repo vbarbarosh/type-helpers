@@ -1,7 +1,10 @@
 # Correctness & edge cases
 
-*Current snapshot as of 2026-08-07; see [overview.md](overview.md). The suite
-has 1,337 passing tests and 0 pending, with 100% reported coverage.*
+*Current snapshot as of 2026-09-02; see [overview.md](overview.md). The suite
+has 2,100 passing tests and 0 skipped, with 100% reported coverage. Defects
+found and fixed on 2026-09-02 (sparse-array holes, prototype-chain prop
+reads, half-honored shorthand modifiers, string registry entries, several
+error messages) are catalogued in [audit-2026-09-02.md](audit-2026-09-02.md).*
 
 The library's rule ([shape.md](shape.md)) is: data normally does not error;
 schema-author mistakes do. The two former open items below are decided and
@@ -44,3 +47,9 @@ and README carries the same caveat in its union section.
   strings such as `'12px'` are rejected.
 - `str` never stringifies objects or arrays, preventing accidental
   `[object Object]` leakage.
+- `obj` and `union` read input properties as own properties only; a `{}`
+  input never supplies `Object.prototype` members. Live objects with throwing
+  getters or Proxy traps still propagate their errors — the totality claim
+  is for plain data, and README says so.
+- Sparse arrays are filled with defaults (`[,,]` → `[0, 0]` for
+  `array of int`), never reproduced as holes.

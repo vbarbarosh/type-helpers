@@ -1,8 +1,9 @@
 # Improvement plan
 
-*Current remaining work as of 2026-08-07. Completed items were removed; Git
-history and regression tests preserve their rationale. All behavior decisions
-are made and pinned; what remains is optional test breadth and packaging.*
+*Current remaining work as of 2026-09-02. Completed items were removed; Git
+history, regression tests, and [audit-2026-09-02.md](audit-2026-09-02.md)
+preserve their rationale. All behavior decisions are made and pinned; what
+remains is optional test breadth and packaging.*
 
 ## Phase 1 — test debt
 
@@ -12,7 +13,12 @@ are made and pinned; what remains is optional test breadth and packaging.*
 ## Phase 2 — packaging
 
 2. Add TypeScript declarations for `make` and deep-required helpers.
-3. Remove the empty `dist/` directory.
+3. Consider a `code` property (`E_SCHEMA` / `E_DATA`) on errors thrown by
+   `make`, so callers can let schema errors crash while catching the two
+   data-dependent ones (union without default, recursion depth) without
+   matching on message text.
+4. A `CHANGELOG.md`; tags and commit messages are descriptive enough to
+   generate one.
 
 ## Explicitly deferred features
 
