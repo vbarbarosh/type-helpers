@@ -5,6 +5,7 @@ const is_str = require('./is_str');
 const make = require('./make');
 const safe_str = require('./safe_str');
 const {describe, it} = require('node:test');
+const {spawnSync} = require('node:child_process');
 
 const SP = Symbol();
 
@@ -38,6 +39,58 @@ describe('make', function () {
             assert.throws(() => make(null, 'node', {node: {children: {type: 'array', of: 'node', min: 1}}}), expected);
             // The depth counter unwinds with the throw, so the next call starts clean.
             assert.strictEqual(make('x', 'str'), 'x');
+        });
+        it('should cap the depth at the same level however a recursive type is written', function () {
+            const expected = new Error('Type recursion too deep: circular type or overly deep input');
+            const nest = (leaf, wrap, levels) => {
+                let out = leaf;
+                for (let i = 1; i < levels; i++) {
+                    out = wrap(out);
+                }
+                return out;
+            };
+            const tree = levels => nest({label: 'x', children: []}, v => ({label: 'n', children: [v]}), levels);
+            const as_props = {node: {label: 'str', children: {type: 'array', of: 'node'}}};
+            const as_obj = {node: {type: 'obj', props: {label: 'str', children: {type: 'array', of: 'node'}}}};
+            // An object and its array are two levels of depth: 127 levels of such a tree fit under the cap of 256
+            assert.deepStrictEqual(make(tree(127), 'node', as_props), tree(127));
+            assert.deepStrictEqual(make(tree(127), 'node', as_obj), tree(127));
+            assert.throws(() => make(tree(128), 'node', as_props), expected);
+            assert.throws(() => make(tree(128), 'node', as_obj), expected);
+            // An array of arrays is one level of depth each
+            const arrays = levels => nest([], v => [v], levels);
+            assert.deepStrictEqual(make(arrays(254), 'a', {a: {type: 'array', of: 'a'}}), arrays(254));
+            assert.throws(() => make(arrays(255), 'a', {a: {type: 'array', of: 'a'}}), expected);
+        });
+        it('should throw "Type recursion too deep", never a stack overflow, in a fresh process', function () {
+            // A fresh process is the worst case: frames are larger before the code is optimized.
+            // Each case gets 5,000 levels of input, from an empty stack and from 2,000 frames deep.
+            const script = `
+                const make = require(${JSON.stringify(require.resolve('./make'))});
+                const nest = (leaf, wrap) => { let out = leaf; for (let i = 0; i < 5000; i++) out = wrap(out); return out; };
+                const tree = nest({label: 'x', children: []}, v => ({label: 'n', children: [v]}));
+                const cases = {
+                    props: () => make(tree, 'node', {node: {label: 'str', children: {type: 'array', of: 'node'}}}),
+                    obj: () => make(tree, 'node', {node: {type: 'obj', props: {label: 'str', children: {type: 'array', of: 'node'}}}}),
+                    array: () => make(nest([], v => [v]), 'a', {a: {type: 'array', of: 'a'}}),
+                    fn: () => make(tree, 'node', {node: (v, expr, types) => ({children: make(v && v.children, {type: 'array', of: 'node'}, types)})}),
+                    defaults: () => make(null, 'a', {a: {b: 'a'}}),
+                };
+                const down = (frames, fn) => frames > 0 ? down(frames - 1, fn) : fn();
+                try {
+                    down(+process.argv[2], cases[process.argv[1]]);
+                    console.log('no error');
+                }
+                catch (error) {
+                    console.log(error.message);
+                }
+            `;
+            ['props', 'obj', 'array', 'fn', 'defaults'].forEach(function (name) {
+                [0, 2000].forEach(function (frames) {
+                    const actual = spawnSync(process.execPath, ['-e', script, name, String(frames)], {encoding: 'utf8'}).stdout.trim();
+                    assert.strictEqual(actual, 'Type recursion too deep: circular type or overly deep input', `${name}, ${frames} frames deep`);
+                });
+            });
         });
         it('should throw "Invalid type" for unknown type names', function () {
             assert.throws(() => make('', 'strx'), new Error('Invalid type: strx'));
@@ -98,6 +151,7 @@ describe('make', function () {
                 {type: 'position', before: v => (v && typeof v === 'object') ? {...v, top: 1} : v},
                 {type: 'position', nullable: true, before: v => v || null},
                 {type: 'position', nullable: true},
+                {type: 'position', transform: v => (v && typeof v === 'object') ? {...v, left: 2} : v},
             ];
             const as_props = {position: {top: 'int', left: 'int'}};
             const as_obj = {position: {type: 'obj', props: {top: 'int', left: 'int'}}};

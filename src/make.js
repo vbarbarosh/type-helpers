@@ -213,9 +213,11 @@ function own_key(input, key)
 
 // A type that expands itself through defaults ({a: {b: 'a'}}, or an array of
 // itself with min > 0) recurses forever; the alias-path guard only covers
-// name -> name alias chains. Every logical expansion level passes through
-// make(), so depth is capped here.
-const max_depth = 1024;
+// name -> name alias chains. Every level of the value (a prop, an item, a union
+// option) passes through make(), so depth is capped here. The cap has to fire
+// while the JavaScript stack still holds: measured in fresh processes, the stack
+// ends after about 350 to 800 nested calls, depending on the types and the runtime.
+const max_depth = 256;
 let depth = 0;
 
 /**
@@ -259,7 +261,8 @@ function make_impl(input, expr, types, alias_path)
     //    a prop with one of these names needs the explicit {type: 'obj', props: {...}} form.
     if (!('type' in expr)) {
         const {nullable, before, after, optional, ...props} = expr;
-        return make(input, {type: 'obj', props, nullable, before, after}, types);
+        // Through make_impl, not make: rewriting an expression is not a level of depth
+        return make_impl(input, {type: 'obj', props, nullable, before, after}, types, alias_path);
     }
     // 🩼 A way to remove special meaning from `type` property is to wrap its value into array
     if (is_array(expr.type)) {
@@ -318,9 +321,10 @@ function make_impl(input, expr, types, alias_path)
             return make_impl(input, {...custom_type, ...expr, type: custom_type.type}, types, [...alias_path, expr.type]);
         }
         // Custom type defined without [type] property is a set of props for [obj].
-        // The modifiers of the expression that referred to it stay on top, as in the alias branch.
-        const modifiers = Object.fromEntries(['nullable', 'before', 'after'].filter(k => k in expr).map(k => [k, expr[k]]));
-        return make(input, {...custom_type, ...modifiers}, types);
+        // What the expression that referred to it adds stays on top, as in the alias branch.
+        const {type, optional, ...use_site} = expr;
+        const {nullable, before, after, optional: own_optional, ...props} = custom_type;
+        return make_impl(input, {type: 'obj', props, nullable, before, after, ...use_site}, types, alias_path);
     }
 
     throw new Error(`Invalid type: ${type_label(expr.type)}`);

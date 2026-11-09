@@ -479,9 +479,12 @@ assert.deepStrictEqual(make({top: 5}, 'position', types), {top: '5px', left: '0'
 Custom types can reference each other (see the `tabs`/`tab` example in
 [Motivation](#-motivation)), including recursively —
 `node: {label: 'str', children: {type: 'array', of: 'node'}}` — as long as
-the recursion bottoms out through defaults. Expansion is capped at 1,024
-nested `make` calls (roughly 250 levels of such a `node` tree); deeper input
-or a type that expands itself forever throws `Type recursion too deep`.
+the recursion bottoms out through defaults. Expansion is capped at 256
+nested `make` calls, one for each prop, item or union option on the way down:
+127 levels of such a `node` tree (an object and its array are two calls), or
+254 levels of an array of arrays, however the type is written. Deeper input,
+or a type that expands itself forever, throws `Type recursion too deep`. The
+cap is low on purpose: it has to fire while the JavaScript stack still holds.
 A function type receives the full expression
 as its second argument, so it can declare parameters of its own:
 
