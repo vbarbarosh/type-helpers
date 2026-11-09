@@ -75,6 +75,38 @@ describe('make', function () {
             // a prop named like a modifier needs the explicit form
             assert.deepStrictEqual(make({after: 2}, {type: 'obj', props: {after: 'int'}}), {after: 2});
         });
+        it('should keep the modifiers of an expression that refers to a registry type written as props', function () {
+            const types = {position: {top: 'int', left: 'int'}};
+            assert.strictEqual(make({top: 5}, {type: 'position', after: () => 'AFTER'}, types), 'AFTER');
+            assert.deepStrictEqual(make({top: 5}, {type: 'position', before: () => ({top: 99})}, types), {top: 99, left: 0});
+            assert.strictEqual(make('', {type: 'position', nullable: true, before: v => v || null}, types), null);
+            // one alias away, and as a union option
+            assert.strictEqual(make({top: 5}, 'p3', {...types, p3: {type: 'position', after: () => 'AFTER'}}), 'AFTER');
+            const union = {type: 'union', prop: 'kind', options: {a: {type: 'position', before: () => ({top: 99})}}};
+            assert.deepStrictEqual(make({kind: 'a', top: 5}, union, types), {kind: 'a', top: 99, left: 0});
+        });
+        it('should let the referring expression win over the modifiers a props type sets itself, and keep the rest', function () {
+            const types = {position: {nullable: true, after: out => ({...out, by: 'type'}), top: 'int'}};
+            assert.deepStrictEqual(make({top: 5}, 'position', types), {top: 5, by: 'type'});
+            assert.deepStrictEqual(make({top: 5}, {type: 'position', after: out => ({...out, by: 'use'})}, types), {top: 5, by: 'use'});
+            // nullable set by the type itself stays when the reference adds only a hook
+            assert.strictEqual(make(null, {type: 'position', after: out => ({...out, by: 'use'})}, types), null);
+        });
+        it('should give the same result for a registry type written as props and written with type obj', function () {
+            const exprs = [
+                {type: 'position', after: out => ({...out, seen: true})},
+                {type: 'position', before: v => (v && typeof v === 'object') ? {...v, top: 1} : v},
+                {type: 'position', nullable: true, before: v => v || null},
+                {type: 'position', nullable: true},
+            ];
+            const as_props = {position: {top: 'int', left: 'int'}};
+            const as_obj = {position: {type: 'obj', props: {top: 'int', left: 'int'}}};
+            edge_values.forEach(function (item) {
+                exprs.forEach(function (expr, i) {
+                    assert.deepStrictEqual(make(item.value, expr, as_props), make(item.value, expr, as_obj), `${item.label} #${i}`);
+                });
+            });
+        });
         it('should strip optional from props when type is escaped as an object property', function () {
             assert.deepStrictEqual(make({}, {x: {type: ['str'], optional: true}}), {});
             assert.deepStrictEqual(make({x: {type: 'q'}}, {x: {type: ['str'], optional: true}}), {x: {type: 'q'}});

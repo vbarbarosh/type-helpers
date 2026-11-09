@@ -317,8 +317,10 @@ function make_impl(input, expr, types, alias_path)
             // }
             return make_impl(input, {...custom_type, ...expr, type: custom_type.type}, types, [...alias_path, expr.type]);
         }
-        // Custom type defined without [type] property is a set of props for [obj]
-        return make(input, custom_type, types);
+        // Custom type defined without [type] property is a set of props for [obj].
+        // The modifiers of the expression that referred to it stay on top, as in the alias branch.
+        const modifiers = Object.fromEntries(['nullable', 'before', 'after'].filter(k => k in expr).map(k => [k, expr[k]]));
+        return make(input, {...custom_type, ...modifiers}, types);
     }
 
     throw new Error(`Invalid type: ${type_label(expr.type)}`);
