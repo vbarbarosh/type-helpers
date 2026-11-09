@@ -165,7 +165,9 @@ const standard_types = {
         if (!expr2) {
             throw new Error(`Union type option not found: prop=${prop}, value=${safe_str(value, typeof value)}, default=${safe_str(params.default, typeof params.default)}`);
         }
-        return {[prop]: type, ...make(input, expr2, types)};
+        // An option may list the discriminator among its own props. The key is written
+        // first to stay the first key, and again last so the option cannot overwrite it.
+        return {[prop]: type, ...make(input, expr2, types), [prop]: type};
     },
 };
 

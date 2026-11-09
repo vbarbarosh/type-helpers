@@ -357,6 +357,39 @@ describe('make', function () {
             assert.deepStrictEqual(make({kind: new String('text'), value: 'x'}, expr), {kind: 'text', value: 'x'});
             assert.deepStrictEqual(make({kind: {toString: () => 'text'}, value: 'x'}, expr), {kind: 'text', value: 'x'});
         });
+        it('should keep the matched option key when an option declares the discriminator among its props', function () {
+            const expr = {
+                type: 'union',
+                prop: 'kind',
+                default: 'text',
+                options: {
+                    text: {kind: 'str', value: 'str'},
+                    num: {kind: 'raw', value: 'int'},
+                },
+            };
+            assert.deepStrictEqual(make({kind: 'BOGUS', value: 'x'}, expr), {kind: 'text', value: 'x'});
+            assert.deepStrictEqual(make({kind: ['num'], value: 3}, expr), {kind: 'num', value: 3});
+            assert.deepStrictEqual(make({kind: 'num', value: '7'}, expr), {kind: 'num', value: 7});
+            assert.deepStrictEqual(make(null, expr), {kind: 'text', value: ''});
+            // The discriminator stays the first key, wherever the input had it
+            assert.deepStrictEqual(Object.keys(make({value: 'x', kind: 'num'}, expr)), ['kind', 'value']);
+        });
+        it('should return a member of the union, and the same one when made again, for every edge value', function () {
+            const expr = {
+                type: 'union',
+                prop: 'kind',
+                default: 'text',
+                options: {
+                    text: {kind: 'str', value: 'str'},
+                    num: {kind: 'raw', value: 'int'},
+                },
+            };
+            edge_values.forEach(function (item) {
+                const out = make({kind: item.value, value: item.value}, expr);
+                assert.ok(out.kind === 'text' || out.kind === 'num', item.label);
+                assert.deepStrictEqual(make(out, expr), out, item.label);
+            });
+        });
         it('should write a __proto__ discriminator as an own property', function () {
             const input = JSON.parse('{"__proto__":"safe","name":"admin"}');
             const expr = {
