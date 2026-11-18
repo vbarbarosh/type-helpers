@@ -73,7 +73,10 @@ A notable structural detail: the spec language is self-hosting — the
   `edge_values.js` is fixture data excluded via `--test-coverage-exclude`).
 - CI: GitHub Actions matrix on Node 22/24 with read-only token permissions;
   `engines: node >= 22`; Dependabot for npm and actions.
-- Release: `bin/release major|minor|patch` — tests, version bump, tag,
-  `npm publish`, then push; guarded by clean-worktree check.
+- Release: `bin/release major|minor|patch` — tests, version bump, commit,
+  tag, then push; guarded by clean-worktree check. The pushed `v*` tag runs
+  `.github/workflows/npm-publish.yml`, which checks the tag against the
+  version, runs the checks, publishes on npm by Trusted Publishing (OIDC,
+  no token) and deploys the README as the GitHub Pages site.
 - Repo hygiene: no leftover directories. The scratchpad contains only live
   ideas and current-signature examples.

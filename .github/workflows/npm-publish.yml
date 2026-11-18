@@ -1,0 +1,71 @@
+# Publishes the package and its docs page when a release tag is pushed
+# (bin/release creates and pushes the tag).
+#
+# Authenticates via npm Trusted Publishing (OIDC) — no token/secret involved.
+# The trusted publisher is configured in the package settings on npmjs.com:
+# GitHub Actions, vbarbarosh/type-helpers, workflow npm-publish.yml.
+#
+# GitHub Pages must use "GitHub Actions" as its publishing source.
+
+name: npm publish and docs
+
+on:
+  push:
+    tags: [ "v*" ]
+
+jobs:
+  publish:
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write # npm Trusted Publishing (OIDC)
+      pages: read # the docs page build asks GitHub for the site's address
+
+    steps:
+    - uses: actions/checkout@v7
+    - uses: actions/setup-node@v7
+      with:
+        node-version: 22.x
+        cache: 'npm'
+        registry-url: 'https://registry.npmjs.org'
+    # Trusted Publishing requires npm >= 11.5.1; node 22 bundles npm 10
+    - run: npm install -g npm@latest
+    - run: npm ci
+    - name: Check tag matches package version
+      run: test "$GITHUB_REF_NAME" = "v$(node -p "require('./package.json').version")"
+    - run: npm run lint --if-present
+    - run: npm run build --if-present
+    - name: Check the build left the committed files as they are
+      run: git diff --exit-code
+    - run: npm test
+    - name: Build the docs page from README.md
+      uses: actions/jekyll-build-pages@v1
+    - run: npm publish --access public
+    - name: Upload GitHub Pages artifact
+      uses: actions/upload-pages-artifact@v5
+
+  deploy-docs:
+
+    needs: publish
+    runs-on: ubuntu-latest
+
+    permissions:
+      pages: write
+      id-token: write
+
+    concurrency:
+      group: github-pages
+      cancel-in-progress: false
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+    - name: Configure GitHub Pages
+      uses: actions/configure-pages@v6
+    - name: Deploy release documentation
+      id: deployment
+      uses: actions/deploy-pages@v5

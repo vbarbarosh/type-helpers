@@ -29,8 +29,10 @@ covered by README.
 
 ## Repository
 
-- `bin/release` publishes to npm before pushing, so a failed publish leaves
-  only a local tag. Release operations are intentionally manual and outside
+- `bin/release` never publishes: it commits the version, tags it and pushes
+  both; the `v*` tag runs `.github/workflows/npm-publish.yml`, which
+  publishes on npm by Trusted Publishing (OIDC, no token) and then deploys
+  the docs page. Release operations are intentionally manual and outside
   automated agent workflows.
 - CI runs with `permissions: contents: read`; Dependabot watches npm and
   GitHub Actions monthly.

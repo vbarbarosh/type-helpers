@@ -29,17 +29,18 @@ bin/test
 # Increase a version without committing it and making a tag
 npm version $1 --no-git-tag-version
 
+# Build what the repository commits (no build script yet)
+npm run build --if-present
+
 version=$(node -e 'console.log(require("./package.json").version)')
 
-git add package.json package-lock.json
+git add .
 git commit -m "release v$version"
 
 # Create a tag
 git tag v$version
 
-# Publish package on npm first: a failed publish leaves only a local tag behind
-npm publish
-
-# Submit changes to github
+# Submit changes to github; pushing the v* tag triggers the npm-publish
+# workflow, which runs the checks and publishes the package on npm
 git push
 git push --tags
